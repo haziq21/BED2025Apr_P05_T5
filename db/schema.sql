@@ -1,4 +1,27 @@
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Users')
+IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'KampungConnect')
+CREATE DATABASE KampungConnect;
+GO
+
+USE KampungConnect;
+GO
+
+IF OBJECT_ID('Friends', 'U') IS NOT NULL DROP TABLE Friends;
+IF OBJECT_ID('CCAdmins', 'U') IS NOT NULL DROP TABLE CCAdmins;
+IF OBJECT_ID('CCEventRegistrations', 'U') IS NOT NULL DROP TABLE CCEventRegistrations;
+IF OBJECT_ID('InterestGroupProposals', 'U') IS NOT NULL DROP TABLE InterestGroupProposals;
+IF OBJECT_ID('MedicalRecordDocuments', 'U') IS NOT NULL DROP TABLE MedicalRecordDocuments;
+IF OBJECT_ID('MedicalRecordNotes', 'U') IS NOT NULL DROP TABLE MedicalRecordNotes;
+IF OBJECT_ID('MedicalRecord', 'U') IS NOT NULL DROP TABLE MedicalRecord;
+IF OBJECT_ID('MedicationScheduleTimes', 'U') IS NOT NULL DROP TABLE MedicationScheduleTimes;
+IF OBJECT_ID('MedicationSchedules', 'U') IS NOT NULL DROP TABLE MedicationSchedules;
+IF OBJECT_ID('LocalServices', 'U') IS NOT NULL DROP TABLE LocalServices;
+IF OBJECT_ID('UserLocations', 'U') IS NOT NULL DROP TABLE UserLocations;
+IF OBJECT_ID('SharedLocations', 'U') IS NOT NULL DROP TABLE SharedLocations;
+IF OBJECT_ID('CCEvents', 'U') IS NOT NULL DROP TABLE CCEvents;
+IF OBJECT_ID('CCs', 'U') IS NOT NULL DROP TABLE CCs;
+IF OBJECT_ID('Users', 'U') IS NOT NULL DROP TABLE Users;
+
+
 CREATE TABLE Users (
     UserId INT IDENTITY PRIMARY KEY,
     Name NVARCHAR(255) NOT NULL,
@@ -7,28 +30,24 @@ CREATE TABLE Users (
     ProfilePhotoURL NVARCHAR(MAX)
 );
 
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Friends')
 CREATE TABLE Friends (
     UserId1 INT NOT NULL REFERENCES Users,
     UserId2 INT NOT NULL REFERENCES Users,
     PRIMARY KEY (UserId1, UserId2)
 );
 
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'CCs')
 CREATE TABLE CCs (
     CCId INT IDENTITY PRIMARY KEY,
     Name NVARCHAR(255) NOT NULL,
     Location GEOGRAPHY
 );
 
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'CCAdmins')
 CREATE TABLE CCAdmins (
     CCId INT NOT NULL REFERENCES CCs,
     UserId INT NOT NULL REFERENCES Users,
     PRIMARY KEY (UserId, CCId)
 );
 
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'CCEvents')
 CREATE TABLE CCEvents (
     EventId INT IDENTITY PRIMARY KEY,
     CCId INT NOT NULL REFERENCES CCs,
@@ -38,14 +57,12 @@ CREATE TABLE CCEvents (
     EndDateTime DATETIME NOT NULL
 );
 
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'CCEventRegistrations')
 CREATE TABLE CCEventRegistrations (
     EventId INT NOT NULL REFERENCES CCEvents,
     UserId INT NOT NULL REFERENCES Users,
     PRIMARY KEY (EventId, UserId)
 );
 
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'InterestGroupProposals')
 CREATE TABLE InterestGroupProposals (
     ProposalId INT IDENTITY PRIMARY KEY,
     UserId INT NOT NULL REFERENCES Users,
@@ -55,28 +72,24 @@ CREATE TABLE InterestGroupProposals (
     Accepted BIT
 );
 
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'MedicalRecord')
 CREATE TABLE MedicalRecord (
     MedicalRecordId INT IDENTITY PRIMARY KEY,
     UserId INT NOT NULL REFERENCES Users,
     Title NVARCHAR(255) NOT NULL
 );
 
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'MedicalRecordDocuments')
 CREATE TABLE MedicalRecordDocuments (
     DocumentId INT IDENTITY PRIMARY KEY,
     MedicalRecordId INT NOT NULL REFERENCES MedicalRecord,
     FileURL NVARCHAR(MAX) NOT NULL
 );
 
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'MedicalRecordNotes')
 CREATE TABLE MedicalRecordNotes (
     NoteId INT IDENTITY PRIMARY KEY,
     MedicalRecordId INT NOT NULL REFERENCES MedicalRecord,
     Content NVARCHAR(MAX) NOT NULL
 );
 
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'MedicationSchedules')
 CREATE TABLE MedicationSchedules (
     MedicationScheduleId INT IDENTITY PRIMARY KEY,
     UserId INT NOT NULL REFERENCES Users,
@@ -86,14 +99,12 @@ CREATE TABLE MedicationSchedules (
     CountType NVARCHAR(50) NOT NULL CHECK (CountType IN ('days', 'times'))
 );
 
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'MedicationScheduleTimes')
 CREATE TABLE MedicationScheduleTimes (
     MedicationScheduleId INT NOT NULL REFERENCES MedicationSchedules,
     Time TIME NOT NULL,
     PRIMARY KEY (MedicationScheduleId, Time)
 );
 
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'LocalServices')
 CREATE TABLE LocalServices (
     LocalServiceId INT IDENTITY PRIMARY KEY,
     Name NVARCHAR(255) NOT NULL,
@@ -101,7 +112,6 @@ CREATE TABLE LocalServices (
     Location GEOGRAPHY
 );
 
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'UserLocations')
 CREATE TABLE UserLocations (
     UserId INT NOT NULL REFERENCES Users,
     Time DATETIME NOT NULL,
@@ -109,7 +119,6 @@ CREATE TABLE UserLocations (
     PRIMARY KEY (UserId, Time)
 );
 
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'SharedLocations')
 CREATE TABLE SharedLocations (
     ViewingUserId INT NOT NULL REFERENCES Users,
     LocatedUserId INT NOT NULL REFERENCES Users,
