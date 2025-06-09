@@ -1,10 +1,9 @@
-import { Request, Response } from "express";
-import { setOTP } from "../models/user";
+import { setOTP } from "../models/user.js";
 
 /**
  * Generate and send an OTP to the user specified in the `user` query parameter.
- * @param {Request} req
- * @param {Response} res
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
  */
 export function sendOTP(req, res) {
   // TODO
