@@ -10,8 +10,11 @@ export async function createCC(req, res) {
 }
 
 /**
- * Retrieve all CCs. If the `lat` and `lon` query parameters are
- * provided, the CCs will be sorted by distance from that point.
+ * Retrieve all CCs.
+ * - If both `lat` and `lon` query parameters are provided,
+ *   the CCs will be sorted by distance from that point.
+ * - If the `admin` query parameter is provided, only CCs
+ *   where the specified user is an admin will be returned.
  * @type {import("express").RequestHandler}
  */
 export async function getAllCCs(req, res) {
@@ -22,9 +25,16 @@ export async function getAllCCs(req, res) {
     return;
   }
 
-  let ccs;
-  if (lat && lon) ccs = await model.getAllCCsByDistance({ lat, lon });
-  else ccs = await model.getAllCCs();
+  const admin = req.query.admin ? +req.query.admin : null;
+  if (admin !== null && isNaN(admin)) {
+    res.status(400).json({ error: "Invalid admin parameter" });
+    return;
+  }
+
+  const ccs = await model.getAllCCs({
+    locationSort: lat !== null && lon !== null ? { lat, lon } : null,
+    adminFilter: admin,
+  });
 
   res.status(200).json(ccs);
 }
