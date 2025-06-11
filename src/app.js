@@ -17,6 +17,9 @@ app.get("/api/cc", cc.getAllCCs);
 app.post("/api/cc", cc.createCC);
 app.patch("/api/cc/:id", cc.updateCC);
 app.delete("/api/cc/:id", cc.deleteCC);
+app.get("/api/cc/:id/admins", cc.getAdmins);
+app.post("/api/cc/:id/admins/:userId", cc.makeAdmin);
+app.delete("/api/cc/:id/admins/:userId", cc.removeAdmin);
 
 // This must come after all the routes
 app.use(errorHandler);

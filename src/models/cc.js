@@ -143,3 +143,65 @@ export async function deleteCC(ccId) {
     location: { lat: cc.Lat, lon: cc.Lon },
   };
 }
+
+/**
+ * Retrieve all the admins of a CC.
+ * @param {number} ccId
+ * @returns {Promise<{id: number, name: string, phoneNumber: string, bio: string, profilePhotoURL: string}[]>}
+ */
+export async function getAdmins(ccId) {
+  /** @type {sql.IResult<{UserId: number, Name: string, PhoneNumber: string, Bio: string, ProfilePhotoURL: string}>} */
+  const result = await pool
+    .request()
+    .input("ccId", ccId)
+    .query(
+      `SELECT u.UserId, u.Name, u.PhoneNumber, u.Bio, u.ProfilePhotoURL
+       FROM CCAdmins ca
+       JOIN Users u ON ca.UserId = u.UserId
+       WHERE ca.CCId = @ccId`
+    );
+
+  return result.recordset.map((admin) => ({
+    id: admin.UserId,
+    name: admin.Name,
+    phoneNumber: admin.PhoneNumber,
+    bio: admin.Bio,
+    profilePhotoURL: admin.ProfilePhotoURL,
+  }));
+}
+
+/**
+ * Make a user an admin of a CC.
+ * @param {number} ccId
+ * @param {number} userId
+ */
+export async function makeAdmin(ccId, userId) {
+  await pool
+    .request()
+    .input("ccId", ccId)
+    .input("userId", userId)
+    .query(
+      `INSERT INTO CCAdmins (CCId, UserId)
+       VALUES (@ccId, @userId)`
+    );
+}
+
+/**
+ * Remove a user as an admin of a CC, returning `true` if the user
+ * was successfully removed as an admin and `false` otherwise.
+ * @param {number} ccId
+ * @param {number} userId
+ * @return {Promise<boolean>}
+ */
+export async function removeAdmin(ccId, userId) {
+  const result = await pool
+    .request()
+    .input("ccId", ccId)
+    .input("userId", userId)
+    .query(
+      `DELETE FROM CCAdmins
+      WHERE CCId = @ccId AND UserId = @userId`
+    );
+
+  return result.rowsAffected[0] > 0;
+}
