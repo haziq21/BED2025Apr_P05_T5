@@ -28,49 +28,46 @@ export async function createCC(fields) {
 
 /**
  * Retrieve all CCs.
- * @returns {Promise<{id: number, name: string, location: {lat: number, lon:number}}[]>}
+ * - If `options.locationSort` is provided, the CCs will be sorted
+ *   by distance from that point, and will include a `distance` field.
+ * - If `options.adminFilter` is provided, only CCs where the specified
+ *   user is an admin will be returned.
+ * @param {{locationSort?: {lat: number, lon: number}?, adminFilter?: number?}} options
+ * @returns {Promise<{id: number, name: string, location: {lat: number, lon:number}, distance?: number}[]>}
  */
-export async function getAllCCs() {
-  /** @type {sql.IResult<{CCId: number, Name: string, Lat: number, Lon: number}>} */
+export async function getAllCCs(options = {}) {
+  /** @type {sql.IResult<{CCId: number, Name: string, Lat: number, Lon: number, Distance?: number}>} */
   const result = await pool
     .request()
+    .input("lat", options?.locationSort?.lat)
+    .input("lon", options?.locationSort?.lon)
+    .input("userId", options?.adminFilter)
     .query(
-      `SELECT CCId, Name, Location.Lat AS Lat, Location.Long AS Lon FROM CCs`
+      `SELECT c.CCId, Name, Location.Lat AS Lat, Location.Long AS Lon
+        ${
+          options?.locationSort
+            ? ", Location.STDistance(geography::Point(@lat, @lon, 4326)) AS Distance"
+            : ""
+        }
+      FROM CCs c
+      ${
+        options?.adminFilter
+          ? "JOIN CCAdmins ca ON c.CCId = ca.CCId WHERE ca.UserId = @userId"
+          : ""
+      }
+      ORDER BY ${options?.locationSort ? "Distance" : "Name"}`
     );
 
-  return result.recordset.map((cc) => ({
-    id: cc.CCId,
-    name: cc.Name,
-    location: { lat: cc.Lat, lon: cc.Lon },
-  }));
-}
-
-/**
- * Retrieve all CCs sorted by distance from a given point.
- * @param {{lat: number, lon: number}} point
- * @returns {Promise<{id: number, name: string, location: {lat: number, lon: number}, distance: number}[]>}
- */
-export async function getAllCCsByDistance(point) {
-  const { lat, lon } = point;
-
-  /** @type {sql.IResult<{CCId: number, Name: string, Lat: number, Lon: number, Distance: number}>} */
-  const result = await pool
-    .request()
-    .input("lat", lat)
-    .input("lon", lon)
-    .query(
-      `SELECT CCId, Name, Location.Lat AS Lat, Location.Long AS Lon,
-        Location.STDistance(geography::Point(@lat, @lon, 4326)) AS Distance
-       FROM CCs
-       ORDER BY Distance`
-    );
-
-  return result.recordset.map((cc) => ({
-    id: cc.CCId,
-    name: cc.Name,
-    location: { lat: cc.Lat, lon: cc.Lon },
-    distance: cc.Distance,
-  }));
+  return result.recordset.map((cc) => {
+    const output = {
+      id: cc.CCId,
+      name: cc.Name,
+      location: { lat: cc.Lat, lon: cc.Lon },
+    };
+    // @ts-ignore
+    if (cc.Distance) output.distance = cc.Distance;
+    return output;
+  });
 }
 
 /**
@@ -84,10 +81,9 @@ export async function updateCC(ccId, fields) {
   const { name, location } = fields;
 
   // Build the SET clause dynamically based on provided fields
-  const setClauses = [];
-  if (name) setClauses.push("Name = @name");
-  if (location)
-    setClauses.push("Location = geography::Point(@lat, @lon, 4326)");
+  const setParts = [];
+  if (name) setParts.push("Name = @name");
+  if (location) setParts.push("Location = geography::Point(@lat, @lon, 4326)");
 
   /** @type {sql.IResult<{CCId: number, Name: string, Lat: number, Lon: number}>} */
   const result = await pool
@@ -98,7 +94,7 @@ export async function updateCC(ccId, fields) {
     .input("lon", location?.lon)
     .query(
       `UPDATE CCs
-      SET ${setClauses.join(", ")}
+      SET ${setParts.join(", ")}
       OUTPUT INSERTED.CCId, INSERTED.Name, INSERTED.Location.Lat AS Lat, INSERTED.Location.Long AS Lon
       WHERE CCId = @ccId`
     );
