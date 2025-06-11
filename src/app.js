@@ -1,4 +1,5 @@
 import express from "express";
+import { errorHandler } from "./middleware/error.js";
 import * as auth from "./controllers/auth.js";
 import * as profile from "./controllers/profile.js";
 import * as cc from "./controllers/cc.js";
@@ -16,6 +17,9 @@ app.get("/api/cc", cc.getAllCCs);
 app.post("/api/cc", cc.createCC);
 app.patch("/api/cc/:id", cc.updateCC);
 app.delete("/api/cc/:id", cc.deleteCC);
+
+// This must come after all the routes
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Open Kampung Connect at http://localhost:${PORT}`);
