@@ -1,4 +1,4 @@
-import sql from "mssql";
+import pool from "../db.js";
 
 /**
  * Sets the specified OTP for a user.
@@ -7,4 +7,27 @@ import sql from "mssql";
  */
 export async function setOTP(userId, otp) {
   // TODO
+}
+
+/**
+ * Gets the profile of a user by their ID.
+ * @param {number} userId - The ID of the user.
+ */
+export async function getProfile(userId) {
+  try {
+    const request = pool.request();
+    request.input("id", userId);
+    const result = await request.query(
+      "SELECT id, name, phonenumber, bio FROM Users WHERE id = @id"
+    );
+
+    if (result.recordset.length === 0) {
+      return null;
+    }
+
+    return result.recordset[0];
+  } catch (error) {
+    console.error("Database error:", error);
+    throw error;
+  }
 }
