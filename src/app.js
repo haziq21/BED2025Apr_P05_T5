@@ -15,7 +15,7 @@ app.post("/api/auth/otp", auth.sendOTP);
 app.get("/api/profile/:userId", profile.getProfile);
 app.patch("/api/profile/:userId", profile.updateProfile);
 app.delete("/api/profile/:userId", profile.deleteProfile);
-app.delete("/api/profile/:userId/picture", profile.deleteProfilePicture);
+app.put("/api/profile/:userId/picture", profile.deleteProfilePicture);
 app.get("/api/cc", cc.getAllCCs);
 app.post("/api/cc", cc.createCC);
 app.patch("/api/cc/:id", cc.updateCC);
@@ -31,7 +31,14 @@ app.listen(PORT, () => {
   console.log(`Open Kampung Connect at http://localhost:${PORT}`);
 });
 
-process.on("SIGINT", () => {
-  // Close the database connection pool
-  pool.close();
+process.on("SIGINT", async () => {
+  console.log("Received SIGINT. Closing pool and exiting...");
+  try {
+    await pool.close(); 
+    console.log("Database connection closed.");
+  } catch (err) {
+    console.error("Error closing DB connection:", err);
+  } finally {
+    process.exit(0); 
+  }
 });
