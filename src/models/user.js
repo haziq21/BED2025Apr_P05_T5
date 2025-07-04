@@ -12,21 +12,23 @@ export async function setOTP(userId, otp) {
 /**
  * Gets the profile of a user by their ID.
   * @param {number} userId - The ID of the user.
-  * @returns {Promise<object>} - The user's profile data.
   */
-
 export async function getProfile(userId) {
-  try {
-    const request = pool.request();
-    request.input("id", userId);
-    const result = await request.query("SELECT * FROM Users WHERE id = @id");
-    return result.recordset[0]; 
-  } catch (error) {
+  try{
+    const result = await pool
+    .request()
+    .input("id", userId)
+    .query("SELECT * FROM Users WHERE UserId = @id");
+
+  if (result.recordset.length === 0) {
+    return null; // User not found
+  }
+  return result.recordset[0];
+}catch (error) {
     console.error("Database error:", error);
-    throw error; 
+    throw error; // Rethrow the error to be handled by the caller
   }
 }
-
 
 /** * Updates the profile of a user.
  * @param {number} userId 
@@ -73,25 +75,38 @@ export async function updateProfile(userId, name, bio, image) {
 /**
  * Deletes the profile of a user.
  * @param {number} userId 
- * @returns {Promise<boolean>} - True if deleted, false if not found.
  */
+
 export async function deleteProfile(userId) {
-  const request = pool.request();
-  request.input("id", userId);
+  try{
+    const result = await pool
+      .request()
+      .input("id", userId)
+      .query("DELETE FROM Users WHERE UserId = @id");
 
-  const result = await request.query("DELETE FROM Users WHERE id = @id");
-
-  return result.rowsAffected[0] > 0;  
+    return result.rowsAffected[0] > 0; // Return true if a row was deleted
+  } catch (error) {
+    console.error("Database error:", error);
+    throw error; // Rethrow the error to be handled by the caller
+  }
 }
 
 /** * Deletes the profile picture of a user.
  * @param {number} userId - The ID of the user.
- * @returns {Promise<boolean>} - True if the profile picture was deleted, false if not found.
  */
-export async function deleteProfilePicture(userId) {
-  const request = pool.request();
-  request.input("id", userId);
 
-  const result = await request.query('UPDATE Users SET ProfilePhotoURL = NULL WHERE id = @id AND ProfilePhotoURL IS NOT NULL');
-  return result.rowsAffected[0] > 0;
+export async function deleteProfilePicture(userId) {
+  try {
+    const result = await pool
+      .request()
+      .input("id", userId)
+      .query(
+        "UPDATE Users SET ProfilePhotoURL = NULL WHERE UserId = @id AND ProfilePhotoURL IS NOT NULL"
+      );
+
+    return result.rowsAffected[0] > 0; 
+  } catch (error) {
+    console.error("Database error:", error);
+    throw error; // Rethrow the error to be handled by the caller
+  }
 }
