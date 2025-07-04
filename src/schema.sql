@@ -92,18 +92,17 @@ CREATE TABLE MedicalRecordNotes (
 
 CREATE TABLE MedicationSchedules (
   MedicationScheduleId INT IDENTITY PRIMARY KEY,
-  UserId INT NOT NULL REFERENCES Users,
   DrugName NVARCHAR(255) NOT NULL,
-  DayInterval INT NOT NULL,
-  Count INT NOT NULL,
-  CountType NVARCHAR(50) NOT NULL CHECK (CountType IN ('days', 'times'))
+  UserId INT NOT NULL,
+  StartDateXTime DATETIME NOT NULL,
+  EndDate DATE,
+  RepeatRequest INT NOT NULL CHECK (RepeatRequest IN (0, 1, 2)), -- 0:no repeat, 1:repeat by day, 2: repeat by week
+  RepeatEveryXDays INT,
+  RepeatEveryXWeeks INT,
+  RepeatWeekDate INT, -- 0000011 meaning Occurs on SAT&SUN, repeats every () weeks
+  FOREIGN KEY (UserId) REFERENCES Users(UserId)
 );
-
-CREATE TABLE MedicationScheduleTimes (
-  MedicationScheduleId INT NOT NULL REFERENCES MedicationSchedules,
-  Time TIME NOT NULL,
-  PRIMARY KEY (MedicationScheduleId, Time)
-);
+  
 
 CREATE TABLE LocalServices (
   LocalServiceId INT IDENTITY PRIMARY KEY,
@@ -125,3 +124,5 @@ CREATE TABLE SharedLocations (
   RequestAccepted BIT NOT NULL,
   PRIMARY KEY (ViewingUserId, LocatedUserId)
 );
+
+
