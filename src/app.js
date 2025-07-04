@@ -13,6 +13,9 @@ app.use(express.static("src/public"));
 
 app.post("/api/auth/otp", auth.sendOTP);
 app.get("/api/profile/:userId", profile.getProfile);
+app.patch("/api/profile/:userId", profile.updateProfile);
+app.delete("/api/profile/:userId", profile.deleteProfile);
+app.delete("/api/profile/:userId/picture", profile.deleteProfilePicture);
 app.get("/api/cc", cc.getAllCCs);
 app.post("/api/cc", cc.createCC);
 app.patch("/api/cc/:id", cc.updateCC);
