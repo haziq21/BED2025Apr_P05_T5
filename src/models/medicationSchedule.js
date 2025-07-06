@@ -2,6 +2,7 @@ import sql from "mssql";
 import pool from "../db.js";
 
 /**
+ * get the schedule by userId
  * @param {number} userId
  */
 export async function getMediSchedule(userId){
@@ -13,11 +14,7 @@ export async function getMediSchedule(userId){
           "SELECT * FROM MedicationSchedules WHERE UserId = @userId"
         );
 
-    if (result.recordset.length === 0) {
-      return null; // schedule not found
-    }
-
-    return result.recordset[0];
+    return result.recordset;
   } catch (error) {
     console.error("Database error:", error);
     throw error;
@@ -25,14 +22,15 @@ export async function getMediSchedule(userId){
 };
 
 /**
- * 
- * @param {number} scheduleId 
- * @param {{MedicationScheduleId : number, DrugName?: string, StartDateXTime?: string, EndDate?: string, RepeatRequest: number, RepeatEveryXDays?: number, RepeatEveryXWeeks?: number, RepeatWeekDate?: number }} scheduleData
+ * update the schedule by userId
+ * @param {number} userId 
+ * @param {{MedicationScheduleId : number, DrugName?: string, StartDateXTime?: string, EndDate?: string, RepeatRequest?: number, RepeatEveryXDays?: number, RepeatEveryXWeeks?: number, RepeatWeekDate?: number }} scheduleData
  */
-export async function updateSchedule(scheduleId,scheduleData) {
+export async function updateSchedule(userId,scheduleData) {
     try {
         const request = pool.request()
-        .input("scheduleId", scheduleId)
+        .input("scheduleId", scheduleData.MedicationScheduleId)
+        .input("userId",userId)
         .input("DrugName", scheduleData.DrugName)
         .input("StartDateXTime", scheduleData.StartDateXTime)
         .input("EndDate", scheduleData.EndDate)
@@ -52,12 +50,10 @@ export async function updateSchedule(scheduleId,scheduleData) {
             RepeatEveryXWeeks = @RepeatEveryXWeeks,
             RepeatWeekDate = @RepeatWeekDate
         OUTPUT INSERTED.*
-        WHERE MedicationScheduleId = @scheduleId
-
-        
+        WHERE MedicationScheduleId = @scheduleId AND UserId = @userId
     `);
         if (result.recordset.length === 0) {
-        return { message: `No schedule found with ID ${scheduleId}.` };
+        return { message: `No schedule found with ID ${scheduleData.MedicationScheduleId}.` };
         }
 
         return result.recordset[0];
@@ -68,7 +64,7 @@ export async function updateSchedule(scheduleId,scheduleData) {
 };
 
 /**
- * 
+ * create schedule by userId and scheduleId
  * @param {number} userId
  * @param {{DrugName?: string, StartDateXTime?: string, EndDate?: string, RepeatRequest: number, RepeatEveryXDays?: number, RepeatEveryXWeeks?: number, RepeatWeekDate?: number }} newSchedule 
  */
@@ -98,18 +94,20 @@ export async function createSchedule(userId,newSchedule){
 
 
 /**
- * 
+ * delete the schedule by userId and scheduleId
  * @param {number} scheduleID 
+ * @param {number} userId
  */
-export async function deleteSchedule(scheduleID) {
+export async function deleteSchedule(userId,scheduleID) {
     try{
         const request = pool.request()
         .input("scheduleID",scheduleID)
+        .input("userId",userId)
 
         const result = await request.query(`
         DELETE FROM MedicationSchedules 
         OUTPUT DELETED.*
-        WHERE MedicationScheduleId = @scheduleID
+        WHERE MedicationScheduleId = @scheduleID AND UserId = @userId
             `);
 
         if (result.recordset.length === 0) {

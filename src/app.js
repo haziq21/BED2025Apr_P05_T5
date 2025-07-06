@@ -29,9 +29,9 @@ app.delete("/api/cc/:id/admins/:userId", cc.removeAdmin);
 
 // Medication Schedule
 app.get("/api/medicationSchedule/:userId",mediSchedule.getMediSchedule);
-app.post("/api/medicationSchedule/:userId",mediSchedule.createSchedule);
-app.put("/api/medicationSchedule/:userId/:scheduleId",mediSchedule.updateSchedule);
-app.delete("/api/medicationSchedule/:userId/:scheduleId",mediSchedule.deleteSchedule);
+app.post("/api/medicationSchedule/:userId",mediValidate.validateSchedule,mediSchedule.createSchedule);
+app.put("/api/medicationSchedule/:userId",mediValidate.validateSchedule,mediSchedule.updateSchedule);
+app.delete("/api/medicationSchedule/:userId/:scheduleId",mediValidate.validateScheduleId,mediValidate.validateSchedule,mediSchedule.deleteSchedule);
 
 
 // This must come after all the routes
