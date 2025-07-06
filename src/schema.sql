@@ -78,18 +78,6 @@ CREATE TABLE MedicalRecord (
   Title NVARCHAR(255) NOT NULL
 );
 
-CREATE TABLE MedicalRecordDocuments (
-  DocumentId INT IDENTITY PRIMARY KEY,
-  MedicalRecordId INT NOT NULL REFERENCES MedicalRecord,
-  FileURL NVARCHAR(MAX) NOT NULL
-);
-
-CREATE TABLE MedicalRecordNotes (
-  NoteId INT IDENTITY PRIMARY KEY,
-  MedicalRecordId INT NOT NULL REFERENCES MedicalRecord,
-  Content NVARCHAR(MAX) NOT NULL
-);
-
 CREATE TABLE MedicationSchedules (
   MedicationScheduleId INT IDENTITY PRIMARY KEY,
   DrugName NVARCHAR(255) NOT NULL,

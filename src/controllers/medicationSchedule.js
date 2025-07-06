@@ -10,14 +10,14 @@ export async function getMediSchedule(req, res) {
 
   if (isNaN(userId)) {
     res.status(400).json({ error: "Invalid user ID" });
-    return
+    return;
   }
 
   const schedule = await model.getMediSchedule(userId);
 
   if (!schedule) {
     res.status(404).json({ error: "Medication schedule not found" });
-    return
+    return;
   }
 
   res.status(200).json(schedule);
@@ -30,21 +30,22 @@ export async function getMediSchedule(req, res) {
 
 export async function updateSchedule(req,res) {
     try{
-        const scheduleId = parseInt(req.params.scheduleId);
-        if (isNaN(scheduleId)) {
-        res.status(400).json({ error: "Invalid schedule ID" });
+        const userId = parseInt(req.params.userId);
+        if (isNaN(userId)) {
+        res.status(400).json({ error: "Invalid user ID" });
         return
     }
-        const schedule = await model.updateSchedule(scheduleId,req.body);
+        const schedule = await model.updateSchedule(userId,req.body);
         if (!schedule) {
         res.status(404).json({ error: "Medication schedule not found" });
-        return
+        return;
     }
      res.status(200).json(schedule);
     }
     catch (error) {
     console.error("Controller error:", error);
     res.status(500).json({ error: "Error retrieving schedule" });
+    return;
     }
 }
 
@@ -65,7 +66,7 @@ export async function createSchedule(req,res) {
     } catch (error) {
         console.error("Controller error:", error);
         res.status(500).json({ error: "Error creating schedule" });
-        return
+        return;
     }
 }
 
@@ -75,20 +76,22 @@ export async function createSchedule(req,res) {
  */
 export async function deleteSchedule(req,res) {
     try{
-        const scheduleID = parseInt(req.params.scheduleId)
+        const scheduleID = parseInt(req.params.scheduleId);
+        const userId = parseInt(req.params.userId);
         if (isNaN(scheduleID)) {
         res.status(400).json({ error: "Invalid schedule ID" })
-        return 
+        return;
         }
 
-        const schedule = await model.deleteSchedule(scheduleID);
+        const schedule = await model.deleteSchedule(userId,scheduleID);
         if (!schedule) {
         res.status(404).json({ error: "Medication schedule not found" });
-        return
+        return;
         }
         res.json(schedule);
     }catch (error) {
     console.error("Controller error:", error);
     res.status(500).json({ error: "Error retrieving book" });
+    return;
   }
 };
