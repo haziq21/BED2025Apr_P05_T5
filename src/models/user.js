@@ -8,6 +8,35 @@ import sql from "mssql";
 export async function setOTP(userId, otp) {
   // TODO
 }
+/**
+ * Creates a new user profile.
+ * @param {string} name 
+ * @param {string} PhoneNumber 
+ * @param {string} bio 
+ * @param {string} image 
+ */
+export async function createUser(name, PhoneNumber, bio, image) {
+  try {
+    const result = await pool
+      .request()
+      .input("name", name)
+      .input("phoneNumber", PhoneNumber)
+      .input("bio", bio)
+      .input("image", image)
+      .query(`
+        INSERT INTO Users (Name, PhoneNumber, Bio, ProfilePhotoURL)
+        VALUES (@name, @phoneNumber, @bio, @image);
+
+        SELECT * FROM Users WHERE UserId = SCOPE_IDENTITY();
+      `);
+
+    return result.recordset[0];
+  } catch (error) {
+    console.error("Database error:", error);
+    throw error;
+  }
+}
+
 
 /**
  * Gets the profile of a user by their ID.
@@ -30,64 +59,72 @@ export async function getProfile(userId) {
   }
 }
 
-/** * Updates the profile of a user.
+/**
+ * Updates the user's profile details.
  * @param {number} userId 
- * @param {string} [name]
- * @param {string} [bio] 
- * @param {string} [image] 
- * @returns {Promise<object|null>} - The updated user, or null if not found.
+ * @param {{ name?: string, phoneNumber?: string, bio?: string, image?: string }} profileData - Fields to update.
  */
-export async function updateProfile(userId, name, bio, image) {
-  const request = pool.request();
-  request.input("id", userId);
+export async function updateProfile(userId, { name, phoneNumber, bio, image }) {
+  try {
+    const request = pool.request().input("id", userId);
 
-  const updates = [];
-  if (name) {
-    updates.push("name = @name");
-    request.input("name", name);
-  }
-  if (bio) {
-    updates.push("bio = @bio");
-    request.input("bio", bio);
-  }
-  if (image) {
-    updates.push("ProfilePhotoURL = @image");
-    request.input("image", image);
-  }
+    const updates = [];
 
-  if (updates.length === 0) {
-    throw new Error("No fields to update");
-  }
+    if (name !== undefined && name !== null) {
+      request.input("name", name);
+      updates.push("Name = @name");
+    }
 
-  // Perform the update
-  const sql = `UPDATE Users SET ${updates.join(", ")} WHERE id = @id`;
-  const result = await request.query(sql);
+    if (phoneNumber !== undefined && phoneNumber !== null) {
+      request.input("phoneNumber", phoneNumber);
+      updates.push("PhoneNumber = @phoneNumber");
+    }
 
-  if (result.rowsAffected[0] === 0) {
-    return null;
+    if (bio !== undefined && bio !== null) {
+      request.input("bio", bio);
+      updates.push("Bio = @bio");
+    }
+
+    if (image !== undefined && image !== null) {
+      request.input("image", image);
+      updates.push("ProfilePhotoURL = @image");
+    }
+
+    if (updates.length === 0) {
+      throw new Error("No valid fields provided for update.");
+    }
+
+    const query = `
+      UPDATE Users
+      SET ${updates.join(", ")}
+      WHERE UserId = @id
+    `;
+
+    const result = await request.query(query);
+
+    return result.rowsAffected[0] > 0;
+  } catch (error) {
+    console.error("Database error:", error);
+    throw error;
   }
-  
-  const fetchResult = await request.query(
-    "SELECT * FROM Users WHERE id = @id"
-  );
-  return fetchResult.recordset[0];
 }
+    
 /**
  * Deletes the profile of a user.
  * @param {number} userId 
  */
 
 export async function deleteProfile(userId) {
-  try{
+  try {
     const result = await pool
       .request()
       .input("id", userId)
       .query("DELETE FROM Users WHERE UserId = @id");
 
-    return result.rowsAffected[0] > 0; // Return true if a row was deleted
+    return result.rowsAffected[0] > 0; 
   } catch (error) {
     console.error("Database error:", error);
-    throw error; // Rethrow the error to be handled by the caller
+    throw error; 
   }
 }
 
