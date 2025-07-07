@@ -14,8 +14,9 @@ app.use(express.json());
 app.use(express.static("src/public"));
 
 app.post("/api/auth/otp", auth.sendOTP);
+app.post("/api/auth/user", auth.createUser);
 app.get("/api/profile/:userId", profile.getProfile);
-app.patch("/api/profile/:userId", profile.updateProfile);
+app.put("/api/profile/:userId", profile.updateProfile);
 app.delete("/api/profile/:userId", profile.deleteProfile);
 app.put("/api/profile/:userId/picture", profile.deleteProfilePicture);
 app.get("/api/cc", cc.getAllCCs);
@@ -51,4 +52,3 @@ process.on("SIGINT", async () => {
     process.exit(0); 
   }
 });
-
