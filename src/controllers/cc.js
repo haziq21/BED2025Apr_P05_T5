@@ -10,6 +10,25 @@ export async function createCC(req, res) {
 }
 
 /**
+ * Retrieve the CC specified by the `id` path parameter.
+ * @type {import("express").RequestHandler}
+ */
+export async function getCCById(req, res) {
+  const ccId = +req.params.id;
+  if (isNaN(ccId)) {
+    res.status(400).json({ error: "Invalid CC ID" });
+    return;
+  }
+
+  const cc = await model.getCCById(ccId);
+  if (!cc) {
+    res.status(404).json({ error: "CC not found" });
+    return;
+  }
+  res.status(200).json(cc);
+}
+
+/**
  * Retrieve all CCs.
  * - If both `lat` and `lon` query parameters are provided,
  *   the CCs will be sorted by distance from that point.
