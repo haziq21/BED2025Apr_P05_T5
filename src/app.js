@@ -1,8 +1,13 @@
 import express from "express";
+import multer from "multer"; // to read files
 import { errorHandler } from "./middleware/error.js";
+import * as upload from "./middleware/upload.js";
 import * as auth from "./controllers/auth.js";
 import * as profile from "./controllers/profile.js";
 import * as cc from "./controllers/cc.js";
+
+// import * as medicalRecordsController from "./controllers/medicalRecordsController.js";
+
 import * as mediSchedule from "./controllers/medicationSchedule.js";
 import * as mediValidate from "./middleware/medicationScheduleValidation.js";
 
@@ -21,6 +26,7 @@ app.delete("/api/profile/:userId", profile.deleteProfile);
 app.put("/api/profile/:userId/picture", profile.deleteProfilePicture);
 
 // CC management
+app.delete("/api/profile/:userId/picture", profile.deleteProfilePicture);
 app.get("/api/cc", cc.getAllCCs);
 app.get("/api/cc/:id", cc.getCCById);
 app.post("/api/cc", cc.createCC);
