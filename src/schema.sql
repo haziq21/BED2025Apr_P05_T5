@@ -33,6 +33,7 @@ CREATE TABLE Users (
 CREATE TABLE Friends (
   UserId1 INT NOT NULL REFERENCES Users,
   UserId2 INT NOT NULL REFERENCES Users,
+  Accepted BIT NOT NULL,
   PRIMARY KEY (UserId1, UserId2)
 );
 
