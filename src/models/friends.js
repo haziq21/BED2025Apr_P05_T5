@@ -103,7 +103,7 @@ export async function getPendingFriendRequests(userId) {
  * @param {string} query - The search query.
  * @returns {Promise<{id: number, name: string, bio: string, profilePhotoURL: string}[]>}
  */
-export async function searchUsers(query) {\
+export async function searchUsers(query) {
   if (query.trim() === "") {
     return []; // Return an empty array if the query is empty
   }
