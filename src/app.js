@@ -1,10 +1,15 @@
 import express from "express";
+import multer from "multer"; // to read files
 import { errorHandler } from "./middleware/error.js";
+import * as upload from "./middleware/upload.js";
 import * as auth from "./controllers/auth.js";
 import * as profile from "./controllers/profile.js";
 import * as cc from "./controllers/cc.js";
+
+// import * as medicalRecordsController from "./controllers/medicalRecordsController.js";
+
 import * as mediSchedule from "./controllers/medicationSchedule.js";
-import * as mediValidate from "./middleware/medicationScheduleValidation.js"
+import * as mediValidate from "./middleware/medicationScheduleValidation.js";
 
 import pool from "./db.js";
 
@@ -28,11 +33,23 @@ app.post("/api/cc/:id/admins/:userId", cc.makeAdmin);
 app.delete("/api/cc/:id/admins/:userId", cc.removeAdmin);
 
 // Medication Schedule
-app.get("/api/medicationSchedule/:userId",mediSchedule.getMediSchedule);
-app.post("/api/medicationSchedule/:userId",mediValidate.validateSchedule,mediSchedule.createSchedule);
-app.put("/api/medicationSchedule/:userId",mediValidate.validateSchedule,mediSchedule.updateSchedule);
-app.delete("/api/medicationSchedule/:userId/:scheduleId",mediValidate.validateScheduleId,mediValidate.validateSchedule,mediSchedule.deleteSchedule);
-
+app.get("/api/medicationSchedule/:userId", mediSchedule.getMediSchedule);
+app.post(
+  "/api/medicationSchedule/:userId",
+  mediValidate.validateSchedule,
+  mediSchedule.createSchedule
+);
+app.put(
+  "/api/medicationSchedule/:userId",
+  mediValidate.validateSchedule,
+  mediSchedule.updateSchedule
+);
+app.delete(
+  "/api/medicationSchedule/:userId/:scheduleId",
+  mediValidate.validateScheduleId,
+  mediValidate.validateSchedule,
+  mediSchedule.deleteSchedule
+);
 
 // This must come after all the routes
 app.use(errorHandler);
@@ -44,11 +61,11 @@ app.listen(PORT, () => {
 process.on("SIGINT", async () => {
   console.log("Received SIGINT. Closing pool and exiting...");
   try {
-    await pool.close(); 
+    await pool.close();
     console.log("Database connection closed.");
   } catch (err) {
     console.error("Error closing DB connection:", err);
   } finally {
-    process.exit(0); 
+    process.exit(0);
   }
 });
