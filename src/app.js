@@ -4,7 +4,7 @@ import * as auth from "./controllers/auth.js";
 import * as profile from "./controllers/profile.js";
 import * as cc from "./controllers/cc.js";
 import * as mediSchedule from "./controllers/medicationSchedule.js";
-import * as mediValidate from "./middleware/medicationScheduleValidation.js"
+import * as mediValidate from "./middleware/medicationScheduleValidation.js";
 
 import pool from "./db.js";
 
@@ -19,7 +19,10 @@ app.get("/api/profile/:userId", profile.getProfile);
 app.put("/api/profile/:userId", profile.updateProfile);
 app.delete("/api/profile/:userId", profile.deleteProfile);
 app.put("/api/profile/:userId/picture", profile.deleteProfilePicture);
+
+// CC management
 app.get("/api/cc", cc.getAllCCs);
+app.get("/api/cc/:id", cc.getCCById);
 app.post("/api/cc", cc.createCC);
 app.patch("/api/cc/:id", cc.updateCC);
 app.delete("/api/cc/:id", cc.deleteCC);
@@ -28,11 +31,23 @@ app.post("/api/cc/:id/admins/:userId", cc.makeAdmin);
 app.delete("/api/cc/:id/admins/:userId", cc.removeAdmin);
 
 // Medication Schedule
-app.get("/api/medicationSchedule/:userId",mediSchedule.getMediSchedule);
-app.post("/api/medicationSchedule/:userId",mediValidate.validateSchedule,mediSchedule.createSchedule);
-app.put("/api/medicationSchedule/:userId",mediValidate.validateSchedule,mediSchedule.updateSchedule);
-app.delete("/api/medicationSchedule/:userId/:scheduleId",mediValidate.validateScheduleId,mediValidate.validateSchedule,mediSchedule.deleteSchedule);
-
+app.get("/api/medicationSchedule/:userId", mediSchedule.getMediSchedule);
+app.post(
+  "/api/medicationSchedule/:userId",
+  mediValidate.validateSchedule,
+  mediSchedule.createSchedule
+);
+app.put(
+  "/api/medicationSchedule/:userId",
+  mediValidate.validateSchedule,
+  mediSchedule.updateSchedule
+);
+app.delete(
+  "/api/medicationSchedule/:userId/:scheduleId",
+  mediValidate.validateScheduleId,
+  mediValidate.validateSchedule,
+  mediSchedule.deleteSchedule
+);
 
 // This must come after all the routes
 app.use(errorHandler);
@@ -44,11 +59,11 @@ app.listen(PORT, () => {
 process.on("SIGINT", async () => {
   console.log("Received SIGINT. Closing pool and exiting...");
   try {
-    await pool.close(); 
+    await pool.close();
     console.log("Database connection closed.");
   } catch (err) {
     console.error("Error closing DB connection:", err);
   } finally {
-    process.exit(0); 
+    process.exit(0);
   }
 });
