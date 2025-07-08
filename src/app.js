@@ -18,7 +18,7 @@ app.post("/api/auth/user", auth.createUser);
 app.get("/api/profile/:userId", profile.getProfile);
 app.put("/api/profile/:userId", profile.updateProfile);
 app.delete("/api/profile/:userId", profile.deleteProfile);
-app.put("/api/profile/:userId/picture", profile.deleteProfilePicture);
+app.delete("/api/profile/:userId/picture", profile.deleteProfilePicture);
 app.get("/api/cc", cc.getAllCCs);
 app.post("/api/cc", cc.createCC);
 app.patch("/api/cc/:id", cc.updateCC);
