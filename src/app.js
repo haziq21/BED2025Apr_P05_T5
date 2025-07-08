@@ -1,8 +1,11 @@
 import express from "express";
+import multer from "multer"; // to read files
 import { errorHandler } from "./middleware/error.js";
+import * as upload from "./middleware/upload.js";
 import * as auth from "./controllers/auth.js";
 import * as profile from "./controllers/profile.js";
 import * as cc from "./controllers/cc.js";
+import * as medicalRecordsController from "./controllers/medicalRecordsController.js";
 
 import pool from "./db.js";
 
