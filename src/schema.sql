@@ -87,7 +87,7 @@ CREATE TABLE MedicationSchedules (
   RepeatRequest INT NOT NULL CHECK (RepeatRequest IN (0, 1, 2)), -- 0:no repeat, 1:repeat by day, 2: repeat by week
   RepeatEveryXDays INT,
   RepeatEveryXWeeks INT,
-  RepeatWeekDate INT, -- 0000011 meaning Occurs on SAT&SUN, repeats every () weeks
+  RepeatWeekDate CHAR(7), -- 0000011 meaning Occurs on SAT&SUN, repeats every () weeks
   FOREIGN KEY (UserId) REFERENCES Users(UserId)
 );
   
