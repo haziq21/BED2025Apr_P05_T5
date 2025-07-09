@@ -3,13 +3,13 @@ import pool from "../db.js";
 
 /** * Get all events for a CC
  * @param {number} CCId
- * @returns {Promise<{eventId: number, name: string, description: string, startDate: Date, endDate: Date}[]>} */
+ * @returns {Promise<{eventId: number, name: string, description: string, location: string, startDate: Date, endDate: Date}[]>} */
 export async function getEventsByCCId(CCId) {
   const result = await pool
     .request()
     .input("CCId", CCId)
     .query(
-      `SELECT EventId, Name, Description, StartDate, EndDate
+      `SELECT EventId, Name, Description, Location, StartDate, EndDate
        FROM Events
        WHERE CCId = @CCId`
     );
@@ -17,6 +17,7 @@ export async function getEventsByCCId(CCId) {
     eventId: event.EventId,
     name: event.Name,
     description: event.Description,
+    location: event.Location,
     startDate: new Date(event.StartDate),
     endDate: new Date(event.EndDate),
   }));
@@ -24,13 +25,13 @@ export async function getEventsByCCId(CCId) {
 
 /** * Get an event by its ID
  * @param {number} eventId
- * @returns {Promise<{name: string, description: string, startDate: Date, endDate: Date}|null>} */
+ * @returns {Promise<{name: string, description: string, location: string, startDate: Date, endDate: Date}|null>} */
 export async function getEventById(eventId) {
   const result = await pool
     .request()
     .input("eventId", eventId)
     .query(
-      `SELECT Name, Description, StartDate, EndDate
+      `SELECT Name, Description, Location, StartDate, EndDate
        FROM Events
        WHERE EventId = @eventId`
     );
@@ -39,6 +40,7 @@ export async function getEventById(eventId) {
   return {
     name: event.Name,
     description: event.Description,
+    location: event.Location,
     startDate: new Date(event.StartDate),
     endDate: new Date(event.EndDate),
   };
@@ -114,22 +116,31 @@ export async function unregisterFromEvent(userId, eventId) {
  * @param {number} CCId - The ID of the CC where the event is being created
  * @param {string} name - The name of the event
  * @param {string} description - The description of the event
+ * @param {string} location - The location of the event
  * @param {Date} startDate - The start date of the event
  * @param {Date} endDate - The end date of the event
  * @returns {Promise<number>} - Returns the ID of the newly created event
  */
-export async function createEvent(CCId, name, description, startDate, endDate) {
+export async function createEvent(
+  CCId,
+  name,
+  description,
+  location,
+  startDate,
+  endDate
+) {
   const result = await pool
     .request()
     .input("CCId", CCId)
     .input("name", name)
     .input("description", description)
+    .input("location", location)
     .input("startDate", startDate)
     .input("endDate", endDate)
     .query(
       `INSERT INTO Events (CCId, Name, Description, StartDate, EndDate)
        OUTPUT INSERTED.EventId
-       VALUES (@CCId, @name, @description, @startDate, @endDate)`
+       VALUES (@CCId, @name, @description, @location, @startDate, @endDate)`
     );
   return result.recordset[0].EventId; // Return the ID of the newly created event
 }
@@ -138,6 +149,7 @@ export async function createEvent(CCId, name, description, startDate, endDate) {
  * @param {number} eventId - The ID of the event to update
  * @param {string} name - The new name of the event
  * @param {string} description - The new description of the event
+ * @param {string} location - The new location of the event
  * @param {Date} startDate - The new start date of the event
  * @param {Date} endDate - The new end date of the event
  * @returns {Promise<boolean>} - Returns true if the update was successful, false otherwise
@@ -146,6 +158,7 @@ export async function updateEvent(
   eventId,
   name,
   description,
+  location,
   startDate,
   endDate
 ) {
@@ -154,11 +167,12 @@ export async function updateEvent(
     .input("eventId", eventId)
     .input("name", name)
     .input("description", description)
+    .input("location", location)
     .input("startDate", startDate)
     .input("endDate", endDate)
     .query(
       `UPDATE Events
-       SET Name = @name, Description = @description, StartDate = @startDate, EndDate = @endDate
+       SET Name = @name, Description = @description, Location = @location, StartDate = @startDate, EndDate = @endDate
        WHERE EventId = @eventId`
     );
   return result.rowsAffected[0] > 0; // Return true if the update was successful
@@ -200,14 +214,14 @@ export async function getRegistrationsForEvent(eventId) {
 
 /** Get all events for a user
  * @param {number} userId - The ID of the user to get events for
- * @returns {Promise<{eventId: number, name: string, description: string, startDate: Date, endDate: Date}[]>} - Returns a list of events the user is registered for
+ * @returns {Promise<{eventId: number, name: string, description: string, location: string,  startDate: Date, endDate: Date}[]>} - Returns a list of events the user is registered for
  */
 export async function getEventsByUserId(userId) {
   const result = await pool
     .request()
     .input("userId", userId)
     .query(
-      `SELECT e.EventId, e.Name, e.Description, e.StartDate, e.EndDate
+      `SELECT e.EventId, e.Name, e.Description, e.Location, e.StartDate, e.EndDate
        FROM CCEventRegistrations r
        JOIN Events e ON r.EventId = e.EventId
        WHERE r.UserId = @userId`
@@ -216,6 +230,7 @@ export async function getEventsByUserId(userId) {
     eventId: event.EventId,
     name: event.Name,
     description: event.Description,
+    location: event.Location,
     startDate: new Date(event.StartDate),
     endDate: new Date(event.EndDate),
   }));
