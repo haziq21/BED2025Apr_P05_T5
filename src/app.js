@@ -25,7 +25,7 @@ app.post("/api/auth/user", auth.createUser);
 app.post("/api/auth/login", auth.login);
 app.get("/api/profile/:userId", profile.getProfile);
 app.put("/api/profile/:userId", profile.updateProfile);
-app.delete("/api/profile/:userId", profile.deleteProfile);
+app.delete("/api/profile/:userId", profile.deleteUser);
 app.put("/api/profile/:userId/picture", profile.deleteProfilePicture);
 
 // CC management
@@ -40,23 +40,23 @@ app.post("/api/cc/:id/admins/:userId", cc.makeAdmin);
 app.delete("/api/cc/:id/admins/:userId", cc.removeAdmin);
 
 // Medication Schedule
-// app.get("/api/medicationSchedule/:userId", mediSchedule.getMediSchedule);
-// app.post(
-//   "/api/medicationSchedule/:userId",
-//   mediValidate.validateSchedule,
-//   mediSchedule.createSchedule
-// );
-// app.put(
-//   "/api/medicationSchedule/:userId",
-//   mediValidate.validateSchedule,
-//   mediSchedule.updateSchedule
-// );
-// app.delete(
-//   "/api/medicationSchedule/:userId/:scheduleId",
-//   mediValidate.validateScheduleId,
-//   mediValidate.validateSchedule,
-//   mediSchedule.deleteSchedule
-// );
+app.get("/api/medicationSchedule/:userId", mediSchedule.getMediSchedule);
+app.post(
+  "/api/medicationSchedule/:userId",
+  mediValidate.validateSchedule,
+  mediSchedule.createSchedule
+);
+app.put(
+  "/api/medicationSchedule/:userId",
+  mediValidate.validateSchedule,
+  mediSchedule.updateSchedule
+);
+app.delete(
+  "/api/medicationSchedule/:userId/:scheduleId",
+  mediValidate.validateScheduleId,
+  mediValidate.validateSchedule,
+  mediSchedule.deleteSchedule
+);
 app.get("/api/medicationSchedule/:userId", mediSchedule.getMediSchedule);
 app.post(
   "/api/medicationSchedule/:userId",
