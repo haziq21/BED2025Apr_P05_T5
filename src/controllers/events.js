@@ -98,9 +98,9 @@ export async function unregisterFromEvent(req, res) {
  * @type {import("express").RequestHandler}
  */
 export async function createEvent(req, res) {
-  const { CCId, name, description, date, location } = req.body;
+  const { CCId, name, description, location, startDate, endDate } = req.body;
 
-  if (!CCId || !name || !description || !date || !location) {
+  if (!CCId || !name || !description || !location || !startDate || !endDate) {
     res.status(400).json({ error: "Missing required fields" });
     return;
   }
@@ -109,8 +109,9 @@ export async function createEvent(req, res) {
     CCId,
     name,
     description,
-    date,
-    location
+    location,
+    startDate,
+    endDate
   );
   res.status(201).json(newEvent);
 }
@@ -120,14 +121,14 @@ export async function createEvent(req, res) {
  */
 export async function updateEvent(req, res) {
   const eventId = +req.params.id;
-  const { name, description, date, location } = req.body;
+  const { name, description, location, startDate, endDate } = req.body;
 
   if (isNaN(eventId)) {
     res.status(400).json({ error: "Invalid Event ID" });
     return;
   }
 
-  if (!name || !description || !date || !location) {
+  if (!name || !description || !startDate || !endDate || !location) {
     res.status(400).json({ error: "Missing required fields" });
     return;
   }
@@ -136,8 +137,9 @@ export async function updateEvent(req, res) {
     eventId,
     name,
     description,
-    date,
-    location
+    location,
+    startDate,
+    endDate
   );
   if (!updatedEvent) {
     res.status(404).json({ error: "Event not found" });
