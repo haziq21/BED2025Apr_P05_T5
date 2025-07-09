@@ -5,6 +5,8 @@ import * as upload from "./middleware/upload.js";
 import * as auth from "./controllers/auth.js";
 import * as profile from "./controllers/profile.js";
 import * as cc from "./controllers/cc.js";
+import * as friends from "./controllers/friends.js";
+import * as events from "./controllers/events.js";
 
 // import * as medicalRecordsController from "./controllers/medicalRecordsController.js";
 
@@ -53,6 +55,32 @@ app.delete(
   mediValidate.validateScheduleId,
   mediValidate.validateSchedule,
   mediSchedule.deleteSchedule
+);
+
+//Friends management
+app.get("/api/friends/:id", friends.getAllFriends);
+app.get("/api/friends/:id/search", friends.searchUsers);
+app.get("/api/friends/:id/requests", friends.getPendingFriendRequests);
+app.get("/api/friends/:id/:friendId/public", friends.getPublicProfile);
+app.post("/api/friends/:id/requests/:friendId", friends.acceptFriendRequest);
+app.post("/api/friends/:id/:friendId", friends.sendFriendRequest);
+app.delete("/api/friends/:id/:friendId", friends.deleteFriend);
+
+//
+
+// Events management
+app.get("/api/events/:id", events.getEventById);
+app.put("/api/events/:id", events.updateEvent);
+app.get("/api/events/:id/registrations", events.getRegistrationsByEventId);
+app.get("/api/events/:userId/:eventId/mutual", events.getMutualRegistrations);
+app.get("/api/events/:userId/registered", events.getEventsByUserId);
+app.get("/api/events/cc/:id", events.getEventsByCCId);
+app.post("/api/events/:userId/:eventId/register", events.registerForEvent);
+app.post("/api/events/create", events.createEvent);
+app.delete("/api/events/:id", events.deleteEvent);
+app.delete(
+  "/api/events/:userId/:eventId/unregister",
+  events.unregisterFromEvent
 );
 
 // This must come after all the routes
