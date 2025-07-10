@@ -7,6 +7,7 @@ import * as profile from "./controllers/profile.js";
 import * as cc from "./controllers/cc.js";
 import * as friends from "./controllers/friends.js";
 import * as events from "./controllers/events.js";
+import * as comment from "./controllers/comment.js";
 
 // import * as medicalRecordsController from "./controllers/medicalRecordsController.js";
 
@@ -54,26 +55,15 @@ app.put(
 app.delete(
   "/api/medicationSchedule/:userId/:scheduleId",
   mediValidate.validateScheduleId,
-  mediValidate.validateSchedule,
   mediSchedule.deleteSchedule
 );
-app.get("/api/medicationSchedule/:userId", mediSchedule.getMediSchedule);
-app.post(
-  "/api/medicationSchedule/:userId",
-  mediValidate.validateSchedule,
-  mediSchedule.createSchedule
-);
-app.put(
-  "/api/medicationSchedule/:userId",
-  mediValidate.validateSchedule,
-  mediSchedule.updateSchedule
-);
-app.delete(
-  "/api/medicationSchedule/:userId/:scheduleId",
-  mediValidate.validateScheduleId,
-  mediValidate.validateSchedule,
-  mediSchedule.deleteSchedule
-);
+
+//Comment
+app.get("/api/comment",comment.getComment);
+app.get("/api/comment/:userId",comment.getCommentById);
+app.post("/api/comment/:userId",comment.createComment);
+app.put("/api/comment/:userId",comment.updateComment);
+app.delete("/api/comment/:userId/:postId",comment.deleteComment);
 
 //Friends management
 app.get("/api/friends/:id", friends.getAllFriends);
