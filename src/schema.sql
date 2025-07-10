@@ -116,3 +116,9 @@ CREATE TABLE SharedLocations (
 );
 
 
+CREATE TABLE Comment (
+  UserId INT NOT NULL,
+  PostId INT IDENTITY PRIMARY KEY,
+  Comment VARCHAR(500) NOT NULL,
+  FOREIGN KEY (UserId) REFERENCES Users(UserId)
+);

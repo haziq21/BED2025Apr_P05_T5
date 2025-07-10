@@ -18,7 +18,7 @@ import pool from "./db.js";
 const PORT = process.env.PORT || 3000;
 const app = express();
 app.use(express.json());
-app.use(express.static("src/public"));
+app.use(express.static("public"));
 
 app.post("/api/auth/otp", auth.sendOTP);
 app.post("/api/auth/user", auth.createUser);
