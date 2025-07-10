@@ -5,16 +5,36 @@ import pool from "../db.js";
  * get the comment by userId
  * @param {number} userId
  */
-export async function getComment(userId){
+export async function getCommentById(userId){
     try {
       const result = await pool
         .request()
         .input("userId", userId)
         .query(`
-            SELECT c.Comment,u.UserId 
+            SELECT c.Comment,c.PostId,u.UserId,u.Name AS UserName 
             FROM Comment c 
             JOIN Users u ON c.UserId = u.UserId
             WHERE c.UserId = @userId
+         `);
+
+    return result.recordset;
+  } catch (error) {
+    console.error("Database error:", error);
+    throw error;
+  }
+};
+
+/**
+ * get all the comments on comment page 
+ */
+export async function getComment(){
+    try {
+      const result = await pool
+        .request()
+        .query(`
+            SELECT c.Comment,c.PostId,u.UserId,u.Name AS UserName
+            FROM Comment c 
+            JOIN Users u ON c.UserId = u.UserId 
          `);
 
     return result.recordset;

@@ -5,7 +5,7 @@ import * as model from "../models/comment.js";
  * @type {import("express").RequestHandler}
  */
 
-export async function getComment(req, res) {
+export async function getCommentById(req, res) {
   const userId = parseInt(req.params.userId);
 
   if (isNaN(userId)) {
@@ -13,13 +13,30 @@ export async function getComment(req, res) {
     return;
   }
 
-  const comment = await model.getComment(userId);
+  const comment = await model.getCommentById(userId);
 
   if (!comment) {
     res.status(404).json({ error: "Comment not found" });
     return;
   }
 
+  res.status(200).json(comment);
+}
+
+/**
+ * retrieve all comments on comment page
+ * @type {import("express").RequestHandler}
+ */
+
+export async function getComment(req, res) {
+
+  const comment = await model.getComment();
+
+  if (!comment) {
+    res.status(404).json({ error: "Comment not found" });
+    return;
+  }
+  
   res.status(200).json(comment);
 }
 
@@ -76,7 +93,7 @@ export async function createComment(req,res) {
  */
 export async function deleteComment(req,res) {
     try{
-        const postId = parseInt(req.params.PostId);
+        const postId = parseInt(req.params.postId);
         const userId = parseInt(req.params.userId);
         if (isNaN(postId)) {
         res.status(400).json({ error: "Invalid post ID" })
