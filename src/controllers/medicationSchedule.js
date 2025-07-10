@@ -91,7 +91,7 @@ export async function deleteSchedule(req,res) {
         res.json(schedule);
     }catch (error) {
     console.error("Controller error:", error);
-    res.status(500).json({ error: "Error retrieving book" });
+    res.status(500).json({ error: "Error retrieving schedule" });
     return;
   }
 };
