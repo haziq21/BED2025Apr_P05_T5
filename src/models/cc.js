@@ -27,6 +27,31 @@ export async function createCC(fields) {
 }
 
 /**
+ * Retrieve a CC by ID.
+ * @param {number} ccId
+ * @returns {Promise<{id: number, name: string, location: {lat: number, lon: number}} | null>}
+ */
+export async function getCCById(ccId) {
+  /** @type {sql.IResult<{CCId: number, Name: string, Lat: number, Lon: number}>} */
+  const result = await pool
+    .request()
+    .input("ccId", ccId)
+    .query(
+      `SELECT CCId, Name, Location.Lat AS Lat, Location.Long AS Lon
+      FROM CCs
+      WHERE CCId = @ccId`
+    );
+  if (result.recordset.length === 0) return null;
+
+  const cc = result.recordset[0];
+  return {
+    id: cc.CCId,
+    name: cc.Name,
+    location: { lat: cc.Lat, lon: cc.Lon },
+  };
+}
+
+/**
  * Retrieve all CCs.
  * - If `options.locationSort` is provided, the CCs will be sorted
  *   by distance from that point, and will include a `distance` field.

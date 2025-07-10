@@ -114,7 +114,7 @@ export async function updateProfile(userId, { name, phoneNumber, bio, image }) {
  * @param {number} userId 
  */
 
-export async function deleteProfile(userId) {
+export async function deleteUser(userId) {
   try {
     const result = await pool
       .request()
@@ -129,7 +129,7 @@ export async function deleteProfile(userId) {
 }
 
 /** * Deletes the profile picture of a user.
- * @param {number} userId - The ID of the user.
+ * @param {number} userId 
  */
 
 export async function deleteProfilePicture(userId) {
@@ -144,6 +144,25 @@ export async function deleteProfilePicture(userId) {
     return result.rowsAffected[0] > 0; 
   } catch (error) {
     console.error("Database error:", error);
-    throw error; // Rethrow the error to be handled by the caller
+    throw error; 
+  }
+}
+/** *gets profile of user using phonenum
+ * @param {string} phoneNumber 
+ */
+export async function getUserByPhoneNumber(phoneNumber) {   
+  try{
+    const result = await pool
+    .request()
+    .input("phoneNumber", phoneNumber)
+    .query("SELECT * FROM Users WHERE phoneNumber = @phoneNumber");
+
+  if (result.recordset.length === 0) {
+    return null; // User not found
+  }
+  return result.recordset[0];
+}catch (error) {
+    console.error("Database error:", error);
+    throw error; 
   }
 }
