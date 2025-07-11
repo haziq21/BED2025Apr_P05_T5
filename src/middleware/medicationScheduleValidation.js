@@ -13,10 +13,9 @@ const scheduleSchema = Joi.object({
     "any.required": "StartDateXTime is required",
   }),
 
-  EndDate: Joi.date().greater(Joi.ref("StartDateXTime")).messages({
+  EndDate: Joi.date().greater(Joi.ref("StartDateXTime")).allow(null).messages({
     "date.base": "EndDate must be a valid date",
     "date.greater": "EndDate must be later than StartDateXTime",
-    "any.required": "EndDate is required",
   }),
 
   RepeatRequest: Joi.number().integer().valid(0, 1, 2).required().messages({
@@ -27,22 +26,22 @@ const scheduleSchema = Joi.object({
     "any.required": "RepeatRequest is required",
   }),
 
-  RepeatEveryXDays: Joi.number().integer().messages({
+  RepeatEveryXDays: Joi.number().integer().allow(null).messages({
     "number.base": "RepeatEveryXDays must be a number",
     "number.integer": "RepeatEveryXDays must be an integer",
   }),
 
-  RepeatEveryXWeeks: Joi.number().integer().messages({
+  RepeatEveryXWeeks: Joi.number().integer().allow(null).messages({
     "number.base": "RepeatEveryXWeeks must be a number",
     "number.integer": "RepeatEveryXWeeks must be an integer",
   }),
 
-  RepeatWeekDate: Joi.number().integer().messages({
+  RepeatWeekDate: Joi.number().integer().allow(null).messages({
     "number.base": "RepeatWeekDate must be a number",
     "number.integer": "RepeatWeekDate must be an integer",
   }),
 
-  MedicationScheduleId: Joi.number().integer().positive().messages({
+  MedicationScheduleId: Joi.number().integer().positive().allow(null).messages({
     "number.base": "MedicationScheduleId must be a number",
     "number.integer": "MedicationScheduleId must be an integer",
     "number.positive": "MedicationScheduleId must be positive",
@@ -76,7 +75,7 @@ export function validateSchedule(req, res, next) {
  * @param {import('express').NextFunction} next
  */
 export function validateScheduleId(req, res, next) {
-  const id = parseInt(req.body.MedicationScheduleId);
+  const id = parseInt(req.params.scheduleId);
 
   if (isNaN(id) || id <= 0) {
     res
