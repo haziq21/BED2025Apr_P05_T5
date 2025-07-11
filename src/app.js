@@ -1,12 +1,11 @@
 import express from "express";
 import multer from "multer"; // to read files
 import { errorHandler } from "./middleware/error.js";
-import * as upload from "./middleware/upload.js";
+import upload from "./middleware/upload.js";
 import * as auth from "./controllers/auth.js";
 import * as profile from "./controllers/profile.js";
 import * as cc from "./controllers/cc.js";
-
-// import * as medicalRecordsController from "./controllers/medicalRecordsController.js";
+import * as medicalRecordsController from "./controllers/medicalRecordsController.js";
 
 import * as mediSchedule from "./controllers/medicationSchedule.js";
 import * as mediValidate from "./middleware/medicationScheduleValidation.js";
@@ -49,6 +48,28 @@ app.delete(
   mediValidate.validateScheduleId,
   mediValidate.validateSchedule,
   mediSchedule.deleteSchedule
+);
+
+// import {
+//   uploadFile,
+//   getFiles,
+//   deleteFile,
+//   updateFileName
+// }
+
+app.post(
+  "/api/medical-records/:userId/upload",
+  upload.single("file"),
+  medicalRecordsController.uploadFile
+);
+app.get("/api/medical-records/:userId", medicalRecordsController.getFiles);
+app.delete(
+  "/api/medical-records/:userId/:id",
+  medicalRecordsController.deleteFile
+);
+app.put(
+  "/api/medical-records/:userId/:id",
+  medicalRecordsController.updateFileName
 );
 
 // This must come after all the routes
