@@ -20,6 +20,7 @@ IF OBJECT_ID('SharedLocations', 'U') IS NOT NULL DROP TABLE SharedLocations;
 IF OBJECT_ID('CCEvents', 'U') IS NOT NULL DROP TABLE CCEvents;
 IF OBJECT_ID('CCs', 'U') IS NOT NULL DROP TABLE CCs;
 IF OBJECT_ID('Users', 'U') IS NOT NULL DROP TABLE Users;
+IF OBJECT_ID('Comment', 'U') IS NOT NULL DROP TABLE Comment;
 
 
 CREATE TABLE Users (
@@ -33,6 +34,7 @@ CREATE TABLE Users (
 CREATE TABLE Friends (
   UserId1 INT NOT NULL REFERENCES Users,
   UserId2 INT NOT NULL REFERENCES Users,
+  Accepted BIT NOT NULL,
   PRIMARY KEY (UserId1, UserId2)
 );
 
@@ -53,6 +55,7 @@ CREATE TABLE CCEvents (
   CCId INT NOT NULL REFERENCES CCs,
   Name NVARCHAR(255) NOT NULL,
   Description NVARCHAR(MAX),
+  Location NVARCHAR(100) NOT NULL,
   StartDateTime DATETIME NOT NULL,
   EndDateTime DATETIME NOT NULL
 );
@@ -92,7 +95,7 @@ CREATE TABLE MedicationSchedules (
   RepeatRequest INT NOT NULL CHECK (RepeatRequest IN (0, 1, 2)), -- 0:no repeat, 1:repeat by day, 2: repeat by week
   RepeatEveryXDays INT,
   RepeatEveryXWeeks INT,
-  RepeatWeekDate INT, -- 0000011 meaning Occurs on SAT&SUN, repeats every () weeks
+  RepeatWeekDate CHAR(7), -- 0000011 meaning Occurs on SAT&SUN, repeats every () weeks
   FOREIGN KEY (UserId) REFERENCES Users(UserId)
 );
   
@@ -119,3 +122,9 @@ CREATE TABLE SharedLocations (
 );
 
 
+CREATE TABLE Comment (
+  UserId INT NOT NULL,
+  PostId INT IDENTITY PRIMARY KEY,
+  Comment VARCHAR(500) NOT NULL,
+  FOREIGN KEY (UserId) REFERENCES Users(UserId)
+);

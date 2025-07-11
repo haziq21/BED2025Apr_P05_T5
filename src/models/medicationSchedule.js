@@ -66,7 +66,7 @@ export async function updateSchedule(userId,scheduleData) {
 /**
  * create schedule by userId and scheduleId
  * @param {number} userId
- * @param {{DrugName?: string, StartDateXTime?: string, EndDate?: string, RepeatRequest: number, RepeatEveryXDays?: number, RepeatEveryXWeeks?: number, RepeatWeekDate?: number }} newSchedule 
+ * @param {{DrugName: string, StartDateXTime: string, EndDate?: string, RepeatRequest: number, RepeatEveryXDays?: number, RepeatEveryXWeeks?: number, RepeatWeekDate?: number }} newSchedule 
  */
 export async function createSchedule(userId,newSchedule){
     try{

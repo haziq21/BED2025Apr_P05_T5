@@ -66,11 +66,11 @@ export async function updateProfile(req, res) {
   * @type {import("express").RequestHandler}
  */
 
-export async function deleteProfile(req, res) {
+export async function deleteUser(req, res) {
   const userId = parseInt(req.params.userId);
 
   try {
-    const deletedUser = await model.deleteProfile(userId);
+    const deletedUser = await model.deleteUser(userId);
     if (!deletedUser) {
       res.status(404).json({ error: "User not found" });
       return;

@@ -5,7 +5,11 @@ import upload from "./middleware/upload.js";
 import * as auth from "./controllers/auth.js";
 import * as profile from "./controllers/profile.js";
 import * as cc from "./controllers/cc.js";
-import * as medicalRecordsController from "./controllers/medicalRecordsController.js";
+import * as friends from "./controllers/friends.js";
+import * as events from "./controllers/events.js";
+import * as comment from "./controllers/comment.js";
+
+// import * as medicalRecordsController from "./controllers/medicalRecordsController.js";
 
 import * as mediSchedule from "./controllers/medicationSchedule.js";
 import * as mediValidate from "./middleware/medicationScheduleValidation.js";
@@ -15,15 +19,20 @@ import pool from "./db.js";
 const PORT = process.env.PORT || 3000;
 const app = express();
 app.use(express.json());
-app.use(express.static("src/public"));
+app.use(express.static("public"));
 
 app.post("/api/auth/otp", auth.sendOTP);
 app.post("/api/auth/user", auth.createUser);
+app.post("/api/auth/login", auth.login);
 app.get("/api/profile/:userId", profile.getProfile);
 app.put("/api/profile/:userId", profile.updateProfile);
-app.delete("/api/profile/:userId", profile.deleteProfile);
+app.delete("/api/profile/:userId", profile.deleteUser);
 app.put("/api/profile/:userId/picture", profile.deleteProfilePicture);
+
+// CC management
+app.delete("/api/profile/:userId/picture", profile.deleteProfilePicture);
 app.get("/api/cc", cc.getAllCCs);
+app.get("/api/cc/:id", cc.getCCById);
 app.post("/api/cc", cc.createCC);
 app.patch("/api/cc/:id", cc.updateCC);
 app.delete("/api/cc/:id", cc.deleteCC);
@@ -46,30 +55,40 @@ app.put(
 app.delete(
   "/api/medicationSchedule/:userId/:scheduleId",
   mediValidate.validateScheduleId,
-  mediValidate.validateSchedule,
   mediSchedule.deleteSchedule
 );
 
-// import {
-//   uploadFile,
-//   getFiles,
-//   deleteFile,
-//   updateFileName
-// }
+//Comment
+app.get("/api/comment", comment.getComment);
+app.get("/api/comment/:userId", comment.getCommentById);
+app.post("/api/comment/:userId", comment.createComment);
+app.put("/api/comment/:userId", comment.updateComment);
+app.delete("/api/comment/:userId/:postId", comment.deleteComment);
 
-app.post(
-  "/api/medical-records/:userId/upload",
-  upload.single("file"),
-  medicalRecordsController.uploadFile
-);
-app.get("/api/medical-records/:userId", medicalRecordsController.getFiles);
+//Friends management
+app.get("/api/friends/:id", friends.getAllFriends);
+app.get("/api/friends/:id/search", friends.searchUsers);
+app.get("/api/friends/:id/requests", friends.getPendingFriendRequests);
+app.get("/api/friends/:id/:friendId/public", friends.getPublicProfile);
+app.post("/api/friends/:id/requests/:friendId", friends.acceptFriendRequest);
+app.post("/api/friends/:id/:friendId", friends.sendFriendRequest);
+app.delete("/api/friends/:id/:friendId", friends.deleteFriend);
+
+//
+
+// Events management
+app.get("/api/events/:id", events.getEventById);
+app.put("/api/events/:id", events.updateEvent);
+app.get("/api/events/:id/registrations", events.getRegistrationsByEventId);
+app.get("/api/events/:userId/:eventId/mutual", events.getMutualRegistrations);
+app.get("/api/events/:userId/registered", events.getEventsByUserId);
+app.get("/api/events/cc/:id", events.getEventsByCCId);
+app.post("/api/events/:userId/:eventId/register", events.registerForEvent);
+app.post("/api/events/create", events.createEvent);
+app.delete("/api/events/:id", events.deleteEvent);
 app.delete(
-  "/api/medical-records/:userId/:id",
-  medicalRecordsController.deleteFile
-);
-app.put(
-  "/api/medical-records/:userId/:id",
-  medicalRecordsController.updateFileName
+  "/api/events/:userId/:eventId/unregister",
+  events.unregisterFromEvent
 );
 
 // This must come after all the routes

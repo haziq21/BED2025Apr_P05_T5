@@ -1,0 +1,71 @@
+.content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.medication-section h1 {
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.medication-list {
+  text-align: left;
+  padding-left: 0;
+  list-style-position: inside;
+  margin-bottom: 1rem;
+}
+
+.medication-list li {
+  margin-bottom: 0.5rem;
+}
+
+.action-btn {
+  margin-left: 10px;
+  padding: 4px 8px;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 4px;
+  background-color: #e0e0e0;
+  cursor: pointer;
+}
+
+.action-btn.delete {
+  background-color: #f6bebe;
+}
+
+.add-btn {
+  margin-top: 10px;
+  padding: 6px 12px;
+  background-color: white;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+hr {
+  margin: 2rem auto;
+  border: 0.5px solid #ccc;
+  width: 90%;
+}
+
+.search-section h2 {
+  font-family: 'Gelasio', serif;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.search-section p {
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.medication-select {
+  width: 80%;
+  padding: 10px;
+  font-size: 1rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}

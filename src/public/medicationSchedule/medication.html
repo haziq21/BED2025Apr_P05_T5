@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medication</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Gelasio:ital,wght@0,400..700;1,400..700&family=Libre+Franklin:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="../global.css" />
+    <link rel="stylesheet" href="medication.css">   
+   
+    <!-- custimize search tab -->
+    <!-- <link href="tom-select.bootstrap4.css" rel="stylesheet" /> -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="topnav">
+        <a href="#home">Kampung Connect</a>
+        <a href="#Events">Events</a>
+        <a href="#Location">Location</a>
+        <a href="#Medication">Medication</a>
+        <a href="#profile">Profile</a>
+        <a href="#comments"></a>
+    </nav>
+
+    <main class="content">
+        <section class="medication-section">
+        <h1>My Medication Plan | My Medical Records</h1>
+
+        <ul class="medication-list" id="medicationList"></ul>>
+            <!-- <li>
+            Medication: Panadol - Time: 7:00 AM - No Repeat
+            <button class="action-btn update">Update</button>
+            <button class="action-btn delete">Delete</button>
+            </li>
+            <li>
+            Medication: Panaflex - Time: 12:00 PM - Repeat every two weeks
+            <button class="action-btn">Update</button>
+            <button class="action-btn delete">Delete</button>
+            </li>
+        </ul> -->
+
+        <button class="add-btn">➕ Add new medication schedules</button>
+        </section>
+
+        <hr />
+
+        <section class="search-section">
+        <h2>Search your medication</h2>
+        <p>Want to know more about your medication? Enter the name below to learn more!</p>
+
+        <select id="medication-search" placeholder="Select from the list or search for another medication">
+            <option value="">Select from the list or search for another medication</option>
+            <option value="Panadol">Panadol</option>
+            <option value="Panaflex">Panaflex</option>
+            <option value="Paracetamol">Paracetamol</option>
+            <option value="Ibuprofen">Ibuprofen</option>
+        </select>
+
+        </section>
+    </main>
+
+    <script src="../global.js"></script>
+    <script type="module" src="medication.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+    <script>
+        new TomSelect('#medication-search', {
+            create: true, // allows user to type new medications
+            // Sorts options alphabetically
+            sortField: [{
+            field: "text",
+            direction: "asc"
+            }],
+            maxOptions:6 //show up to six options 
+        }); 
+    </script>
+    
+</body>
+</html>
+<!-- http://localhost:3000/medicationSchedule/medication.html -->
