@@ -43,7 +43,7 @@ export async function getFiles(UserId, file) {
     const request = pool.request().input("UserId", UserId);
 
     const result = await request.query(
-      `SELECT , originalName, fileName, mimeType, uploadedAt FROM MedicalRecord WHERE UserId = @UserId`
+      `SELECT originalName, fileName, mimeType, uploadedAt FROM MedicalRecord WHERE UserId = @UserId`
     );
     return result.recordset;
   } catch (error) {
