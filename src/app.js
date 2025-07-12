@@ -20,16 +20,19 @@ const app = express();
 app.use(express.json());
 app.use(express.static("public"));
 
+// Authentication
 app.post("/api/auth/otp", auth.sendOTP);
 app.post("/api/auth/user", auth.createUser);
 app.post("/api/auth/login", auth.login);
+
+// Profile management
 app.get("/api/profile/:userId", profile.getProfile);
 app.put("/api/profile/:userId", profile.updateProfile);
 app.delete("/api/profile/:userId", profile.deleteUser);
 app.put("/api/profile/:userId/picture", profile.deleteProfilePicture);
+app.delete("/api/profile/:userId/picture", profile.deleteProfilePicture);
 
 // CC management
-app.delete("/api/profile/:userId/picture", profile.deleteProfilePicture);
 app.get("/api/cc", cc.getAllCCs);
 app.get("/api/cc/:id", cc.getCCById);
 app.post("/api/cc", cc.createCC);
