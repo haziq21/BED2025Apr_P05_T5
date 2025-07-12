@@ -1,19 +1,4 @@
-// import TomSelect from 'tom-select';
-// import 'tom-select/dist/css/tom-select.css';
-// // import 'tom-select/dist/css/tom-select.bootstrap4.css';
-
-
-
 const apiBaseUrl = "http://localhost:3000";
-
-// new TomSelect('#medication-search', {
-//             create: true, // allows user to type new medications
-//             // Sorts options alphabetically
-//             sortField:[{
-//             field: "text",
-//             direction: "asc"
-//             }]
-//         }); 
 
 //navigation bar
 document.addEventListener("DOMContentLoaded", () => {
@@ -27,8 +12,9 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 });
 
-
-//medication 
+/**
+ * call get api to retrieve all the shedules by user ID
+ */
 async function fetchMedications() {
   try {
     const res = await fetch(`${apiBaseUrl}/api/medicationSchedule/1`);
@@ -41,6 +27,7 @@ async function fetchMedications() {
 
 const listContainer = document.getElementById("medicationList");
 /**
+ * display schedule if it's called
  * @typedef {Object} Medication
  * @property {number} MedicationScheduleId
  * @property {string} DrugName
@@ -73,7 +60,7 @@ function renderMedications(data) {
 }
 
 /**
- * 
+ * formatting the date
  * @param {Date} iso 
  * @returns {string}
  */
@@ -89,6 +76,7 @@ function formatTime(iso) {
 }
 
 /**
+ * display no repeat,repeat every ()days/weeks 
  * @param {Medication} item
  * @returns {string}
  */
@@ -104,6 +92,7 @@ function formatRepeat(item) {
 } 
 
 /**
+ * return the binerary string to exact date - '00000001' to SUN when repeat week is selected
  * @param {string} binaryString 
  */
 //convert binary string '0000011' to sat&sun
@@ -119,6 +108,16 @@ function getWeekdaysFromBinaryString(binaryString){
     
     return result.join(' & ');
 }
+
+
+function addSchedule(){
+
+}
+
+function updateBtn(){
+  
+}
+
 
 // Load on page
 fetchMedications();
