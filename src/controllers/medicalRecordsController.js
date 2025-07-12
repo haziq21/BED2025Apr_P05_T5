@@ -62,7 +62,7 @@ export async function deleteFile(req, res) {
     return;
   }
 
-  const file = await model.deleteFile(MedicalRecordId, req.body);
+  const file = await model.deleteFile(MedicalRecordId, UserId);
 
   if (!file) {
     res.status(404).json({ error: "Cannot view files." });
@@ -86,12 +86,17 @@ export async function updateFileName(req, res) {
     return;
   }
 
-  const file = await model.updateFileName(MedicalRecordId, req.body);
+  try {
+    const file = await model.updateFileName(MedicalRecordId, {
+      UserId,
+      fileName: req.body.fileName,
+      originalName: req.body.originalName ?? "(original name unknown)",
+    });
 
-  if (!file) {
-    res.status(404).json({ error: "Cannot update file name." });
-    return;
-  }
+    if (!file) {
+      res.status(404).json({ error: "Cannot update file name." });
+    }
 
-  res.status(200).json(file);
+    res.status(200).json(file);
+  } catch (err) {}
 }
