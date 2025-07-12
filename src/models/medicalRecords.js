@@ -9,7 +9,6 @@ import pool from "../db.js";
  */
 
 export async function uploadFile(UserId, file) {
-  // const d =  { originalname, filename, mimetype, path: filePath } = ;
   try {
     const request = pool
       .request()
@@ -117,7 +116,7 @@ export async function updateFileName(MedicalRecordId, file) {
     }
 
     return {
-      message: `${file.originalName} has been updated to ${file.fileName}.`,
+      message: `Your file has been updated to ${file.fileName}.`,
     };
   } catch (error) {
     console.error("Database error:", error);
