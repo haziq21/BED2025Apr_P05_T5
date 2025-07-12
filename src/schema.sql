@@ -79,11 +79,11 @@ CREATE TABLE MedicalRecord (
     MedicalRecordId INT PRIMARY KEY IDENTITY(1,1),
     UserId INT NOT NULL,
     originalName NVARCHAR(255) NOT NULL,
-    fileName NVARCHAR(255) NOT NULL,
+    fileName NVARCHAR(255) NULL,
     mimeType NVARCHAR(100),
     filePath NVARCHAR(255),
     uploadedAt DATETIME DEFAULT GETDATE(),
-    FOREIGN KEY (UserId) REFERENCES Users(id)
+    FOREIGN KEY (UserId) REFERENCES Users(UserId)
 );
 
 CREATE TABLE MedicationSchedules (
