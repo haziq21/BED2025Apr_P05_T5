@@ -53,27 +53,41 @@ export async function getFiles(UserId, file) {
 }
 
 /**
- * Delete a file by its ID
+ * Delete a file by its ID and UserId
  * @param {number} MedicalRecordId
- * @param {{UserId: number, originalname: string, filename: string, mimetype: string, filePath: string}} file
+ * @param {number} UserId
  */
 
-export async function deleteFile(MedicalRecordId, file) {
+export async function deleteFile(MedicalRecordId, UserId) {
   try {
-    const request = pool
+    // Step 1: Fetch the file info first
+    const selectResult = await pool
       .request()
       .input("MedicalRecordId", MedicalRecordId)
-      .input("UserId", file.UserId);
+      .input("UserId", UserId).query(`
+        SELECT filePath, fileName FROM MedicalRecord
+        WHERE MedicalRecordId = @MedicalRecordId AND UserId = @UserId
+      `);
 
-    const result = await request.query(
-      `DELETE FROM MedicalRecord WHERE MedicalRecordId = @MedicalRecordId`
-    );
-    if (result.recordset.length === 0) {
-      return { message: `No file with such ID: ${MedicalRecordId}` };
+    const file = selectResult.recordset[0];
+    if (!file) {
+      return null; // file doesn't exist or not owned by user
     }
-    fs.unlinkSync(file.filePath); // to delete file
 
-    return { message: `${file.filename} has been deleted.` };
+    // Step 2: Delete from the database
+    await pool
+      .request()
+      .input("MedicalRecordId", MedicalRecordId)
+      .input("UserId", UserId).query(`
+        DELETE FROM MedicalRecord WHERE MedicalRecordId = @MedicalRecordId AND UserId = @UserId
+      `);
+
+    // Step 3: Delete the file from disk if it exists
+    if (file.filePath && fs.existsSync(file.filePath)) {
+      fs.unlinkSync(file.filePath);
+    }
+
+    return { message: `${file.fileName} has been deleted.` };
   } catch (error) {
     console.error("Database error:", error);
     throw error;
@@ -83,7 +97,7 @@ export async function deleteFile(MedicalRecordId, file) {
 /**
  * Update the nanme of a file by its ID
  * @param {number} MedicalRecordId
- * @param {{UserId: number, originalName: string, fileName: string, mimetype: string, filePath: string}} file
+ * @param {{UserId: number, originalName: string, fileName: string}} file
  */
 
 export async function updateFileName(MedicalRecordId, file) {
