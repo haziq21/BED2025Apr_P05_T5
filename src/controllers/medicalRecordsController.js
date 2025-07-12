@@ -72,11 +72,26 @@ export async function deleteFile(req, res) {
   res.status(200).json(file);
 }
 
-// /**
-//  * update/change the name of a selected file
-//  * @type {import("express").RequestHandler}
-//  */
+/**
+ * update/change the name of a selected file
+ * @type {import("express").RequestHandler}
+ */
 
-// export async function updateFileName(req, res) {
+export async function updateFileName(req, res) {
+  const UserId = parseInt(req.params.UserId);
+  const MedicalRecordId = parseInt(req.params.MedicalRecordId);
+  const originalName = req.params.originalName;
+  if (isNaN(MedicalRecordId)) {
+    res.status(400).json({ error: "Unable to find medical record." });
+    return;
+  }
 
-// }
+  const file = await model.updateFileName(MedicalRecordId, req.body);
+
+  if (!file) {
+    res.status(404).json({ error: "Cannot update file name." });
+    return;
+  }
+
+  res.status(200).json(file);
+}

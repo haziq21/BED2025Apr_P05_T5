@@ -39,11 +39,16 @@ app.get("/api/cc/:id/admins", cc.getAdmins);
 app.post("/api/cc/:id/admins/:userId", cc.makeAdmin);
 app.delete("/api/cc/:id/admins/:userId", cc.removeAdmin);
 
+// Medical Record Management
 app.post("/api/medicalRecords/:UserId", medicalRecordsController.uploadFile);
 app.get("/api/medicalRecords/:UserId", medicalRecordsController.getFiles);
 app.delete(
   "/api/medicalRecords/:UserId/:MedicalRecordId",
   medicalRecordsController.deleteFile
+);
+app.put(
+  "/api/medicalRecords/:UserId/:MedicalRecordId",
+  medicalRecordsController.updateFileName
 );
 
 // Medication Schedule
