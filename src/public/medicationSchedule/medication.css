@@ -52,7 +52,7 @@ hr {
 }
 
 .search-section h2 {
-  font-family: 'Gelasio', serif;
+  font-family: "Gelasio", serif;
   font-weight: 700;
   margin-bottom: 0.5rem;
 }
@@ -68,4 +68,91 @@ hr {
   font-size: 1rem;
   border-radius: 4px;
   border: 1px solid #ccc;
+}
+
+.form-section {
+  position: relative;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  margin-bottom: 30px;
+  max-width: 700px;
+}
+
+.form-row {
+  margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+input[type="text"],
+input[type="date"],
+input[type="time"],
+input[type="number"] {
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  min-width: 150px;
+}
+
+label {
+  font-size: 14px;
+}
+
+input[type="checkbox"] {
+  margin-right: 6px;
+}
+
+.repeat-options {
+  display: none;
+  border-top: 1px solid #ddd;
+  padding-top: 20px;
+  font-family: "Gelasio", serif;
+  font-weight: bold;
+  font-size: 1.17em;
+}
+
+.days {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0;
+  flex-wrap: wrap;
+}
+
+.day-btn {
+  padding: 8px 14px;
+  background: #aca291;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.highlighted {
+  background: #57534d !important;
+}
+
+.delete-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: #aca291;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.delete-btn:hover {
+  background: #57534d;
 }
