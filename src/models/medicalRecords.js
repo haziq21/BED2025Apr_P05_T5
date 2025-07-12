@@ -53,7 +53,7 @@ export async function getFiles(UserId, file) {
 }
 
 /**
- *
+ * Delete a file by its ID
  * @param {number} MedicalRecordId
  * @param {{UserId: number, originalname: string, filename: string, mimetype: string, filePath: string}} file
  */
@@ -66,12 +66,12 @@ export async function deleteFile(MedicalRecordId, file) {
       .input("UserId", file.UserId);
 
     const result = await request.query(
-      `DELETE FROM MedicalRecord WHERE id = @recordId`
+      `DELETE FROM MedicalRecord WHERE MedicalRecordId = @MedicalRecordId`
     );
     if (result.recordset.length === 0) {
-      return { message: `No file with such ID ${MedicalRecordId}` };
+      return { message: `No file with such ID: ${MedicalRecordId}` };
     }
-    fs.unlinkSync(file.filePath); // ??
+    fs.unlinkSync(file.filePath); // to delete file
 
     return { message: `${file.filename} has been deleted.` };
   } catch (error) {
@@ -80,20 +80,33 @@ export async function deleteFile(MedicalRecordId, file) {
   }
 }
 
-// // Update the name of a file
-// const updateFileName = async (req, res) => {
-//   const UserId = req.params.userId;
-//   const MedicalRecordId = req.params.id;
-//   const { newName } = req.body;
+/**
+ * Update the nanme of a file by its ID
+ * @param {number} MedicalRecordId
+ * @param {{UserId: number, originalName: string, fileName: string, mimetype: string, filePath: string}} file
+ */
 
-//   await pool
-//     .request()
-//     .input("MedicalRecordId", MedicalRecordId)
-//     .input("UserId", UserId)
-//     .input("newName", newName).query(`
-//       UPDATE MedicalRecord SET originalName = @newName
-//       WHERE MedicalRecordId = @MedicalRecordId AND UserId = UserId
-//     `);
+export async function updateFileName(MedicalRecordId, file) {
+  try {
+    const request = pool
+      .request()
+      .input("MedicalRecordId", MedicalRecordId)
+      .input("UserId", file.UserId)
+      .input("fileName", file.fileName);
 
-//   res.json({ message: "File name updated" });
-// };
+    const result = await request.query(`
+      UPDATE MedicalRecord SET fileName = @fileName
+      WHERE MedicalRecordId = @MedicalRecordId AND UserId = @UserId
+    `);
+    if (result.rowsAffected[0] === 0) {
+      return { message: `No file with such ID ${MedicalRecordId}` };
+    }
+
+    return {
+      message: `${file.originalName} has been updated to ${file.fileName}.`,
+    };
+  } catch (error) {
+    console.error("Database error:", error);
+    throw error;
+  }
+}
