@@ -5,7 +5,7 @@ import pool from "../db.js";
 /**
  * Upload a file with its complete information
  * @param {number} UserId
- * @param {{originalname: string, filename: string, mimetype: string, filePath: string}} file
+ * @param {{originalName: string, filename: string, mimetype: string, filePath: string}} file
  */
 
 export async function uploadFile(UserId, file) {
@@ -14,7 +14,7 @@ export async function uploadFile(UserId, file) {
     const request = pool
       .request()
       .input("UserId", UserId)
-      .input("originalName", file.originalname)
+      .input("originalName", file.originalName)
       .input("fileName", file.filename)
       .input("mimeType", file.mimetype)
       .input("filePath", file.filePath);
