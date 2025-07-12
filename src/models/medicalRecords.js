@@ -43,7 +43,7 @@ export async function getFiles(UserId, file) {
     const request = pool.request().input("UserId", UserId);
 
     const result = await request.query(
-      `SELECT , originalName, fileName, mimeType, uploadedAt FROM MedicalRecords WHERE UserId = @UserId`
+      `SELECT , originalName, fileName, mimeType, uploadedAt FROM MedicalRecord WHERE UserId = @UserId`
     );
     return result.recordset;
   } catch (error) {
@@ -66,7 +66,7 @@ export async function deleteFile(MedicalRecordId, file) {
       .input("UserId", file.UserId);
 
     const result = await request.query(
-      `DELETE FROM MedicalRecords WHERE id = @recordId`
+      `DELETE FROM MedicalRecord WHERE id = @recordId`
     );
     if (result.recordset.length === 0) {
       return { message: `No file with such ID ${MedicalRecordId}` };
