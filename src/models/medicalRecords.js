@@ -59,7 +59,7 @@ export async function getFiles(UserId, file) {
 
 export async function deleteFile(MedicalRecordId, UserId) {
   try {
-    // Step 1: Fetch the file info first
+    // fetch the file info first
     const selectResult = await pool
       .request()
       .input("MedicalRecordId", MedicalRecordId)
@@ -73,7 +73,7 @@ export async function deleteFile(MedicalRecordId, UserId) {
       return null; // file doesn't exist or not owned by user
     }
 
-    // Step 2: Delete from the database
+    // delete from the database
     await pool
       .request()
       .input("MedicalRecordId", MedicalRecordId)
@@ -81,7 +81,7 @@ export async function deleteFile(MedicalRecordId, UserId) {
         DELETE FROM MedicalRecord WHERE MedicalRecordId = @MedicalRecordId AND UserId = @UserId
       `);
 
-    // Step 3: Delete the file from disk if it exists
+    // delete the file from disk if it exists
     if (file.filePath && fs.existsSync(file.filePath)) {
       fs.unlinkSync(file.filePath);
     }
