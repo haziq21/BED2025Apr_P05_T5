@@ -20,16 +20,19 @@ const app = express();
 app.use(express.json());
 app.use(express.static("public"));
 
+// Authentication
 app.post("/api/auth/otp", auth.sendOTP);
 app.post("/api/auth/user", auth.createUser);
 app.post("/api/auth/login", auth.login);
+
+// Profile management
 app.get("/api/profile/:userId", profile.getProfile);
 app.put("/api/profile/:userId", profile.updateProfile);
 app.delete("/api/profile/:userId", profile.deleteUser);
 app.put("/api/profile/:userId/picture", profile.deleteProfilePicture);
+app.delete("/api/profile/:userId/picture", profile.deleteProfilePicture);
 
 // CC management
-app.delete("/api/profile/:userId/picture", profile.deleteProfilePicture);
 app.get("/api/cc", cc.getAllCCs);
 app.get("/api/cc/:id", cc.getCCById);
 app.post("/api/cc", cc.createCC);
@@ -39,11 +42,16 @@ app.get("/api/cc/:id/admins", cc.getAdmins);
 app.post("/api/cc/:id/admins/:userId", cc.makeAdmin);
 app.delete("/api/cc/:id/admins/:userId", cc.removeAdmin);
 
+// Medical Record Management
 app.post("/api/medicalRecords/:UserId", medicalRecordsController.uploadFile);
 app.get("/api/medicalRecords/:UserId", medicalRecordsController.getFiles);
 app.delete(
   "/api/medicalRecords/:UserId/:MedicalRecordId",
   medicalRecordsController.deleteFile
+);
+app.put(
+  "/api/medicalRecords/:UserId/:MedicalRecordId",
+  medicalRecordsController.updateFileName
 );
 
 // Medication Schedule
@@ -88,7 +96,7 @@ app.put("/api/events/:id", events.updateEvent);
 app.get("/api/events/:id/registrations", events.getRegistrationsByEventId);
 app.get("/api/events/:userId/:eventId/mutual", events.getMutualRegistrations);
 app.get("/api/events/:userId/registered", events.getEventsByUserId);
-app.get("/api/events/cc/:id", events.getEventsByCCId);
+app.get("/api/events/cc/:CCid", events.getEventsByCCId);
 app.post("/api/events/:userId/:eventId/register", events.registerForEvent);
 app.post("/api/events/create", events.createEvent);
 app.delete("/api/events/:id", events.deleteEvent);
@@ -105,12 +113,10 @@ app.listen(PORT, () => {
 });
 
 process.on("SIGINT", async () => {
-  console.log("Received SIGINT. Closing pool and exiting...");
   try {
     await pool.close();
-    console.log("Database connection closed.");
   } catch (err) {
-    console.error("Error closing DB connection:", err);
+    console.error(err);
   } finally {
     process.exit(0);
   }

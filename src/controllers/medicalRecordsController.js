@@ -62,7 +62,7 @@ export async function deleteFile(req, res) {
     return;
   }
 
-  const file = await model.deleteFile(MedicalRecordId, req.body);
+  const file = await model.deleteFile(MedicalRecordId, UserId);
 
   if (!file) {
     res.status(404).json({ error: "Cannot view files." });
@@ -72,11 +72,31 @@ export async function deleteFile(req, res) {
   res.status(200).json(file);
 }
 
-// /**
-//  * update/change the name of a selected file
-//  * @type {import("express").RequestHandler}
-//  */
+/**
+ * update/change the name of a selected file
+ * @type {import("express").RequestHandler}
+ */
 
-// export async function updateFileName(req, res) {
+export async function updateFileName(req, res) {
+  const UserId = parseInt(req.params.UserId);
+  const MedicalRecordId = parseInt(req.params.MedicalRecordId);
+  const originalName = req.params.originalName;
+  if (isNaN(MedicalRecordId)) {
+    res.status(400).json({ error: "Unable to find medical record." });
+    return;
+  }
 
-// }
+  try {
+    const file = await model.updateFileName(MedicalRecordId, {
+      UserId,
+      fileName: req.body.fileName,
+      originalName: req.body.originalName,
+    });
+
+    if (!file) {
+      res.status(404).json({ error: "Cannot update file name." });
+    }
+
+    res.status(200).json(file);
+  } catch (err) {}
+}
