@@ -113,12 +113,10 @@ app.listen(PORT, () => {
 });
 
 process.on("SIGINT", async () => {
-  console.log("Received SIGINT. Closing pool and exiting...");
   try {
     await pool.close();
-    console.log("Database connection closed.");
   } catch (err) {
-    console.error("Error closing DB connection:", err);
+    console.error(err);
   } finally {
     process.exit(0);
   }
