@@ -15,7 +15,7 @@ export async function uploadFile(req, res) {
       return;
     }
 
-    const file = await model.uploadFile(UserId,req.body);
+    const file = await model.uploadFile(UserId, req.body);
 
     if (!file) {
       res.status(404).json({ error: "File upload failed" });
@@ -23,7 +23,7 @@ export async function uploadFile(req, res) {
     }
 
     res.status(200).json(file);
-    }
+  } catch {}
 }
 
 /**
@@ -34,21 +34,20 @@ export async function uploadFile(req, res) {
 export async function getFiles(req, res) {
   const UserId = parseInt(req.params.UserId);
 
-    if (isNaN(UserId)) {
-      res.status(400).json({ error: "Invalid user ID" });
-      return;
-    }
+  if (isNaN(UserId)) {
+    res.status(400).json({ error: "Invalid user ID" });
+    return;
+  }
 
-    const file = await model.getFiles(UserId,req.body);
+  const file = await model.getFiles(UserId, req.body);
 
-    if (!file) {
-      res.status(404).json({ error: "Cannot view files." });
-      return;
-    }
+  if (!file) {
+    res.status(404).json({ error: "Cannot view files." });
+    return;
+  }
 
-    res.status(200).json(file);
+  res.status(200).json(file);
 }
-
 
 /**
  * delete an uploaded file
@@ -59,18 +58,18 @@ export async function deleteFile(req, res) {
   const UserId = parseInt(req.params.UserId);
   const MedicalRecordId = parseInt(req.params.MedicalRecordId);
   if (isNaN(MedicalRecordId)) {
-      res.status(400).json({ error: "Unable to find medical record." });
-      return;
-    }
+    res.status(400).json({ error: "Unable to find medical record." });
+    return;
+  }
 
-    const file = await model.deleteFile(MedicalRecordId,req.body);
+  const file = await model.deleteFile(MedicalRecordId, req.body);
 
-    if (!file) {
-      res.status(404).json({ error: "Cannot view files." });
-      return;
-    }
+  if (!file) {
+    res.status(404).json({ error: "Cannot view files." });
+    return;
+  }
 
-    res.status(200).json(file);
+  res.status(200).json(file);
 }
 
 // /**
@@ -81,6 +80,3 @@ export async function deleteFile(req, res) {
 // export async function updateFileName(req, res) {
 
 // }
-
-
-

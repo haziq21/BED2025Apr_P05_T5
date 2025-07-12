@@ -8,8 +8,7 @@ import * as cc from "./controllers/cc.js";
 import * as friends from "./controllers/friends.js";
 import * as events from "./controllers/events.js";
 import * as comment from "./controllers/comment.js";
-
-// import * as medicalRecordsController from "./controllers/medicalRecordsController.js";
+import * as medicalRecordsController from "./controllers/medicalRecordsController.js";
 
 import * as mediSchedule from "./controllers/medicationSchedule.js";
 import * as mediValidate from "./middleware/medicationScheduleValidation.js";
@@ -39,6 +38,13 @@ app.delete("/api/cc/:id", cc.deleteCC);
 app.get("/api/cc/:id/admins", cc.getAdmins);
 app.post("/api/cc/:id/admins/:userId", cc.makeAdmin);
 app.delete("/api/cc/:id/admins/:userId", cc.removeAdmin);
+
+app.post("/api/medicalRecords/:UserId", medicalRecordsController.uploadFile);
+app.get("/api/medicalRecords/:UserId", medicalRecordsController.getFiles);
+app.delete(
+  "/api/medicalRecords/:UserId/:MedicalRecordId",
+  medicalRecordsController.deleteFile
+);
 
 // Medication Schedule
 app.get("/api/medicationSchedule/:userId", mediSchedule.getMediSchedule);

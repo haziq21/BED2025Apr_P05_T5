@@ -83,7 +83,7 @@ CREATE TABLE MedicalRecord (
     mimeType NVARCHAR(100),
     filePath NVARCHAR(255),
     uploadedAt DATETIME DEFAULT GETDATE(),
-    FOREIGN KEY (userId) REFERENCES Users(id)
+    FOREIGN KEY (UserId) REFERENCES Users(id)
 );
 
 CREATE TABLE MedicationSchedules (
