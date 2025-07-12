@@ -1,7 +1,7 @@
 import express from "express";
 import multer from "multer"; // to read files
 import { errorHandler } from "./middleware/error.js";
-import * as upload from "./middleware/upload.js";
+import upload from "./middleware/upload.js";
 import * as auth from "./controllers/auth.js";
 import * as profile from "./controllers/profile.js";
 import * as cc from "./controllers/cc.js";
@@ -59,11 +59,11 @@ app.delete(
 );
 
 //Comment
-app.get("/api/comment",comment.getComment);
-app.get("/api/comment/:userId",comment.getCommentById);
-app.post("/api/comment/:userId",comment.createComment);
-app.put("/api/comment/:userId",comment.updateComment);
-app.delete("/api/comment/:userId/:postId",comment.deleteComment);
+app.get("/api/comment", comment.getComment);
+app.get("/api/comment/:userId", comment.getCommentById);
+app.post("/api/comment/:userId", comment.createComment);
+app.put("/api/comment/:userId", comment.updateComment);
+app.delete("/api/comment/:userId/:postId", comment.deleteComment);
 
 //Friends management
 app.get("/api/friends/:id", friends.getAllFriends);
