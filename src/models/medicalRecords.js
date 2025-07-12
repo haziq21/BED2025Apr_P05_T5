@@ -9,7 +9,6 @@ import pool from "../db.js";
  */
 
 export async function uploadFile(UserId, file) {
-  // const d =  { originalname, filename, mimetype, path: filePath } = ;
   try {
     const request = pool
       .request()
@@ -35,7 +34,7 @@ export async function uploadFile(UserId, file) {
 /**
  * View all files uploaded by the user
  * @param {number} UserId
- * @param {{originalname: string, filename: string, mimetype: string, filePath: string}} file
+ * @param {{MedicalRecordId: number, originalName: string, fileName: string, mimeType: string, filePath: string}} file
  */
 
 export async function getFiles(UserId, file) {
@@ -43,7 +42,7 @@ export async function getFiles(UserId, file) {
     const request = pool.request().input("UserId", UserId);
 
     const result = await request.query(
-      `SELECT , originalName, fileName, mimeType, uploadedAt FROM MedicalRecord WHERE UserId = @UserId`
+      `SELECT MedicalRecordId, originalName, fileName, mimeType, uploadedAt FROM MedicalRecord WHERE UserId = @UserId`
     );
     return result.recordset;
   } catch (error) {
@@ -53,47 +52,74 @@ export async function getFiles(UserId, file) {
 }
 
 /**
- *
+ * Delete a file by its ID and UserId
  * @param {number} MedicalRecordId
- * @param {{UserId: number, originalname: string, filename: string, mimetype: string, filePath: string}} file
+ * @param {number} UserId
  */
 
-export async function deleteFile(MedicalRecordId, file) {
+export async function deleteFile(MedicalRecordId, UserId) {
   try {
-    const request = pool
+    // fetch the file info first
+    const selectResult = await pool
       .request()
       .input("MedicalRecordId", MedicalRecordId)
-      .input("UserId", file.UserId);
+      .input("UserId", UserId).query(`
+        SELECT filePath, fileName FROM MedicalRecord
+        WHERE MedicalRecordId = @MedicalRecordId AND UserId = @UserId
+      `);
 
-    const result = await request.query(
-      `DELETE FROM MedicalRecord WHERE id = @recordId`
-    );
-    if (result.recordset.length === 0) {
-      return { message: `No file with such ID ${MedicalRecordId}` };
+    const file = selectResult.recordset[0];
+    if (!file) {
+      return null; // file doesn't exist or not owned by user
     }
-    fs.unlinkSync(file.filePath); // ??
 
-    return { message: `${file.filename} has been deleted.` };
+    // delete from the database
+    await pool
+      .request()
+      .input("MedicalRecordId", MedicalRecordId)
+      .input("UserId", UserId).query(`
+        DELETE FROM MedicalRecord WHERE MedicalRecordId = @MedicalRecordId AND UserId = @UserId
+      `);
+
+    // delete the file from disk if it exists
+    if (file.filePath && fs.existsSync(file.filePath)) {
+      fs.unlinkSync(file.filePath);
+    }
+
+    return { message: `${file.fileName} has been deleted.` };
   } catch (error) {
     console.error("Database error:", error);
     throw error;
   }
 }
 
-// // Update the name of a file
-// const updateFileName = async (req, res) => {
-//   const UserId = req.params.userId;
-//   const MedicalRecordId = req.params.id;
-//   const { newName } = req.body;
+/**
+ * Update the nanme of a file by its ID
+ * @param {number} MedicalRecordId
+ * @param {{UserId: number, originalName: string, fileName: string}} file
+ */
 
-//   await pool
-//     .request()
-//     .input("MedicalRecordId", MedicalRecordId)
-//     .input("UserId", UserId)
-//     .input("newName", newName).query(`
-//       UPDATE MedicalRecord SET originalName = @newName
-//       WHERE MedicalRecordId = @MedicalRecordId AND UserId = UserId
-//     `);
+export async function updateFileName(MedicalRecordId, file) {
+  try {
+    const request = pool
+      .request()
+      .input("MedicalRecordId", MedicalRecordId)
+      .input("UserId", file.UserId)
+      .input("fileName", file.fileName);
 
-//   res.json({ message: "File name updated" });
-// };
+    const result = await request.query(`
+      UPDATE MedicalRecord SET fileName = @fileName
+      WHERE MedicalRecordId = @MedicalRecordId AND UserId = @UserId
+    `);
+    if (result.rowsAffected[0] === 0) {
+      return { message: `No file with such ID ${MedicalRecordId}` };
+    }
+
+    return {
+      message: `Your file has been updated to ${file.fileName}.`,
+    };
+  } catch (error) {
+    console.error("Database error:", error);
+    throw error;
+  }
+}
