@@ -13,7 +13,7 @@ export async function getAllFriends(id) {
       FROM Friends f
       JOIN 
       Users u ON f.UserId2 = u.UserId
-      WHERE f.Accepted = 1; AND f.UserId1 = @userId1`
+      WHERE f.Accepted = 1 AND f.UserId1 = @userId1`
     );
   return result.recordset.map((friend) => ({
     name: friend.FriendName,
@@ -104,6 +104,8 @@ export async function getPendingFriendRequests(userId) {
  * @returns {Promise<{id: number, name: string, bio: string, profilePhotoURL: string}[]>}
  */
 export async function searchUsers(query) {
+  query = decodeURIComponent(query); // Decode the query to handle special characters
+
   if (query.trim() === "") {
     return []; // Return an empty array if the query is empty
   }

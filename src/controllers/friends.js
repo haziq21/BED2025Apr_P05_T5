@@ -126,7 +126,7 @@ export async function searchUsers(req, res) {
  * @type {import("express").RequestHandler}
  */
 export async function getPublicProfile(req, res) {
-  const userId = +req.params.id;
+  const userId = +req.params.friendId;
   if (isNaN(userId)) {
     res.status(400).json({ error: "Invalid user ID" });
     return;
