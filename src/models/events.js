@@ -3,14 +3,14 @@ import pool from "../db.js";
 
 /** * Get all events for a CC
  * @param {number} CCId
- * @returns {Promise<{eventId: number, name: string, description: string, location: string, startDate: Date, endDate: Date}[]>} */
+ * @returns {Promise<{eventId: number, name: string, description: string, location: string, StartDateTime: Date, EndDateTime: Date}[]>} */
 export async function getEventsByCCId(CCId) {
   const result = await pool
     .request()
     .input("CCId", CCId)
     .query(
-      `SELECT EventId, Name, Description, Location, StartDate, EndDate
-       FROM Events
+      `SELECT EventId, Name, Description, Location, StartDateTime, EndDateTime
+       FROM CCEvents
        WHERE CCId = @CCId`
     );
   return result.recordset.map((event) => ({
@@ -18,21 +18,21 @@ export async function getEventsByCCId(CCId) {
     name: event.Name,
     description: event.Description,
     location: event.Location,
-    startDate: new Date(event.StartDate),
-    endDate: new Date(event.EndDate),
+    StartDateTime: new Date(event.StartDateTime),
+    EndDateTime: new Date(event.EndDateTime),
   }));
 }
 
 /** * Get an event by its ID
  * @param {number} eventId
- * @returns {Promise<{name: string, description: string, location: string, startDate: Date, endDate: Date}|null>} */
+ * @returns {Promise<{name: string, description: string, location: string, StartDateTime: Date, EndDateTime: Date}|null>} */
 export async function getEventById(eventId) {
   const result = await pool
     .request()
     .input("eventId", eventId)
     .query(
-      `SELECT Name, Description, Location, StartDate, EndDate
-       FROM Events
+      `SELECT Name, Description, Location, StartDateTime, EndDateTime
+       FROM CCEvents
        WHERE EventId = @eventId`
     );
   if (result.recordset.length === 0) return null;
@@ -41,8 +41,8 @@ export async function getEventById(eventId) {
     name: event.Name,
     description: event.Description,
     location: event.Location,
-    startDate: new Date(event.StartDate),
-    endDate: new Date(event.EndDate),
+    StartDateTime: new Date(event.StartDateTime),
+    EndDateTime: new Date(event.EndDateTime),
   };
 }
 
@@ -117,8 +117,8 @@ export async function unregisterFromEvent(userId, eventId) {
  * @param {string} name - The name of the event
  * @param {string} description - The description of the event
  * @param {string} location - The location of the event
- * @param {Date} startDate - The start date of the event
- * @param {Date} endDate - The end date of the event
+ * @param {Date} StartDateTime - The start date of the event
+ * @param {Date} EndDateTime - The end date of the event
  * @returns {Promise<number>} - Returns the ID of the newly created event
  */
 export async function createEvent(
@@ -126,8 +126,8 @@ export async function createEvent(
   name,
   description,
   location,
-  startDate,
-  endDate
+  StartDateTime,
+  EndDateTime
 ) {
   const result = await pool
     .request()
@@ -135,12 +135,12 @@ export async function createEvent(
     .input("name", name)
     .input("description", description)
     .input("location", location)
-    .input("startDate", startDate)
-    .input("endDate", endDate)
+    .input("StartDateTime", StartDateTime)
+    .input("EndDateTime", EndDateTime)
     .query(
-      `INSERT INTO Events (CCId, Name, Description, StartDate, EndDate)
+      `INSERT INTO CCEvents (CCId, Name, Description, Location, StartDateTime, EndDateTime)
        OUTPUT INSERTED.EventId
-       VALUES (@CCId, @name, @description, @location, @startDate, @endDate)`
+       VALUES (@CCId, @name, @description, @location, @StartDateTime, @EndDateTime)`
     );
   return result.recordset[0].EventId; // Return the ID of the newly created event
 }
@@ -150,8 +150,8 @@ export async function createEvent(
  * @param {string} name - The new name of the event
  * @param {string} description - The new description of the event
  * @param {string} location - The new location of the event
- * @param {Date} startDate - The new start date of the event
- * @param {Date} endDate - The new end date of the event
+ * @param {Date} StartDateTime - The new start date of the event
+ * @param {Date} EndDateTime - The new end date of the event
  * @returns {Promise<boolean>} - Returns true if the update was successful, false otherwise
  */
 export async function updateEvent(
@@ -159,8 +159,8 @@ export async function updateEvent(
   name,
   description,
   location,
-  startDate,
-  endDate
+  StartDateTime,
+  EndDateTime
 ) {
   const result = await pool
     .request()
@@ -168,11 +168,11 @@ export async function updateEvent(
     .input("name", name)
     .input("description", description)
     .input("location", location)
-    .input("startDate", startDate)
-    .input("endDate", endDate)
+    .input("StartDateTime", StartDateTime)
+    .input("EndDateTime", EndDateTime)
     .query(
-      `UPDATE Events
-       SET Name = @name, Description = @description, Location = @location, StartDate = @startDate, EndDate = @endDate
+      `UPDATE CCEvents
+       SET Name = @name, Description = @description, Location = @location, StartDateTime = @StartDateTime, EndDateTime = @EndDateTime
        WHERE EventId = @eventId`
     );
   return result.rowsAffected[0] > 0; // Return true if the update was successful
@@ -186,7 +186,7 @@ export async function deleteEvent(eventId) {
   const result = await pool
     .request()
     .input("eventId", eventId)
-    .query(`DELETE FROM Events WHERE EventId = @eventId`);
+    .query(`DELETE FROM CCEvents WHERE EventId = @eventId`);
   return result.rowsAffected[0] > 0; // Return true if the deletion was successful
 }
 
@@ -214,16 +214,16 @@ export async function getRegistrationsForEvent(eventId) {
 
 /** Get all events for a user
  * @param {number} userId - The ID of the user to get events for
- * @returns {Promise<{eventId: number, name: string, description: string, location: string,  startDate: Date, endDate: Date}[]>} - Returns a list of events the user is registered for
+ * @returns {Promise<{eventId: number, name: string, description: string, location: string,  StartDateTime: Date, EndDateTime: Date}[]>} - Returns a list of events the user is registered for
  */
 export async function getEventsByUserId(userId) {
   const result = await pool
     .request()
     .input("userId", userId)
     .query(
-      `SELECT e.EventId, e.Name, e.Description, e.Location, e.StartDate, e.EndDate
+      `SELECT e.EventId, e.Name, e.Description, e.Location, e.StartDateTime, e.EndDateTime
        FROM CCEventRegistrations r
-       JOIN Events e ON r.EventId = e.EventId
+       JOIN CCEvents e ON r.EventId = e.EventId
        WHERE r.UserId = @userId`
     );
   return result.recordset.map((event) => ({
@@ -231,7 +231,7 @@ export async function getEventsByUserId(userId) {
     name: event.Name,
     description: event.Description,
     location: event.Location,
-    startDate: new Date(event.StartDate),
-    endDate: new Date(event.EndDate),
+    StartDateTime: new Date(event.StartDateTime),
+    EndDateTime: new Date(event.EndDateTime),
   }));
 }

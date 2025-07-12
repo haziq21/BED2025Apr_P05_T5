@@ -4,7 +4,7 @@ import * as model from "../models/events.js";
  * @type {import("express").RequestHandler}
  */
 export async function getEventsByCCId(req, res) {
-  const CCId = +req.params.id;
+  const CCId = +req.params.CCid;
   if (isNaN(CCId)) {
     res.status(400).json({ error: "Invalid CC ID" });
     return;

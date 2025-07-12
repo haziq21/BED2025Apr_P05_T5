@@ -59,11 +59,11 @@ app.delete(
 );
 
 //Comment
-app.get("/api/comment",comment.getComment);
-app.get("/api/comment/:userId",comment.getCommentById);
-app.post("/api/comment/:userId",comment.createComment);
-app.put("/api/comment/:userId",comment.updateComment);
-app.delete("/api/comment/:userId/:postId",comment.deleteComment);
+app.get("/api/comment", comment.getComment);
+app.get("/api/comment/:userId", comment.getCommentById);
+app.post("/api/comment/:userId", comment.createComment);
+app.put("/api/comment/:userId", comment.updateComment);
+app.delete("/api/comment/:userId/:postId", comment.deleteComment);
 
 //Friends management
 app.get("/api/friends/:id", friends.getAllFriends);
@@ -82,7 +82,7 @@ app.put("/api/events/:id", events.updateEvent);
 app.get("/api/events/:id/registrations", events.getRegistrationsByEventId);
 app.get("/api/events/:userId/:eventId/mutual", events.getMutualRegistrations);
 app.get("/api/events/:userId/registered", events.getEventsByUserId);
-app.get("/api/events/cc/:id", events.getEventsByCCId);
+app.get("/api/events/cc/:CCid", events.getEventsByCCId);
 app.post("/api/events/:userId/:eventId/register", events.registerForEvent);
 app.post("/api/events/create", events.createEvent);
 app.delete("/api/events/:id", events.deleteEvent);
