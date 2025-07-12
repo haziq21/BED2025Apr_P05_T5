@@ -90,7 +90,7 @@ export async function updateFileName(req, res) {
     const file = await model.updateFileName(MedicalRecordId, {
       UserId,
       fileName: req.body.fileName,
-      originalName: req.body.originalName ?? "(original name unknown)",
+      originalName: req.body.originalName,
     });
 
     if (!file) {
