@@ -35,7 +35,7 @@ export async function uploadFile(UserId, file) {
 /**
  * View all files uploaded by the user
  * @param {number} UserId
- * @param {{originalname: string, filename: string, mimetype: string, filePath: string}} file
+ * @param {{MedicalRecordId: number, originalName: string, fileName: string, mimeType: string, filePath: string}} file
  */
 
 export async function getFiles(UserId, file) {
@@ -43,7 +43,7 @@ export async function getFiles(UserId, file) {
     const request = pool.request().input("UserId", UserId);
 
     const result = await request.query(
-      `SELECT originalName, fileName, mimeType, uploadedAt FROM MedicalRecord WHERE UserId = @UserId`
+      `SELECT MedicalRecordId, originalName, fileName, mimeType, uploadedAt FROM MedicalRecord WHERE UserId = @UserId`
     );
     return result.recordset;
   } catch (error) {
