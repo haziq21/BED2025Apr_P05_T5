@@ -5,7 +5,7 @@ import pool from "../db.js";
 /**
  * Upload a file with its complete information
  * @param {number} UserId
- * @param {{originalName: string, filename: string, mimetype: string, filePath: string}} file
+ * @param {{originalName: string, fileName: string, mimeType: string, filePath: string}} file
  */
 
 export async function uploadFile(UserId, file) {
@@ -15,12 +15,13 @@ export async function uploadFile(UserId, file) {
       .request()
       .input("UserId", UserId)
       .input("originalName", file.originalName)
-      .input("fileName", file.filename)
-      .input("mimeType", file.mimetype)
+      .input("fileName", file.fileName)
+      .input("mimeType", file.mimeType)
       .input("filePath", file.filePath);
 
     const result = await request.query(
-      ` INSERT INTO MedicalRecords (UserId, originalName, fileName, mimeType, filePath)
+      ` INSERT INTO MedicalRecord (UserId, originalName, fileName, mimeType, filePath)
+        OUTPUT INSERTED.*
         VALUES (@UserId, @originalName, @fileName, @mimeType, @filePath)
             `
     );
