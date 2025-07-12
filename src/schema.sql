@@ -76,9 +76,14 @@ CREATE TABLE InterestGroupProposals (
 );
 
 CREATE TABLE MedicalRecord (
-  MedicalRecordId INT IDENTITY PRIMARY KEY,
-  UserId INT NOT NULL REFERENCES Users,
-  Title NVARCHAR(255) NOT NULL
+    MedicalRecordId INT PRIMARY KEY IDENTITY(1,1),
+    UserId INT NOT NULL,
+    originalName NVARCHAR(255) NOT NULL,
+    fileName NVARCHAR(255) NULL,
+    mimeType NVARCHAR(100),
+    filePath NVARCHAR(255),
+    uploadedAt DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (UserId) REFERENCES Users(UserId)
 );
 
 CREATE TABLE MedicationSchedules (

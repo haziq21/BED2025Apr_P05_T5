@@ -1,15 +1,14 @@
 import express from "express";
 import multer from "multer"; // to read files
 import { errorHandler } from "./middleware/error.js";
-import * as upload from "./middleware/upload.js";
+import upload from "./middleware/upload.js";
 import * as auth from "./controllers/auth.js";
 import * as profile from "./controllers/profile.js";
 import * as cc from "./controllers/cc.js";
 import * as friends from "./controllers/friends.js";
 import * as events from "./controllers/events.js";
 import * as comment from "./controllers/comment.js";
-
-// import * as medicalRecordsController from "./controllers/medicalRecordsController.js";
+import * as medicalRecordsController from "./controllers/medicalRecordsController.js";
 
 import * as mediSchedule from "./controllers/medicationSchedule.js";
 import * as mediValidate from "./middleware/medicationScheduleValidation.js";
@@ -21,16 +20,19 @@ const app = express();
 app.use(express.json());
 app.use(express.static("public"));
 
+// Authentication
 app.post("/api/auth/otp", auth.sendOTP);
 app.post("/api/auth/user", auth.createUser);
 app.post("/api/auth/login", auth.login);
+
+// Profile management
 app.get("/api/profile/:userId", profile.getProfile);
 app.put("/api/profile/:userId", profile.updateProfile);
 app.delete("/api/profile/:userId", profile.deleteUser);
 app.put("/api/profile/:userId/picture", profile.deleteProfilePicture);
+app.delete("/api/profile/:userId/picture", profile.deleteProfilePicture);
 
 // CC management
-app.delete("/api/profile/:userId/picture", profile.deleteProfilePicture);
 app.get("/api/cc", cc.getAllCCs);
 app.get("/api/cc/:id", cc.getCCById);
 app.post("/api/cc", cc.createCC);
@@ -39,6 +41,18 @@ app.delete("/api/cc/:id", cc.deleteCC);
 app.get("/api/cc/:id/admins", cc.getAdmins);
 app.post("/api/cc/:id/admins/:userId", cc.makeAdmin);
 app.delete("/api/cc/:id/admins/:userId", cc.removeAdmin);
+
+// Medical Record Management
+app.post("/api/medicalRecords/:UserId", medicalRecordsController.uploadFile);
+app.get("/api/medicalRecords/:UserId", medicalRecordsController.getFiles);
+app.delete(
+  "/api/medicalRecords/:UserId/:MedicalRecordId",
+  medicalRecordsController.deleteFile
+);
+app.put(
+  "/api/medicalRecords/:UserId/:MedicalRecordId",
+  medicalRecordsController.updateFileName
+);
 
 // Medication Schedule
 app.get("/api/medicationSchedule/:userId", mediSchedule.getMediSchedule);
@@ -99,12 +113,10 @@ app.listen(PORT, () => {
 });
 
 process.on("SIGINT", async () => {
-  console.log("Received SIGINT. Closing pool and exiting...");
   try {
     await pool.close();
-    console.log("Database connection closed.");
   } catch (err) {
-    console.error("Error closing DB connection:", err);
+    console.error(err);
   } finally {
     process.exit(0);
   }
