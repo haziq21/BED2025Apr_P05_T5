@@ -140,8 +140,6 @@ app.post(
 app.post("/api/friends/:id/:friendId", verifyJWT, friends.sendFriendRequest);
 app.delete("/api/friends/:id/:friendId", verifyJWT, friends.deleteFriend);
 
-//
-
 // Events management
 app.get("/api/events/:id", verifyJWT, events.getEventById);
 app.put("/api/events/:id", verifyJWT, events.updateEvent);
