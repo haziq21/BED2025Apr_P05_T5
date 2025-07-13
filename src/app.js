@@ -62,30 +62,33 @@ app.delete(
   mediValidate.validateSchedule,
   mediSchedule.deleteSchedule
 );
-app.get("/api/medicationSchedule/:userId", mediSchedule.getMediSchedule);
+app.get("/api/medicationSchedule/:userId", verifyJWT, mediSchedule.getMediSchedule);
 app.post(
   "/api/medicationSchedule/:userId",
+  verifyJWT,
   mediValidate.validateSchedule,
   mediSchedule.createSchedule
 );
 app.put(
   "/api/medicationSchedule/:userId",
+  verifyJWT,
   mediValidate.validateSchedule,
   mediSchedule.updateSchedule
 );
 app.delete(
   "/api/medicationSchedule/:userId/:scheduleId",
+  verifyJWT,
   mediValidate.validateScheduleId,
   mediValidate.validateSchedule,
   mediSchedule.deleteSchedule
 );
 
 //Comment
-app.get("/api/comment", comment.getComment);
-app.get("/api/comment/:userId", comment.getCommentById);
-app.post("/api/comment/:userId", comment.createComment);
-app.put("/api/comment/:userId", comment.updateComment);
-app.delete("/api/comment/:userId/:postId", comment.deleteComment);
+app.get("/api/comment",verifyJWT, comment.getComment);
+app.get("/api/comment/:userId",verifyJWT, comment.getCommentById);
+app.post("/api/comment/:userId",verifyJWT, comment.createComment);
+app.put("/api/comment/:userId",verifyJWT, comment.updateComment);
+app.delete("/api/comment/:userId/:postId",verifyJWT, comment.deleteComment);
 
 //Friends management
 app.get("/api/friends/:id", verifyJWT, friends.getAllFriends);
@@ -99,15 +102,15 @@ app.delete("/api/friends/:id/:friendId", verifyJWT, friends.deleteFriend);
 //
 
 // Events management
-app.get("/api/events/:id", events.getEventById);
-app.put("/api/events/:id", events.updateEvent);
-app.get("/api/events/:id/registrations", events.getRegistrationsByEventId);
-app.get("/api/events/:userId/:eventId/mutual", events.getMutualRegistrations);
-app.get("/api/events/:userId/registered", events.getEventsByUserId);
-app.get("/api/events/cc/:id", events.getEventsByCCId);
-app.post("/api/events/:userId/:eventId/register", events.registerForEvent);
-app.post("/api/events/create", events.createEvent);
-app.delete("/api/events/:id", events.deleteEvent);
+app.get("/api/events/:id", verifyJWT, events.getEventById);
+app.put("/api/events/:id", verifyJWT, events.updateEvent);
+app.get("/api/events/:id/registrations", verifyJWT, events.getRegistrationsByEventId);
+app.get("/api/events/:userId/:eventId/mutual", verifyJWT, events.getMutualRegistrations);
+app.get("/api/events/:userId/registered", verifyJWT, events.getEventsByUserId);
+app.get("/api/events/cc/:id", verifyJWT, events.getEventsByCCId);
+app.post("/api/events/:userId/:eventId/register", verifyJWT, events.registerForEvent);
+app.post("/api/events/create", verifyJWT, events.createEvent);
+app.delete("/api/events/:id", verifyJWT, events.deleteEvent);
 app.delete(
   "/api/events/:userId/:eventId/unregister",
   verifyJWT,
