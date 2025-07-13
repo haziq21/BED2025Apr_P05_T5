@@ -52,7 +52,7 @@ app.delete("/api/cc/:id/admins/:userId", verifyJWT, cc.removeAdmin);
 app.post("/api/medicalRecords/:UserId", medicalRecordsController.uploadFile);
 app.get("/api/medicalRecords/:UserId", medicalRecordsController.getFiles);
 app.delete(
-  "/api/medicalRecords/:UserId:MedicalRecordId",
+  "/api/medicalRecords/:UserId/:MedicalRecordId",
   medicalRecordsController.deleteFile
 );
 app.put(
