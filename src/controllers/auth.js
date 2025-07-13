@@ -57,8 +57,6 @@ export async function login(req, res) {
     }
     //payload
     const payload = {
-      id: user.id,
-      role: user.role,
       userId: user.UserId,
       name: user.Name,
     };
