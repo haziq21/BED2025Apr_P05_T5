@@ -183,10 +183,9 @@ export async function updateEvent(
  * @returns {Promise<boolean>} - Returns true if the deletion was successful, false otherwise
  */
 export async function deleteEvent(eventId) {
-  const result = await pool
-    .request()
-    .input("eventId", eventId)
-    .query(`DELETE FROM CCEvents WHERE EventId = @eventId`);
+  const result = await pool.request().input("eventId", eventId)
+    .query(`DELETE FROM CCEventRegistrations WHERE EventId = @eventId;
+DELETE FROM CCEvents WHERE EventId = @eventId;`);
   return result.rowsAffected[0] > 0; // Return true if the deletion was successful
 }
 
