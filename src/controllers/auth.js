@@ -36,22 +36,32 @@ export async function createUser(req, res) {
  */
 
 export async function login(req, res) {
+  const secretKey = process.env.JWT_SECRET;
+  if (!secretKey) {
+    res.status(500).json({ message: "JWT secret key is not configured" });
+    return;
+  }
   const { phoneNumber } = req.body;
 
   try {
     // Validate user credentials
     const user = await model.getUserByPhoneNumber(phoneNumber);
+    console.log("User from DB:", user);
     if (!user) {
       res.status(401).json({ message: "Invalid credentials" });
       return;
     }
+    if (!phoneNumber) {
+      res.status(400).json({ message: "Phone number is required" });
+      return;
+    }
     //payload
     const payload = {
-      id: user.id,
-      role: user.role,
+      userId: user.UserId,
+      name: user.Name,
     };
-    const token = jwt.sign(payload, "my_secret_key", { expiresIn: "3600s" }); // Expires in 1 hour
-    res.status(200).json({ token });
+    const token = jwt.sign(payload, secretKey, { expiresIn: "3600s" }); // Expires in 1 hour
+    res.status(200).json({ token }); //return the token
     return;
   } catch (err) {
     console.error(err);
