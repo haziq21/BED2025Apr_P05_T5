@@ -35,13 +35,13 @@
         <h1>My Medication Plan | My Medical Records</h1>
 
         <ul class="medication-list" id="medicationList"></ul>
-        >
+        
 
         <div id="form-container"></div>
 
         <template id="form-template">
           <div class="form-section">
-            <button class="delete-btn" title="Delete this schedule">×</button>
+            <button class="close-btn" title="Close this schedule">×</button>
 
             <h3>Medication Schedule</h3>
 
@@ -68,6 +68,7 @@
               >
             </div>
 
+            <!-- only shown if repeat is selected -->
             <div class="repeat-options">
               <p>Repeat</p>
               <div class="form-row">
@@ -127,6 +128,12 @@
       </section>
 
       <div id="form-container"></div>
+      <!-- Modal -->
+      <div id="update-modal" class="modal" style="display: none">
+        <div id="update-form-container"></div>
+      </div>
+
+      <div id="overlay" class="overlay" style="display: none"></div>
     </main>
 
     <script src="../global.js"></script>
