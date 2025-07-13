@@ -40,8 +40,8 @@ function renderMedications(data) {
       Medication: ${item.DrugName} - StartTime: ${formatTime(
       item.StartDateXTime
     )} - ${formatRepeat(item)}
-      <button class="action-btn update">Update</button>
-      <button class="action-btn delete">Delete</button>
+      <button class="action-btn update-btn">Update</button>
+      <button class="action-btn delete-btn">Delete</button>
     `;
 
     // @ts-ignore
@@ -66,7 +66,7 @@ function formatTime(iso) {
 }
 
 /**
- * display no repeat,repeat every ()days/weeks
+ * check if it's no repeat,repeat every ()days/weeks
  * @param {Medication} item
  * @returns {string}
  */
@@ -86,7 +86,6 @@ function formatRepeat(item) {
  * return the binerary string to exact date - '00000001' to SUN when repeat week is selected
  * @param {string} binaryString
  */
-//convert binary string '0000011' to sat&sun
 function getWeekdaysFromBinaryString(binaryString) {
   const daysOfWeek = ["MON", "TUE", "WED", "THUR", "FRI", "SAT", "SUN"];
   const result = [];
@@ -100,18 +99,23 @@ function getWeekdaysFromBinaryString(binaryString) {
   return result.join(" & ");
 }
 
+//display schedule form if add new schedule button is clicked
 const formContainer = document.getElementById("form-container");
 const formTemplate = document.getElementById("form-template");
+
 /**
+ * display tick of the ticked checkbox
+ * display the repeat form after repeat checkbox is ticked
  * @param {*} formElement
  */
 function attachEvents(formElement) {
   const repeatCheck = formElement.querySelector(".repeat-check");
   const norepeatCheck = formElement.querySelector(".norepeat-check");
-  const repeatOptions = formElement.querySelector(".repeat-options");
-  const deleteBtn = formElement.querySelector(".delete-btn");
+  const closeBtn = formElement.querySelector(".close-btn");
   const end = formElement.querySelector(".ends-check");
   const never = formElement.querySelector(".never-check");
+  // only display when repeat is selected
+  const repeatOptions = formElement.querySelector(".repeat-options");
 
   end.addEventListener("change", () => {
     if (end.checked) {
@@ -141,6 +145,7 @@ function attachEvents(formElement) {
     }
   });
 
+  // display the weekdays and highlight the chosen days  
   const dayButtons = formElement.querySelectorAll(".day-btn");
   dayButtons.forEach(
     (
@@ -152,7 +157,7 @@ function attachEvents(formElement) {
     }
   );
 
-  deleteBtn.addEventListener("click", () => {
+  closeBtn.addEventListener("click", () => {
     formElement.remove();
   });
 }
@@ -174,6 +179,98 @@ if (addNewBtn) {
 } else {
   console.warn("Button with ID 'add-new-form' not found in the DOM.");
 }
+
+// const updateBtn = document.getElementById("update-btn");
+// if (updateBtn) {
+//   updateBtn.addEventListener("click", () => {
+
+//   });
+// }
+
+// async function updateSchedule() {
+//   try {
+//     fetch(`${apiBaseUrl}/api/medicationSchedule/1`),
+//       {
+//         method: "PUT",
+//         Headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify({
+//           medicationName: "Panadol",
+//           startDate: "2025-07-08",
+//           startTime: "07:00",
+//           repeat: true,
+//           frequency: 2,
+//         }),
+//       };
+//     // const data = await res.json();
+//     // renderMedications(data);
+//   } catch (error) {
+//     console.error("Error fetching medications:", error);
+//   }
+// }
+
+const overlay = document.getElementById("overlay");
+const modal = document.getElementById("update-modal");
+const updateFormContainer = document.getElementById("update-form-container");
+
+// @ts-ignore
+function openUpdateForm(existingData) {
+  // Clear previous modal content
+  // @ts-ignore
+  updateFormContainer.innerHTML = "";
+
+  // Clone the same form
+  // @ts-ignore
+  const clone = formTemplate.content.cloneNode(true);
+  const newForm = clone.querySelector(".form-section");
+
+  // Pre-fill fields
+  newForm.querySelector('input[type="text"]').value = existingData.name;
+  newForm.querySelector('input[type="date"]').value = existingData.date;
+  newForm.querySelector('input[type="time"]').value = existingData.time;
+
+  // Attach event listeners again
+  attachEvents(newForm);
+
+  // Append to modal
+  // @ts-ignore
+  updateFormContainer.appendChild(newForm);
+
+  // Show modal and overlay
+  // @ts-ignore
+  modal.style.display = "block";
+  // @ts-ignore
+  overlay.style.display = "block";
+}
+
+// Close modal
+// @ts-ignore
+overlay.addEventListener("click", () => {
+  // @ts-ignore
+  modal.style.display = "none";
+  // @ts-ignore
+  overlay.style.display = "none";
+});
+
+// Add listener to existing update buttons
+document.addEventListener("click", (e) => {
+  // @ts-ignore
+  if (e.target.classList.contains("update-btn")) {
+    // @ts-ignore
+    const form = e.target.closest("li");
+
+    const existingData = {
+      name: form.textContent.match(/Medication: (.+?) -/)[1],
+      date: "2025-07-08", // replace this with actual parsed data
+      time: "07:00",       // replace this with actual parsed time
+    };
+
+    openUpdateForm(existingData);
+  }
+});
+
+
 
 // Load on page
 fetchMedications();
