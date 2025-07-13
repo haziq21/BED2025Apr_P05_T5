@@ -31,7 +31,7 @@ export async function createUser(req, res) {
   }
 }
 /**
- * Gets the profile of a user by phone number.
+ * Gets the profile of a user by their ID.
  * @type {import("express").RequestHandler}
  */
 
@@ -57,6 +57,8 @@ export async function login(req, res) {
     }
     //payload
     const payload = {
+      id: user.id,
+      role: user.role,
       userId: user.UserId,
       name: user.Name,
     };

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Medication</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Gelasio:ital,wght@0,400..700;1,400..700&family=Libre+Franklin:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../global.css" />
+    <link rel="stylesheet" href="medication.css" />
+
+    <!-- custimize search tab -->
+    <!-- <link href="tom-select.bootstrap4.css" rel="stylesheet" /> -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <nav class="topnav">
+      <a href="#home">Kampung Connect</a>
+      <a href="#Events">Events</a>
+      <a href="#Location">Location</a>
+      <a href="#Medication">Medication</a>
+      <a href="#profile">Profile</a>
+      <a href="#comments"></a>
+    </nav>
+
+    <main class="content">
+      <section class="medication-section">
+        <h1>My Medication Plan | My Medical Records</h1>
+
+        <ul class="medication-list" id="medicationList"></ul>
+        >
+
+        <div id="form-container"></div>
+
+        <template id="form-template">
+          <div class="form-section">
+            <button class="delete-btn" title="Delete this schedule">×</button>
+
+            <h3>Medication Schedule</h3>
+
+            <div class="form-row">
+              <input
+                type="text"
+                placeholder="Enter the name of your medication"
+              />
+            </div>
+
+            <div class="form-row">
+              <label>🕒 Starts:</label>
+              <input type="date" />
+              <input type="time" />
+            </div>
+
+            <div class="form-row">
+              <label
+                ><input type="checkbox" class="repeat-check" /> Repeat</label
+              >
+              <label
+                ><input type="checkbox" class="norepeat-check" checked /> No
+                repeat</label
+              >
+            </div>
+
+            <div class="repeat-options">
+              <p>Repeat</p>
+              <div class="form-row">
+                Every
+                <input type="number" min="1" value="1" style="width: 60px" />
+                <button class="day-btn highlighted">Day</button>
+              </div>
+
+              <div class="days">
+                <button class="day-btn">SUN</button>
+                <button class="day-btn">MON</button>
+                <button class="day-btn">TUE</button>
+                <button class="day-btn">WED</button>
+                <button class="day-btn">THU</button>
+                <button class="day-btn">FRI</button>
+                <button class="day-btn">SAT</button>
+              </div>
+
+              <div class="form-row">
+                <label><input type="checkbox" class="ends-check" /> Ends</label>
+                <input type="date" placeholder="Enter the date" />
+              </div>
+              <div class="form-row">
+                <label
+                  ><input type="checkbox" class="never-check" checked />
+                  Never</label
+                >
+              </div>
+            </div>
+          </div>
+        </template>
+        <button class="add-btn" id="add-new-form">
+          Add new medication schedules
+        </button>
+      </section>
+      <hr />
+
+      <section class="search-section">
+        <h2>Search your medication</h2>
+        <p>
+          Want to know more about your medication? Enter the name below to learn
+          more!
+        </p>
+
+        <select
+          id="medication-search"
+          placeholder="Select from the list or search for another medication"
+        >
+          <option value="">
+            Select from the list or search for another medication
+          </option>
+          <option value="Panadol">Panadol</option>
+          <option value="Panaflex">Panaflex</option>
+          <option value="Paracetamol">Paracetamol</option>
+          <option value="Ibuprofen">Ibuprofen</option>
+        </select>
+      </section>
+
+      <div id="form-container"></div>
+    </main>
+
+    <script src="../global.js"></script>
+    <script type="module" src="medication.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+    <script>
+      new TomSelect("#medication-search", {
+        create: true, // allows user to type new medications
+        // Sorts options alphabetically
+        sortField: [
+          {
+            field: "text",
+            direction: "asc",
+          },
+        ],
+        maxOptions: 6, //show up to six options
+      });
+    </script>
+  </body>
+</html>
+<!-- http://localhost:3000/medicationSchedule/medication.html -->
