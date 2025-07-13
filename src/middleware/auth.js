@@ -1,9 +1,9 @@
 import jwt from "jsonwebtoken";
 import Joi from "joi";
-import dotenv from "dotenv";
 
-dotenv.config();
-const secretKey = process.env.JWT_SECRET;
+/**
+ * @typedef {import('express').Request & { user?: any }} AuthenticatedRequest
+ */
 
 const createUserSchema = Joi.object({
   Name: Joi.string().min(1).max(50).required().messages({
@@ -34,11 +34,11 @@ const createUserSchema = Joi.object({
   }),
 });
 /**
- * @param {import('express').Request} req 
- * @param {import('express').Response} res 
- * @param {import('express').NextFunction} next 
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
  */
-function validateUser(req, res, next) {
+export function validateUser(req, res, next) {
   const { error } = createUserSchema.validate(req.body);
   if (error) {
     return res.status(400).json({ message: error.details[0].message });
@@ -46,25 +46,35 @@ function validateUser(req, res, next) {
   next();
 }
 /**
- * @param {import('express').Request} req 
- * @param {import('express').Response} res 
- * @param {import('express').NextFunction} next 
+ * @param {AuthenticatedRequest} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
  */
 export function verifyJWT(req, res, next) {
+  const secretKey = process.env.JWT_SECRET;
+  if (!secretKey) {
+    res.status(500).json({ message: "JWT secret key is not configured" });
+    return;
+  }
   const token = req.headers.authorization?.split(" ")[1];
+
   if (!token) {
-    return res.status(401).json({ message: "No token provided" });
+    res.status(401).json({ message: "No token provided" });
+    return;
   }
 
   if (!secretKey) {
-    return res.status(500).json({ message: "JWT secret key is not configured" });
+    res.status(500).json({ message: "JWT secret key is not configured" });
+    return;
   }
 
   jwt.verify(token, secretKey, (err, decoded) => {
+    console.log(err, decoded);
     if (err) {
-      return res.status(403).json({ message: "Failed to authenticate token" });
+      res.status(403).json({ message: "Invalid or expired token" });
+      return;
     }
-    req.user = decoded; // Attach user info to request
+    req.user = decoded;
     next();
   });
 }
