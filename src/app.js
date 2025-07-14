@@ -32,13 +32,13 @@ app.put(
   verifyJWT,
   profile.deleteProfilePicture
 );
-
-// CC management
 app.delete(
   "/api/profile/:userId/picture",
   verifyJWT,
   profile.deleteProfilePicture
 );
+
+// CC management
 app.get("/api/cc", verifyJWT, cc.getAllCCs);
 app.get("/api/cc/:id", verifyJWT, cc.getCCById);
 app.post("/api/cc", verifyJWT, cc.createCC);
@@ -49,8 +49,16 @@ app.post("/api/cc/:id/admins/:userId", verifyJWT, cc.makeAdmin);
 app.delete("/api/cc/:id/admins/:userId", verifyJWT, cc.removeAdmin);
 
 // Medical Record Management
-app.post("/api/medicalRecords/:UserId", verifyJWT, medicalRecordsController.uploadFile);
-app.get("/api/medicalRecords/:UserId", verifyJWT, medicalRecordsController.getFiles);
+app.post(
+  "/api/medicalRecords/:UserId",
+  verifyJWT,
+  medicalRecordsController.uploadFile
+);
+app.get(
+  "/api/medicalRecords/:UserId",
+  verifyJWT,
+  medicalRecordsController.getFiles
+);
 app.delete(
   "/api/medicalRecords/:UserId/:MedicalRecordId",
   verifyJWT,
