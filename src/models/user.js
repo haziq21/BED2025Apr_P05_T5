@@ -1,5 +1,6 @@
 import pool from "../db.js";
 import sql from "mssql"; 
+
 /**
  * Sets the specified OTP for a user.
  * @param {number} userId - The ID of the user.
@@ -151,17 +152,17 @@ export async function deleteProfilePicture(userId) {
  * @param {string} phoneNumber 
  */
 export async function getUserByPhoneNumber(phoneNumber) {   
-  try{
+  try {
     const result = await pool
-    .request()
-    .input("phoneNumber", phoneNumber)
-    .query("SELECT * FROM Users WHERE phoneNumber = @phoneNumber");
+      .request()
+      .input("phoneNumber", sql.VarChar, phoneNumber)  //
+      .query("SELECT UserId, Name, PhoneNumber, Bio, ProfilePhotoURL FROM Users WHERE PhoneNumber = @phoneNumber");
 
-  if (result.recordset.length === 0) {
-    return null; // User not found
-  }
-  return result.recordset[0];
-}catch (error) {
+    if (result.recordset.length === 0) {
+      return null; // User not found
+    }
+    return result.recordset[0];
+  } catch (error) {
     console.error("Database error:", error);
     throw error; 
   }
