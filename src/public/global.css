@@ -20,7 +20,7 @@ h6 {
 /* navigation bar */
 .topnav {
   overflow: hidden;
-  background-color: #C1A77B;
+  background-color: #c1a77b;
   justify-content: space-between;
   font-family: "Gelasio";
   font-weight: bold;
@@ -44,4 +44,3 @@ h6 {
   background-color: #fae7c2;
   color: rgb(0, 0, 0);
 }
-

@@ -1,22 +1,11 @@
 import * as model from "../models/user.js";
-
-/**
- * Sets the specified OTP for a user.
- * @param {number} userId - The ID of the user.
- * @param {string} otp - The one-time password to set for the user.
- */
-
-export async function setOTP(userId, otp) {
-  // TODO
-}
-
 /**
  * Gets the profile of a user by their ID.
  * @type {import("express").RequestHandler}
  */
-export async function getProfile(req,res) {
-  const userId = parseInt(req.params.userId);  // Get userId from the URL parameters
-   try {
+export async function getProfile(req, res) {
+  const userId = parseInt(req.params.userId); // Get userId from the URL parameters
+  try {
     const user = await model.getProfile(userId);
 
     if (!user) {
@@ -30,7 +19,6 @@ export async function getProfile(req,res) {
     res.status(500).json({ error: "Internal server error" });
     return;
   }
-
 }
 /**
  * Gets the profile of a user by their ID.
@@ -46,7 +34,12 @@ export async function updateProfile(req, res) {
   const { name, phoneNumber, bio, image } = req.body;
 
   try {
-    const updated = await model.updateProfile(userId, { name, phoneNumber, bio, image });
+    const updated = await model.updateProfile(userId, {
+      name,
+      phoneNumber,
+      bio,
+      image,
+    });
 
     if (!updated) {
       res.status(404).json({ error: "User not found" });
@@ -60,10 +53,9 @@ export async function updateProfile(req, res) {
   }
 }
 
-
 /**
  * Deletes the profile of a user.
-  * @type {import("express").RequestHandler}
+ * @type {import("express").RequestHandler}
  */
 
 export async function deleteUser(req, res) {
@@ -84,28 +76,29 @@ export async function deleteUser(req, res) {
   }
 }
 
-/** * Deletes the profile picture of a user.
-   * @type {import("express").RequestHandler}
+/**
+ * Deletes the profile picture of a user.
+ * @type {import("express").RequestHandler}
  */
 
 export async function deleteProfilePicture(req, res) {
   const userId = parseInt(req.params.userId);
   if (isNaN(userId)) {
-    res.status(400).json({ error: "Invalid user ID" })
-    return ;
+    res.status(400).json({ error: "Invalid user ID" });
+    return;
   }
 
   try {
     const deletedPicture = await model.deleteProfilePicture(userId);
     if (!deletedPicture) {
-      res.status(404).json({ error: "User not found or no picture to delete" })
-      return ;
+      res.status(404).json({ error: "User not found or no picture to delete" });
+      return;
     }
-    res.status(200).json({ message: "Profile picture deleted successfully" })
-    return ;
+    res.status(200).json({ message: "Profile picture deleted successfully" });
+    return;
   } catch (error) {
     console.error("Database error:", error);
     res.status(500).json({ error: "Internal server error" });
-    return 
+    return;
   }
 }
