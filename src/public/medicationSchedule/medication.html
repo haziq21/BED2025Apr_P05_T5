@@ -35,10 +35,10 @@
         <h1>My Medication Plan | My Medical Records</h1>
 
         <ul class="medication-list" id="medicationList"></ul>
-        
 
         <div id="form-container"></div>
 
+        <!-- hidden template,shown when add new shcedule btn clicked -->
         <template id="form-template">
           <div class="form-section">
             <button class="close-btn" title="Close this schedule">×</button>
@@ -63,9 +63,11 @@
                 ><input type="checkbox" class="repeat-check" /> Repeat</label
               >
               <label
-                ><input type="checkbox" class="norepeat-check" checked /> No
-                repeat</label
-              >
+                ><input type="checkbox" class="norepeat-check" checked />
+                No repeat
+              </label>
+
+              <button class="completeBtn">complete</button>
             </div>
 
             <!-- only shown if repeat is selected -->
@@ -83,13 +85,12 @@
                 <button class="day-btn">TUE</button>
                 <button class="day-btn">WED</button>
                 <button class="day-btn">THU</button>
-                <button class="day-btn">FRI</button>
                 <button class="day-btn">SAT</button>
               </div>
 
               <div class="form-row">
                 <label><input type="checkbox" class="ends-check" /> Ends</label>
-                <input type="date" placeholder="Enter the date" />
+                <input type="date" id="end-date" placeholder="Enter the date" />
               </div>
               <div class="form-row">
                 <label
@@ -97,13 +98,24 @@
                   Never</label
                 >
               </div>
+              <button class="completeBtn2" style="display: none">
+                complete
+              </button>
             </div>
           </div>
         </template>
+
         <button class="add-btn" id="add-new-form">
           Add new medication schedules
         </button>
       </section>
+
+      <!-- Modal -->
+      <div id="update-modal" class="modal" style="display: none">
+        <div id="update-form-container"></div>
+      </div>
+
+      <div id="overlay" class="overlay" style="display: none"></div>
       <hr />
 
       <section class="search-section">
@@ -126,14 +138,6 @@
           <option value="Ibuprofen">Ibuprofen</option>
         </select>
       </section>
-
-      <div id="form-container"></div>
-      <!-- Modal -->
-      <div id="update-modal" class="modal" style="display: none">
-        <div id="update-form-container"></div>
-      </div>
-
-      <div id="overlay" class="overlay" style="display: none"></div>
     </main>
 
     <script src="../global.js"></script>
