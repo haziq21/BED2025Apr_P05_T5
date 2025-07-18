@@ -49,6 +49,7 @@ export function validateUser(req, res, next) {
  * @param {AuthenticatedRequest} req
  * @param {import('express').Response} res
  * @param {import('express').NextFunction} next
+
  */
 export function verifyJWT(req, res, next) {
   const secretKey = process.env.JWT_SECRET;
@@ -74,7 +75,7 @@ export function verifyJWT(req, res, next) {
       res.status(403).json({ message: "Invalid or expired token" });
       return;
     }
-    req.userId = decoded;
+    req.userId = (/** @type {jwt.JwtPayload} */ (decoded)).userId; // Attach userId to request object
     next();
   });
 }
