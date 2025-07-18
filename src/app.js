@@ -8,6 +8,7 @@ import * as cc from "./controllers/cc.js";
 import * as friends from "./controllers/friends.js";
 import * as events from "./controllers/events.js";
 import { verifyJWT } from "./middleware/auth.js";
+import { verifyJWT } from "./middleware/auth.js";
 import * as comment from "./controllers/comment.js";
 import * as medicalRecordsController from "./controllers/medicalRecordsController.js";
 
@@ -69,24 +70,29 @@ app.get(
   mediSchedule.getMediSchedule
 );
 app.post(
-  "/api/medicationSchedule/:userId",
+  "/api/medicalRecords/:UserId",
   verifyJWT,
-  mediValidate.validateSchedule,
-  mediSchedule.createSchedule
+  medicalRecordsController.uploadFile
 );
-app.put(
-  "/api/medicationSchedule/:userId",
+app.get(
+  "/api/medicalRecords/:UserId",
   verifyJWT,
-  mediValidate.validateSchedule,
-  mediSchedule.updateSchedule
+  verifyJWT,
+  medicalRecordsController.getFiles
 );
 app.delete(
-  "/api/medicationSchedule/:userId/:scheduleId",
+  "/api/medicalRecords/:UserId/:MedicalRecordId",
   verifyJWT,
-  mediValidate.validateScheduleId,
-  mediValidate.validateSchedule,
-  mediSchedule.deleteSchedule
+  medicalRecordsController.deleteFile
 );
+app.put(
+  "/api/medicalRecords/:UserId/:MedicalRecordId",
+  verifyJWT,
+  medicalRecordsController.updateFileName
+);
+
+// Medication Schedule
+app.get("/api/medicationSchedule", verifyJWT, mediSchedule.getMediSchedule);
 app.get(
   "/api/medicationSchedule/:userId",
   verifyJWT,
@@ -118,10 +124,30 @@ app.get("/api/comment/:userId", verifyJWT, comment.getCommentById);
 app.post("/api/comment/:userId", verifyJWT, comment.createComment);
 app.put("/api/comment/:userId", verifyJWT, comment.updateComment);
 app.delete("/api/comment/:userId/:postId", verifyJWT, comment.deleteComment);
+app.get("/api/comment", verifyJWT, comment.getComment);
+app.get("/api/comment/:userId", verifyJWT, comment.getCommentById);
+app.post("/api/comment/:userId", verifyJWT, comment.createComment);
+app.put("/api/comment/:userId", verifyJWT, comment.updateComment);
+app.delete("/api/comment/:userId/:postId", verifyJWT, comment.deleteComment);
 
 //Friends management
 app.get("/api/friends/:id", verifyJWT, friends.getAllFriends);
 app.get("/api/friends/:id/search", verifyJWT, friends.searchUsers);
+app.get(
+  "/api/friends/:id/requests",
+  verifyJWT,
+  friends.getPendingFriendRequests
+);
+app.get(
+  "/api/friends/:id/:friendId/public",
+  verifyJWT,
+  friends.getPublicProfile
+);
+app.post(
+  "/api/friends/:id/requests/:friendId",
+  verifyJWT,
+  friends.acceptFriendRequest
+);
 app.get(
   "/api/friends/:id/requests",
   verifyJWT,
@@ -153,8 +179,23 @@ app.get(
   verifyJWT,
   events.getMutualRegistrations
 );
+app.get(
+  "/api/events/:id/registrations",
+  verifyJWT,
+  events.getRegistrationsByEventId
+);
+app.get(
+  "/api/events/:userId/:eventId/mutual",
+  verifyJWT,
+  events.getMutualRegistrations
+);
 app.get("/api/events/:userId/registered", verifyJWT, events.getEventsByUserId);
 app.get("/api/events/cc/:id", verifyJWT, events.getEventsByCCId);
+app.post(
+  "/api/events/:userId/:eventId/register",
+  verifyJWT,
+  events.registerForEvent
+);
 app.post(
   "/api/events/:userId/:eventId/register",
   verifyJWT,
