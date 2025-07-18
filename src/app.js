@@ -8,7 +8,6 @@ import * as cc from "./controllers/cc.js";
 import * as friends from "./controllers/friends.js";
 import * as events from "./controllers/events.js";
 import { verifyJWT } from "./middleware/auth.js";
-import { verifyJWT } from "./middleware/auth.js";
 import * as comment from "./controllers/comment.js";
 import * as medicalRecordsController from "./controllers/medicalRecordsController.js";
 
@@ -64,40 +63,8 @@ app.put(
 );
 
 // Medication Schedule
-app.get(
-  "/api/medicationSchedule/:userId",
-  verifyJWT,
-  mediSchedule.getMediSchedule
-);
-app.post(
-  "/api/medicalRecords/:UserId",
-  verifyJWT,
-  medicalRecordsController.uploadFile
-);
-app.get(
-  "/api/medicalRecords/:UserId",
-  verifyJWT,
-  verifyJWT,
-  medicalRecordsController.getFiles
-);
-app.delete(
-  "/api/medicalRecords/:UserId/:MedicalRecordId",
-  verifyJWT,
-  medicalRecordsController.deleteFile
-);
-app.put(
-  "/api/medicalRecords/:UserId/:MedicalRecordId",
-  verifyJWT,
-  medicalRecordsController.updateFileName
-);
-
-// Medication Schedule
 app.get("/api/medicationSchedule", verifyJWT, mediSchedule.getMediSchedule);
-app.get(
-  "/api/medicationSchedule/:userId",
-  verifyJWT,
-  mediSchedule.getMediSchedule
-);
+
 app.post(
   "/api/medicationSchedule/:userId",
   verifyJWT,
@@ -119,11 +86,7 @@ app.delete(
 );
 
 //Comment
-app.get("/api/comment", verifyJWT, comment.getComment);
-app.get("/api/comment/:userId", verifyJWT, comment.getCommentById);
-app.post("/api/comment/:userId", verifyJWT, comment.createComment);
-app.put("/api/comment/:userId", verifyJWT, comment.updateComment);
-app.delete("/api/comment/:userId/:postId", verifyJWT, comment.deleteComment);
+
 app.get("/api/comment", verifyJWT, comment.getComment);
 app.get("/api/comment/:userId", verifyJWT, comment.getCommentById);
 app.post("/api/comment/:userId", verifyJWT, comment.createComment);
