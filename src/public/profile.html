@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Gelasio:ital,wght@0,400..700;1,400..700&family=Libre+Franklin:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="global.css" />
+  <link rel="stylesheet" href="profile.css" />
+</head>
+<body>
+
+  <!-- Nav Bar -->
+  <nav class="topnav">
+    <a href="#home">Kampung Connect</a>
+    <a href="#Events">Events</a>
+    <a href="#Location">Location</a>
+    <a href="#Medication">Medication</a>
+    <a href="#profile">Profile</a>
+    <a href="#comments"></a>
+  </nav>
+
+  <!-- Profile Heading -->
+  <div class="profile-heading">
+    <h1>Profile</h1>
+  </div>
+
+  <!-- Profile Content -->
+  <div class="profile-container">
+    <div class="profile-pic-container">
+      <img src="images/cute-cat-sunglasses-profile-picture-mw7qp9gjrp272zky.jpg" alt="Profile Picture" class="profile-pic" id="profileImage">
+      <button class="upload-btn" onclick="document.getElementById('uploadImage').click();">Upload Picture</button>
+      <button class="upload-btn" style="margin-top: 10px;" onclick="deleteProfilePicture()">Delete Picture</button>
+    </div>
+
+    <div class="profile-info">
+      <form id="profileInfo">
+        <div class="personal-info">
+          <label for="Name">Name</label>
+          <input type="text" id="Name" readonly>
+        </div>
+        <div class="personal-info">
+          <label for="Phone">Phone Number</label>
+          <input type="text" id="Phone" readonly>
+        </div>
+        <div class="personal-info">
+          <label for="Bio">Bio</label>
+          <input type="text" id="Bio" readonly>
+        </div>
+
+        <!-- Edit and Save Buttons -->
+        <div class="form-group" id="editButtons">
+          <button type="button" onclick="enableEdit()">Edit</button>
+        </div>
+
+        <div class="form-group" id="saveButtons" style="display: none;">
+          <button type="button" onclick="saveChanges()">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Logout & Delete Account Buttons -->
+  <div class="form-group" style="justify-content: center; margin-top: 30px;">
+    <button type="button" onclick="logout()">Logout</button>
+    <button type="button" onclick="deleteUser()">Delete Account</button>
+  </div>
+
+  <!-- Hidden file input for Upload -->
+  <input type="file" id="uploadImage" style="display: none;" />
+
+  <script src="profile.js"></script>
+</body>
+</html>
