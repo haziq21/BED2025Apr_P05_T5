@@ -32,13 +32,13 @@ app.put(
   verifyJWT,
   profile.deleteProfilePicture
 );
-
-// CC management
 app.delete(
   "/api/profile/:userId/picture",
   verifyJWT,
   profile.deleteProfilePicture
 );
+
+// CC management
 app.get("/api/cc", verifyJWT, cc.getAllCCs);
 app.get("/api/cc/:id", verifyJWT, cc.getCCById);
 app.post("/api/cc", verifyJWT, cc.createCC);
@@ -47,6 +47,28 @@ app.delete("/api/cc/:id", verifyJWT, cc.deleteCC);
 app.get("/api/cc/:id/admins", verifyJWT, cc.getAdmins);
 app.post("/api/cc/:id/admins/:userId", verifyJWT, cc.makeAdmin);
 app.delete("/api/cc/:id/admins/:userId", verifyJWT, cc.removeAdmin);
+
+// Medical Record Management
+app.post(
+  "/api/medicalRecords/:UserId",
+  verifyJWT,
+  medicalRecordsController.uploadFile
+);
+app.get(
+  "/api/medicalRecords/:UserId",
+  verifyJWT,
+  medicalRecordsController.getFiles
+);
+app.delete(
+  "/api/medicalRecords/:UserId/:MedicalRecordId",
+  verifyJWT,
+  medicalRecordsController.deleteFile
+);
+app.put(
+  "/api/medicalRecords/:UserId/:MedicalRecordId",
+  verifyJWT,
+  medicalRecordsController.updateFileName
+);
 
 // Medication Schedule
 app.get("/api/medicationSchedule", verifyJWT, mediSchedule.getMediSchedule);
@@ -71,7 +93,7 @@ app.delete(
 );
 
 //Comment
-app.get("/api/comment", comment.getComment);
+app.get("/api/comment", verifyJWT, comment.getComment);
 app.get("/api/comment/:userId", verifyJWT, comment.getCommentById);
 app.post("/api/comment/:userId", verifyJWT, comment.createComment);
 app.put("/api/comment/:userId", verifyJWT, comment.updateComment);
@@ -97,8 +119,6 @@ app.post(
 );
 app.post("/api/friends/:id/:friendId", verifyJWT, friends.sendFriendRequest);
 app.delete("/api/friends/:id/:friendId", verifyJWT, friends.deleteFriend);
-
-//
 
 // Events management
 app.get("/api/events/:id", verifyJWT, events.getEventById);
