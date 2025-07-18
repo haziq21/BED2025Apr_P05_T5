@@ -70,36 +70,30 @@ app.put(
   medicalRecordsController.updateFileName
 );
 
-// Medication Schedule
-app.get(
-  "/api/medicationSchedule/:userId",
-  verifyJWT,
-  mediSchedule.getMediSchedule
-);
+// Medical Record Management
 app.post(
-  "/api/medicationSchedule/:userId",
+  "/api/medicalRecords/:UserId",
   verifyJWT,
-  mediValidate.validateSchedule,
-  mediSchedule.createSchedule
+  medicalRecordsController.uploadFile
 );
-app.put(
-  "/api/medicationSchedule/:userId",
+app.get(
+  "/api/medicalRecords/:UserId",
   verifyJWT,
-  mediValidate.validateSchedule,
-  mediSchedule.updateSchedule
+  medicalRecordsController.getFiles
 );
 app.delete(
-  "/api/medicationSchedule/:userId/:scheduleId",
+  "/api/medicalRecords/:UserId/:MedicalRecordId",
   verifyJWT,
-  mediValidate.validateScheduleId,
-  mediValidate.validateSchedule,
-  mediSchedule.deleteSchedule
+  medicalRecordsController.deleteFile
 );
-app.get(
-  "/api/medicationSchedule/:userId",
+app.put(
+  "/api/medicalRecords/:UserId/:MedicalRecordId",
   verifyJWT,
-  mediSchedule.getMediSchedule
+  medicalRecordsController.updateFileName
 );
+
+// Medication Schedule
+app.get("/api/medicationSchedule", verifyJWT, mediSchedule.getMediSchedule);
 app.post(
   "/api/medicationSchedule/:userId",
   verifyJWT,
