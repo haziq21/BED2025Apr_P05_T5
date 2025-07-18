@@ -1,6 +1,5 @@
 const apiBaseUrl = "http://localhost:3000";
-// const token = localStorage.getItem("token");
-const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjUsIm5hbWUiOiJEZWVwYWsgS3VtYXIiLCJpYXQiOjE3NTI4MDk5MDYsImV4cCI6MTc1MjgxMzUwNn0.GqQ652v-2GUDs3puU6O8BWD4KQH_tuOvYZbNx7-xj5I";
+const token = localStorage.getItem("token");
 
 //one list is one schedule
 const listContainer = document.getElementById("medicationList");
