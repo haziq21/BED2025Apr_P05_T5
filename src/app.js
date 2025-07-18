@@ -27,18 +27,14 @@ app.post("/api/auth/login", auth.login);
 app.get("/api/profile", verifyJWT, profile.getProfile);
 app.put("/api/profile", verifyJWT, profile.updateProfile);
 app.delete("/api/profile", verifyJWT, profile.deleteUser);
-app.put(
-  "/api/profile/picture",
-  verifyJWT,
-  profile.deleteProfilePicture
-);
-
-// CC management
+app.put("/api/profile/picture", verifyJWT, profile.deleteProfilePicture);
 app.delete(
   "/api/profile/:userId/picture",
   verifyJWT,
   profile.deleteProfilePicture
 );
+
+// CC management
 app.get("/api/cc", verifyJWT, cc.getAllCCs);
 app.get("/api/cc/:id", verifyJWT, cc.getCCById);
 app.post("/api/cc", verifyJWT, cc.createCC);
@@ -49,8 +45,16 @@ app.post("/api/cc/:id/admins/:userId", verifyJWT, cc.makeAdmin);
 app.delete("/api/cc/:id/admins/:userId", verifyJWT, cc.removeAdmin);
 
 // Medical Record Management
-app.post("/api/medicalRecords/:UserId", verifyJWT, medicalRecordsController.uploadFile);
-app.get("/api/medicalRecords/:UserId", verifyJWT, medicalRecordsController.getFiles);
+app.post(
+  "/api/medicalRecords/:UserId",
+  verifyJWT,
+  medicalRecordsController.uploadFile
+);
+app.get(
+  "/api/medicalRecords/:UserId",
+  verifyJWT,
+  medicalRecordsController.getFiles
+);
 app.delete(
   "/api/medicalRecords/:UserId/:MedicalRecordId",
   verifyJWT,
@@ -111,21 +115,6 @@ app.post(
   verifyJWT,
   friends.acceptFriendRequest
 );
-app.get(
-  "/api/friends/:id/requests",
-  verifyJWT,
-  friends.getPendingFriendRequests
-);
-app.get(
-  "/api/friends/:id/:friendId/public",
-  verifyJWT,
-  friends.getPublicProfile
-);
-app.post(
-  "/api/friends/:id/requests/:friendId",
-  verifyJWT,
-  friends.acceptFriendRequest
-);
 app.post("/api/friends/:id/:friendId", verifyJWT, friends.sendFriendRequest);
 app.delete("/api/friends/:id/:friendId", verifyJWT, friends.deleteFriend);
 
@@ -142,23 +131,8 @@ app.get(
   verifyJWT,
   events.getMutualRegistrations
 );
-app.get(
-  "/api/events/:id/registrations",
-  verifyJWT,
-  events.getRegistrationsByEventId
-);
-app.get(
-  "/api/events/:userId/:eventId/mutual",
-  verifyJWT,
-  events.getMutualRegistrations
-);
 app.get("/api/events/:userId/registered", verifyJWT, events.getEventsByUserId);
 app.get("/api/events/cc/:id", verifyJWT, events.getEventsByCCId);
-app.post(
-  "/api/events/:userId/:eventId/register",
-  verifyJWT,
-  events.registerForEvent
-);
 app.post(
   "/api/events/:userId/:eventId/register",
   verifyJWT,
