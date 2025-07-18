@@ -49,7 +49,7 @@ export async function sendFriendRequest(userId1, userId2) {
     .input("userId1", userId1)
     .input("userId2", userId2)
     .query(
-      `INSERT INTO Friends (UserId1, UserId2, Accepted)
+      `INSERT INTO Friends (UserId1, UserId2, Accepted) 
       VALUES (@userId1, @userId2, 0)`
     );
   return result.rowsAffected[0] > 0; // Returns true if a row was inserted
@@ -68,10 +68,16 @@ export async function acceptFriendRequest(userId1, userId2) {
     .input("userId2", userId2)
     .query(
       `UPDATE Friends
-      SET Accepted = 1
-      WHERE (UserId1 = @userId1 AND UserId2 = @userId2)
-         OR (UserId1 = @userId2 AND UserId2 = @userId1)`
+       SET Accepted = 1
+       WHERE (UserId1 = @userId1 AND UserId2 = @userId2);
+
+       IF @@ROWCOUNT > 0
+       BEGIN
+        INSERT INTO Friends (UserId1, UserId2, Accepted)
+        VALUES (@userId2, @userId1, 1);
+       END`
     );
+
   return result.rowsAffected[0] > 0; // Returns true if a row was updated
 }
 
