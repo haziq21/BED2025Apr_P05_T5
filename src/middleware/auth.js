@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import Joi from "joi";
 
 /**
- * @typedef {import('express').Request & { user?: any }} AuthenticatedRequest
+ * @typedef {import('express').Request & { userId?: any }} AuthenticatedRequest
  */
 
 const createUserSchema = Joi.object({
@@ -74,7 +74,7 @@ export function verifyJWT(req, res, next) {
       res.status(403).json({ message: "Invalid or expired token" });
       return;
     }
-    req.user = decoded;
+    req.userId = decoded;
     next();
   });
 }
