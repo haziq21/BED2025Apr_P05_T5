@@ -24,11 +24,11 @@ app.use(express.static("public"));
 app.post("/api/auth/otp", auth.sendOTP);
 app.post("/api/auth/user", auth.createUser);
 app.post("/api/auth/login", auth.login);
-app.get("/api/profile/:userId", verifyJWT, profile.getProfile);
-app.put("/api/profile/:userId", verifyJWT, profile.updateProfile);
-app.delete("/api/profile/:userId", verifyJWT, profile.deleteUser);
+app.get("/api/profile", verifyJWT, profile.getProfile);
+app.put("/api/profile", verifyJWT, profile.updateProfile);
+app.delete("/api/profile", verifyJWT, profile.deleteUser);
 app.put(
-  "/api/profile/:userId/picture",
+  "/api/profile/picture",
   verifyJWT,
   profile.deleteProfilePicture
 );
@@ -71,35 +71,8 @@ app.put(
 );
 
 // Medication Schedule
-app.get(
-  "/api/medicationSchedule/:userId",
-  verifyJWT,
-  mediSchedule.getMediSchedule
-);
-app.post(
-  "/api/medicationSchedule/:userId",
-  verifyJWT,
-  mediValidate.validateSchedule,
-  mediSchedule.createSchedule
-);
-app.put(
-  "/api/medicationSchedule/:userId",
-  verifyJWT,
-  mediValidate.validateSchedule,
-  mediSchedule.updateSchedule
-);
-app.delete(
-  "/api/medicationSchedule/:userId/:scheduleId",
-  verifyJWT,
-  mediValidate.validateScheduleId,
-  mediValidate.validateSchedule,
-  mediSchedule.deleteSchedule
-);
-app.get(
-  "/api/medicationSchedule/:userId",
-  verifyJWT,
-  mediSchedule.getMediSchedule
-);
+app.get("/api/medicationSchedule", verifyJWT, mediSchedule.getMediSchedule);
+
 app.post(
   "/api/medicationSchedule/:userId",
   verifyJWT,
@@ -121,6 +94,7 @@ app.delete(
 );
 
 //Comment
+
 app.get("/api/comment", verifyJWT, comment.getComment);
 app.get("/api/comment/:userId", verifyJWT, comment.getCommentById);
 app.post("/api/comment/:userId", verifyJWT, comment.createComment);
@@ -130,6 +104,21 @@ app.delete("/api/comment/:userId/:postId", verifyJWT, comment.deleteComment);
 //Friends management
 app.get("/api/friends/:id", verifyJWT, friends.getAllFriends);
 app.get("/api/friends/:id/search", verifyJWT, friends.searchUsers);
+app.get(
+  "/api/friends/:id/requests",
+  verifyJWT,
+  friends.getPendingFriendRequests
+);
+app.get(
+  "/api/friends/:id/:friendId/public",
+  verifyJWT,
+  friends.getPublicProfile
+);
+app.post(
+  "/api/friends/:id/requests/:friendId",
+  verifyJWT,
+  friends.acceptFriendRequest
+);
 app.get(
   "/api/friends/:id/requests",
   verifyJWT,
@@ -161,8 +150,23 @@ app.get(
   verifyJWT,
   events.getMutualRegistrations
 );
+app.get(
+  "/api/events/:id/registrations",
+  verifyJWT,
+  events.getRegistrationsByEventId
+);
+app.get(
+  "/api/events/:userId/:eventId/mutual",
+  verifyJWT,
+  events.getMutualRegistrations
+);
 app.get("/api/events/:userId/registered", verifyJWT, events.getEventsByUserId);
 app.get("/api/events/cc/:id", verifyJWT, events.getEventsByCCId);
+app.post(
+  "/api/events/:userId/:eventId/register",
+  verifyJWT,
+  events.registerForEvent
+);
 app.post(
   "/api/events/:userId/:eventId/register",
   verifyJWT,
