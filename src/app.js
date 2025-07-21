@@ -24,14 +24,10 @@ app.use(express.static("public"));
 app.post("/api/auth/otp", auth.sendOTP);
 app.post("/api/auth/user", auth.createUser);
 app.post("/api/auth/login", auth.login);
-app.get("/api/profile/:userId", verifyJWT, profile.getProfile);
-app.put("/api/profile/:userId", verifyJWT, profile.updateProfile);
-app.delete("/api/profile/:userId", verifyJWT, profile.deleteUser);
-app.put(
-  "/api/profile/:userId/picture",
-  verifyJWT,
-  profile.deleteProfilePicture
-);
+app.get("/api/profile", verifyJWT, profile.getProfile);
+app.put("/api/profile", verifyJWT, profile.updateProfile);
+app.delete("/api/profile", verifyJWT, profile.deleteUser);
+app.put("/api/profile/picture", verifyJWT, profile.deleteProfilePicture);
 app.delete(
   "/api/profile/:userId/picture",
   verifyJWT,
@@ -72,6 +68,7 @@ app.put(
 
 // Medication Schedule
 app.get("/api/medicationSchedule", verifyJWT, mediSchedule.getMediSchedule);
+
 app.post(
   "/api/medicationSchedule",
   verifyJWT,
@@ -92,6 +89,7 @@ app.delete(
 );
 
 //Comment
+
 app.get("/api/comment", verifyJWT, comment.getComment);
 app.get("/api/comment/:userId", verifyJWT, comment.getCommentById);
 app.post("/api/comment/:userId", verifyJWT, comment.createComment);

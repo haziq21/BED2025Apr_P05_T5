@@ -1,10 +1,12 @@
 import * as model from "../models/user.js";
 /**
- * Gets the profile of a user by their ID.
- * @type {import("express").RequestHandler}
+ * Gets the profile of a user 
+ * @typedef {import('express').Request & { userId?: any }} AuthenticatedRequest
+ * @param {AuthenticatedRequest} req
+ * @param {import("express").Response} res
  */
 export async function getProfile(req, res) {
-  const userId = parseInt(req.params.userId); // Get userId from the URL parameters
+  const userId = req.userId;
   try {
     const user = await model.getProfile(userId);
 
@@ -21,11 +23,13 @@ export async function getProfile(req, res) {
   }
 }
 /**
- * Gets the profile of a user by their ID.
- * @type {import("express").RequestHandler}
+ * updates the profile of a user.
+ * @param {AuthenticatedRequest} req
+ * @param {import("express").Response} res
  */
 export async function updateProfile(req, res) {
-  const userId = parseInt(req.params.userId);
+  // const userId = parseInt(req.params.userId);
+    const userId = req.userId;
   if (isNaN(userId)) {
     res.status(400).json({ error: "Invalid user ID" });
     return;
@@ -53,13 +57,15 @@ export async function updateProfile(req, res) {
   }
 }
 
-/**
- * Deletes the profile of a user.
- * @type {import("express").RequestHandler}
+ /**
+ * deletes the profile of a user
+ * @param {AuthenticatedRequest} req
+ * @param {import("express").Response} res
  */
 
 export async function deleteUser(req, res) {
-  const userId = parseInt(req.params.userId);
+  // const userId = parseInt(req.params.userId);
+   const userId = req.userId;
 
   try {
     const deletedUser = await model.deleteUser(userId);
@@ -77,12 +83,14 @@ export async function deleteUser(req, res) {
 }
 
 /**
- * Deletes the profile picture of a user.
- * @type {import("express").RequestHandler}
+ *  Deletes the profile picture of a user.
+ * @param {AuthenticatedRequest} req
+ * @param {import("express").Response} res
  */
 
 export async function deleteProfilePicture(req, res) {
-  const userId = parseInt(req.params.userId);
+  // const userId = parseInt(req.params.userId);
+   const userId = req.userId;
   if (isNaN(userId)) {
     res.status(400).json({ error: "Invalid user ID" });
     return;
