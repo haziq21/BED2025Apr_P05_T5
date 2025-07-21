@@ -76,16 +76,17 @@
               <div class="form-row">
                 Every
                 <input type="number" min="1" value="1" style="width: 60px" />
-                <button class="day-btn highlighted">Day</button>
+                <!-- Day by default switch to week once clicked -->
+                <button class="toggle-type-btn highlighted">Day</button>
               </div>
 
-              <div class="days">
-                <button class="day-btn">SUN</button>
+              <div class="days" style="display: none">
                 <button class="day-btn">MON</button>
                 <button class="day-btn">TUE</button>
                 <button class="day-btn">WED</button>
-                <button class="day-btn">THU</button>
+                <button class="day-btn">THUR</button>
                 <button class="day-btn">SAT</button>
+                <button class="day-btn">SUN</button>
               </div>
 
               <div class="form-row">
@@ -139,6 +140,21 @@
         </select>
       </section>
     </main>
+    <div
+      id="toast"
+      style="
+        display: none;
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #333;
+        color: #fff;
+        padding: 16px 24px;
+        border-radius: 8px;
+        z-index: 9999;
+      "
+    ></div>
 
     <script src="../global.js"></script>
     <script type="module" src="medication.js"></script>

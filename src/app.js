@@ -73,22 +73,21 @@ app.put(
 // Medication Schedule
 app.get("/api/medicationSchedule", verifyJWT, mediSchedule.getMediSchedule);
 app.post(
-  "/api/medicationSchedule/:userId",
+  "/api/medicationSchedule",
   verifyJWT,
   mediValidate.validateSchedule,
   mediSchedule.createSchedule
 );
 app.put(
-  "/api/medicationSchedule/:userId",
+  "/api/medicationSchedule",
   verifyJWT,
   mediValidate.validateSchedule,
   mediSchedule.updateSchedule
 );
 app.delete(
-  "/api/medicationSchedule/:userId/:scheduleId",
+  "/api/medicationSchedule/:scheduleId",
   verifyJWT,
   mediValidate.validateScheduleId,
-  mediValidate.validateSchedule,
   mediSchedule.deleteSchedule
 );
 

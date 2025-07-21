@@ -51,6 +51,7 @@ export function validateUser(req, res, next) {
  * @param {import('express').NextFunction} next
  */
 export function verifyJWT(req, res, next) {
+
   const secretKey = process.env.JWT_SECRET;
   if (!secretKey) {
     res.status(500).json({ message: "JWT secret key is not configured" });

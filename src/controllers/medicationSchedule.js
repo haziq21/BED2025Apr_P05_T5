@@ -8,7 +8,6 @@ import * as model from "../models/medicationSchedule.js";
  */
 
 export async function getMediSchedule(req, res) {
-  // const userId = parseInt(req.params.userId);
   const userId = req.user.userId;
   if (isNaN(userId)) {
     res.status(400).json({ error: "Invalid user ID" });
@@ -26,12 +25,13 @@ export async function getMediSchedule(req, res) {
 }
 
 /**
- * update the schedule by scheduleId
- * @type {import("express").RequestHandler}
+ * retrieve all schedules from the user
+ * @param {AuthenticatedRequest} req
+ * @param {import("express").Response} res
  */
 
 export async function updateSchedule(req, res) {
-  const userId = parseInt(req.params.userId);
+  const userId = req.user.userId;
   if (isNaN(userId)) {
     res.status(400).json({ error: "Invalid user ID" });
     return;
@@ -46,10 +46,11 @@ export async function updateSchedule(req, res) {
 
 /**
  * create the schedule
- * @type {import("express").RequestHandler}
+ * @param {AuthenticatedRequest} req
+ * @param {import("express").Response} res
  */
 export async function createSchedule(req, res) {
-  const userId = +req.params.userId;
+  const userId = req.user.userId;
   if (isNaN(userId)) {
     res.status(400).json({ error: "Invalid User ID" });
     return;
@@ -60,11 +61,12 @@ export async function createSchedule(req, res) {
 
 /**
  * delete the schedule
- * @type {import("express").RequestHandler}
+ * @param {AuthenticatedRequest} req
+ * @param {import("express").Response} res
  */
 export async function deleteSchedule(req, res) {
   const scheduleID = parseInt(req.params.scheduleId);
-  const userId = parseInt(req.params.userId);
+  const userId = req.user.userId;
   if (isNaN(scheduleID)) {
     res.status(400).json({ error: "Invalid schedule ID" });
     return;
