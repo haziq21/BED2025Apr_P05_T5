@@ -1,6 +1,10 @@
 const apiBaseUrl = "http://localhost:3000";
 const token = localStorage.getItem("token");
 
+/**
+ * @type {any[]}
+ */
+let i;
 //one list is one schedule
 const listContainer = document.getElementById("medicationList");
 /**
@@ -17,7 +21,9 @@ const listContainer = document.getElementById("medicationList");
  * @property {string|null} RepeatWeekDate
  * @param {Medication[]} data
  */
+
 function renderMedications(data) {
+  i = data;
   // @ts-ignore
   listContainer.innerHTML = "";
 
@@ -29,10 +35,13 @@ function renderMedications(data) {
       item.StartDateXTime
       // @ts-ignore
     )} - EndDate: ${formatTime(item.EndDate)} - ${formatRepeat(item)}
-      <button class="action-btn update-btn">Update</button>
+      <button class="action-btn update-btn" id="${i.indexOf(
+        item
+      )}">Update</button>
       <button class="action-btn delete-btn">Delete</button>
     `;
-
+    // @ts-ignore
+    li.id = item.MedicationScheduleId;
     // @ts-ignore
     listContainer.appendChild(li);
   });
@@ -71,7 +80,7 @@ function formatRepeat(item) {
     return `Repeat every ${item.RepeatEveryXDays} day(s)`;
   if (item.RepeatEveryXWeeks) {
     // @ts-ignore
-    const date = getWeekdaysFromBinaryString(item.RepeatWeekDate);
+    const date = getWeekdaysFromBinaryString(item.RepeatWeekDate, 0);
     return `Repeat every ${item.RepeatEveryXWeeks} week(s) on ${date}`;
   }
   return "No Repeat";
@@ -79,19 +88,29 @@ function formatRepeat(item) {
 
 /**
  * render the datas
- * return the binerary string to exact date - '00000001' to SUN when repeat week is selected
- * @param {string} binaryString
+ * return the binerary string to exact date - '00000001' to SUN when repeat week is selected and vice versa
+ * @param {string | string[]} data
+ * @param {number} int
  */
-function getWeekdaysFromBinaryString(binaryString) {
+function getWeekdaysFromBinaryString(data, int) {
   const daysOfWeek = ["MON", "TUE", "WED", "THUR", "FRI", "SAT", "SUN"];
   const result = [];
-
-  for (let i = 0; i < binaryString.length; i++) {
-    if (binaryString[i] === "1") {
-      result.push(daysOfWeek[i]);
+  if (int === 0 && typeof data === "string") {
+    for (let i = 0; i < data.length; i++) {
+      if (data[i] === "1") {
+        result.push(daysOfWeek[i]);
+      }
     }
+    return result.join(" & ");
   }
-  return result.join(" & ");
+  //convert array to bineray string -- sun -> 0000001
+  if (int === 1 && Array.isArray(data) && data.length >= 1) {
+    const binary = daysOfWeek
+      .map((day) => (data.includes(day) ? "1" : "0"))
+      .join("");
+    return binary;
+  }
+  return null;
 }
 
 //display schedule form if add new schedule button is clicked
@@ -150,6 +169,22 @@ function attachEvents(formElement) {
     }
   });
 
+  // render datas
+  //Toggle Day/Week
+  const toggleTypeBtn = formElement.querySelector(".toggle-type-btn");
+  const daysDiv = formElement.querySelector(".days");
+  toggleTypeBtn.addEventListener("click", () => {
+    if (toggleTypeBtn.textContent === "Day") {
+      toggleTypeBtn.textContent = "Week";
+      // @ts-ignore
+      daysDiv.style.display = "flex";
+    } else {
+      toggleTypeBtn.textContent = "Day";
+      daysDiv.style.display = "none";
+    }
+    toggleTypeBtn.classList.toggle("highlighted");
+  });
+
   //render datas
   // display the weekdays and highlight the chosen days on 2nd form
   const dayButtons = formElement.querySelectorAll(".day-btn");
@@ -158,6 +193,7 @@ function attachEvents(formElement) {
       /** @type {{ addEventListener: (arg0: string, arg1: () => void) => void; classList: { toggle: (arg0: string) => void; }; }} */
       btn
     ) => {
+      // Toggle highlight on click
       btn.addEventListener("click", () => {
         btn.classList.toggle("highlighted");
       });
@@ -184,40 +220,20 @@ if (addNewBtn) {
     formContainer.appendChild(newForm); //display form when user add new schedule
     attachEvents(newForm);
     newForm.scrollIntoView({ behavior: "smooth" }); //auto scrolls the page to bring the newForm element into view
+
+    const completeBtn = newForm.querySelector(".completeBtn");
+    const completeBtn2 = newForm.querySelector(".completeBtn2");
+    //get updated datas and call UPDATE API
+    completeBtn.addEventListener("click", handleCompleteClick);
+    completeBtn2.addEventListener("click", handleCompleteClick);
+    function handleCompleteClick() {
+      const result = getData(null);
+      createMedication(result);
+    }
   });
 } else {
   console.warn("Button with ID 'add-new-form' not found in the DOM.");
 }
-
-// const updateBtn = document.getElementById("update-btn");
-// if (updateBtn) {
-//   updateBtn.addEventListener("click", () => {
-
-//   });
-// }
-
-// async function updateSchedule() {
-//   try {
-//     fetch(`${apiBaseUrl}/api/medicationSchedule/1`),
-//       {
-//         method: "PUT",
-//         Headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify({
-//           medicationName: "Panadol",
-//           startDate: "2025-07-08",
-//           startTime: "07:00",
-//           repeat: true,
-//           frequency: 2,
-//         }),
-//       };
-//     // const data = await res.json();
-//     // renderMedications(data);
-//   } catch (error) {
-//     console.error("Error fetching medications:", error);
-//   }
-// }
 
 /**
  * update
@@ -229,44 +245,40 @@ document.addEventListener("click", (e) => {
   if (e.target.classList.contains("update-btn")) {
     // @ts-ignore
     const form = e.target.closest("li");
-    const text = form.textContent || "";
+    // const text = form.textContent || "";
+    // @ts-ignore
+    //retrieve the datas by index
+    const index = parseInt(e.target.id);
+    const dataSet = i[index];
 
-    let startDate = "",
-      startTime = "",
-      endDate = "";
+    let interval;
 
-    const nameMatch = text.match(/Medication: \s*(.+?) -/); //extract the text between "Medication: " and " -" [0] the full element,eg:medication:name [1]:panadol
-    const start = text.match(/StartTime: \s*(.+?) -/);
-    const end = text.match(/EndDate: \s*(.+?) -/);
-
-    //retrieve date and time seperately
-    if ((start && start[1]) || (end && end[1])) {
-      const [stDate, stTime] = start[1]
-        .split(",")
-        .map((/** @type {string} */ s) => s.trim());
-      startDate = stDate;
-      startTime = stTime;
-
-      if (end[1] === "Nil") {
-        endDate = "Nil";
-      } else {
-        endDate = populateDate(
-          end[1].split(",").map((/** @type {string} */ s) => s.trim())[0]
-        );
-      }
+    const name = dataSet.DrugName;
+    const dateTime = dataSet.StartDateXTime;
+    const endDate = dataSet.EndDate;
+    const matchRepeat = dataSet.RepeatRequest;
+    const intervalDays = dataSet.RepeatEveryXDays;
+    const intervalWeek = dataSet.RepeatEveryXWeeks;
+    const weekDate = dataSet.RepeatWeekDate;
+    const mediactionId = form.id;
+    if (matchRepeat === 1) {
+      interval = intervalDays;
+    }
+    if (matchRepeat === 2) {
+      interval = intervalWeek;
     }
 
-    // const date = start[1].split(",");
-    // const startDate = date[0];
-    // const startTime = date[1];
-
-    // const repeatMatch = text.match(/ - ([^ -]+)$/);
-
+    const { date: startDate, time: startTime } = populateDate(dateTime);
+    const weekDays = getWeekdaysFromBinaryString(weekDate, 0);
     const existingData = {
-      name: nameMatch[1],
-      startDate: populateDate(startDate),
-      startTime: populateTime(startTime),
+      name: name,
+      startDate: startDate,
+      startTime: startTime,
       endDate: endDate,
+      matchRepeat: matchRepeat,
+      interval: interval,
+      weekDate: weekDays,
+      mediactionId: parseInt(mediactionId),
     };
     openUpdateForm(existingData); //pass the datas and display
   }
@@ -274,25 +286,13 @@ document.addEventListener("click", (e) => {
 
 /**
  *format the date from MM/DD/YYYY -> YYYY-MM-DD when update form is selected
- * @param {string} date
+ * @param {string} dateTimeString
  */
-function populateDate(date) {
-  const [month, day, year] = date.split("/");
-  const formattedDate = `${year}-${month.padStart(2, "0")}-${day.padStart(
-    2,
-    "0"
-  )}`;
-  return formattedDate;
-}
-
-/**
- * format the time
- * @param {string} time
- */
-function populateTime(time) {
-  const timeParts = new Date(`01/01/2000 ${time}`).toTimeString().split(":");
-  const formattedTime = `${timeParts[0]}:${timeParts[1]}`; // "19:30"
-  return formattedTime;
+function populateDate(dateTimeString) {
+  const dateObj = new Date(dateTimeString);
+  const date = dateObj.toISOString().split("T")[0];
+  const time = dateObj.toTimeString().split(":").slice(0, 2).join(":");
+  return { date, time };
 }
 
 /**
@@ -314,12 +314,15 @@ function openUpdateForm(existingData) {
   const clone = formTemplate.content.cloneNode(true);
   const newForm = clone.querySelector(".form-section");
   const closeBtn = clone.querySelector(".close-btn");
+  const completeBtn = newForm.querySelector(".completeBtn");
+  const completeBtn2 = newForm.querySelector(".completeBtn2");
 
   //display the original datas in the 1st half of form
   newForm.querySelector('input[type="text"]').value = existingData.name;
   newForm.querySelector('input[type="date"]').value = existingData.startDate;
   newForm.querySelector('input[type="time"]').value = existingData.startTime;
   newForm.querySelector("#end-date").value = existingData.endDate;
+  newForm.querySelector('input[type="number"]').value = existingData.interval;
 
   //display the original datas in the 2nd half of the form(repeat form)
   //display visual tick marks for the selected checkbox
@@ -327,10 +330,15 @@ function openUpdateForm(existingData) {
   const norepeatCheck = newForm.querySelector(".norepeat-check");
   const repeatCheck = newForm.querySelector(".repeat-check");
   const end = newForm.querySelector(".ends-check");
-  if (newForm.querySelector("#end-date").value) {
-    never.checked = false;
+
+  //if repeat is selected show the following
+  if (existingData.matchRepeat != 0) {
+    if (newForm.querySelector("#end-date").value) {
+      never.checked = false;
+      end.checked = true;
+    }
+
     norepeatCheck.checked = false;
-    end.checked = true;
     repeatCheck.checked = true;
 
     //and show 2nd form if original shcedule is repeated
@@ -338,6 +346,16 @@ function openUpdateForm(existingData) {
     const completeBtn = newForm.querySelector(".completeBtn");
     repeatOptions.style.display = "block";
     completeBtn.style.display = "none";
+
+    const toggleTypeBtn = newForm.querySelector(".toggle-type-btn");
+    const daysDiv = newForm.querySelector(".days");
+    if (existingData.matchRepeat === 1) {
+      toggleTypeBtn.textContent = "Day";
+    }
+    if (existingData.matchRepeat === 2) {
+      toggleTypeBtn.textContent = "Week";
+      daysDiv.style.display = "flex";
+    }
   }
 
   attachEvents(newForm); //enable ticking the checkbox
@@ -359,7 +377,17 @@ function openUpdateForm(existingData) {
     modal.style.display = "none";
     // @ts-ignore
     overlay.style.display = "none";
+    //display the latest shceudle
+    fetchMedications();
   });
+
+  //get updated datas and call UPDATE API
+  completeBtn.addEventListener("click", handleCompleteClick);
+  completeBtn2.addEventListener("click", handleCompleteClick);
+  function handleCompleteClick() {
+    const result = getData(existingData.mediactionId);
+    updateMedications(result);
+  }
 }
 
 /**
@@ -409,25 +437,67 @@ async function fetchMedications() {
 }
 
 //DELETE API
-async function deleteMedications() {
+/**
+ * @param {number} id
+ */
+async function deleteMedications(id) {
   try {
     const options = {
       method: "DELETE",
-      body: JSON.stringify({ MedicationScheduleId: 5 }),
+    };
+    const result = await fetchWithToken(
+      `${apiBaseUrl}/api/medicationSchedule/${id}`,
+      options
+    );
+    console.log("Delete result:", result);
+    showToast("Medication delete successfully!");
+  } catch (error) {
+    console.error("Ereting medication:", error);
+  }
+}
+
+//UPDATE API
+// @ts-ignore
+async function updateMedications(data) {
+  try {
+    const options = {
+      method: "PUT",
+      body: JSON.stringify(data),
     };
     const result = await fetchWithToken(
       `${apiBaseUrl}/api/medicationSchedule`,
       options
     );
-    console.log("Delete result:", result);
+    console.log("Update result:", result);
+    showToast("Medication updated successfully!");
   } catch (error) {
-    console.error("Error deleting medication:", error);
+    console.error("Error updating medication:", error);
   }
 }
 
 /**
- * trigger DELETE API if delete btn is clicked
+ * create 
+ * @param {any} data
  */
+async function createMedication(data) {
+  try {
+    const options = {
+      method: "POST",
+      body: JSON.stringify(data),
+    };
+    const result = await fetchWithToken(
+      `${apiBaseUrl}/api/medicationSchedule`,
+      options
+    );
+    console.log("Update result:", result);
+    showToast("Medication create successfully!");
+    fetchMedications();
+  } catch (error) {
+    console.error("Error creating medication:", error);
+  }
+}
+
+//trigger DELETE API if delete btn is clicked
 document.addEventListener("click", (e) => {
   //check if e.target is a DOM element
   if (!e.target || !(e.target instanceof Element)) {
@@ -435,10 +505,159 @@ document.addEventListener("click", (e) => {
   }
 
   if (e.target.classList.contains("delete-btn")) {
-    deleteMedications();
+    const form = e.target.closest("li");
+    // @ts-ignore
+    const medicationId = parseInt(form.id);
+
+    deleteMedications(medicationId);
+
+    fetchMedications();
   }
 });
 
+/**
+ *get user input
+ * @param {number | null} id
+ */
+function getData(id) {
+  console.log(id);
+  const newForm = document.querySelector(".form-section");
+  let repeat;
+  let intervalDay;
+  let intervalWeek;
+  let endDate;
+  if (newForm) {
+    // Medication name
+    /** @type {HTMLInputElement | null} */
+    const medNameInput = newForm.querySelector('input[type="text"]');
+    /** @type {string|null} */
+    const medName = medNameInput?.value ?? null;
+    if (!medName) {
+      alert("Please enter the medication name.");
+      medNameInput?.focus();
+      return;
+    }
+
+    // Date and Time
+    /** @type {HTMLInputElement|null} */
+    const startDateInput = newForm.querySelector('input[type="date"]');
+    /** @type {string|null} */
+    const startDate = startDateInput?.value ?? null;
+
+    /** @type {HTMLInputElement|null} */
+    const startTimeInput = newForm.querySelector('input[type="time"]');
+    /** @type {string|null} */
+    const startTime = startTimeInput?.value ?? null;
+
+    const transDate = new Date(`${startDate}T${startTime}`);
+    const StartDateXTime = transDate.toISOString();
+    if (!startDate || !startTime) {
+      alert("Please enter the date and time.");
+      startDateInput?.focus();
+      return;
+    }
+
+    // Repeat status
+    /** @type {HTMLInputElement|null} */
+    const repeatCheck = newForm.querySelector(".repeat-check");
+    /** @type {boolean|null} */
+    const repeatChecked = repeatCheck?.checked ?? null;
+    /** @type {HTMLInputElement|null} */
+    const noRepeatCheck = newForm.querySelector(".norepeat-check");
+    /** @type {boolean|null} */
+    const noRepeatChecked = noRepeatCheck?.checked ?? null;
+    if (noRepeatChecked) {
+      repeat = 0;
+    }
+
+    // Repeat type (Day/Week)
+    /** @type {HTMLElement|null} */
+    const repeatTypeBtn = newForm.querySelector(".toggle-type-btn");
+    /** @type {string|null} */
+    const repeatType = repeatTypeBtn?.textContent?.trim() ?? null;
+    if (repeatChecked) {
+      if (repeatType == "Day") {
+        repeat = 1;
+      } else {
+        repeat = 2;
+      }
+    }
+
+    // Repeat frequency
+    /** @type {HTMLInputElement|null} */
+    const repeatIntervalInput = newForm.querySelector('input[type="number"]');
+    /** @type {string|null} */
+    if (repeat === 1) {
+      intervalDay = repeatIntervalInput?.value ?? null;
+      intervalWeek = null;
+    } else if (repeat === 2) {
+      intervalWeek = repeatIntervalInput?.value ?? null;
+      intervalDay = null;
+    } else {
+      intervalDay = null;
+      intervalWeek = null;
+    }
+
+    // Selected days (only if type is Week)
+    /** @type {string[]} */
+    const selectedDays = Array.from(
+      /** @type {NodeListOf<HTMLElement>} */ (
+        newForm.querySelectorAll(".days .day-btn.highlighted")
+      )
+    )
+      .map((btn) => btn.textContent ?? "")
+      .filter((text) => text !== "");
+    const days = getWeekdaysFromBinaryString(selectedDays, 1);
+
+    /** @type {HTMLInputElement|null} */
+    const endCheck = newForm.querySelector(".ends-check");
+    /** @type {boolean|null} */
+    const endChecked = endCheck?.checked ?? null;
+
+    /** @type {HTMLInputElement|null} */
+    const endDateInput = newForm.querySelector("#end-date");
+    /** @type {string|null} */
+    if (endChecked) {
+      endDate = endDateInput?.value ?? null;
+      if (!endDate) {
+        alert("Please select an end date.");
+        endDateInput?.focus();
+        return;
+      }
+    } else {
+      endDate = null;
+    }
+
+    const updatedData = {
+      DrugName: medName,
+      StartDateXTime: StartDateXTime,
+      EndDate: endDate,
+      RepeatRequest: repeat,
+      // @ts-ignore
+      RepeatEveryXDays: intervalDay !== null ? parseInt(intervalDay) : null,
+      // @ts-ignore
+      RepeatEveryXWeeks: intervalWeek !== null ? parseInt(intervalWeek) : null,
+      RepeatWeekDate: days,
+      MedicationScheduleId: id,
+    };
+    return updatedData;
+  }
+}
 // trigger GET API once page loaded
 fetchMedications();
 
+/**
+ * @param {string | null} message
+ */
+function showToast(message, duration = 3000) {
+  const toast = document.getElementById("toast");
+  // @ts-ignore
+  toast.textContent = message;
+  // @ts-ignore
+  toast.style.display = "block";
+
+  setTimeout(() => {
+    // @ts-ignore
+    toast.style.display = "none";
+  }, duration);
+}

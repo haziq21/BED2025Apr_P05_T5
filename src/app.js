@@ -32,6 +32,10 @@ app.put(
   verifyJWT,
   profile.deleteProfilePicture
 );
+app.get("/api/profile", verifyJWT, profile.getProfile);
+app.put("/api/profile", verifyJWT, profile.updateProfile);
+app.delete("/api/profile", verifyJWT, profile.deleteUser);
+app.put("/api/profile/picture", verifyJWT, profile.deleteProfilePicture);
 app.delete(
   "/api/profile/:userId/picture",
   verifyJWT,
@@ -101,22 +105,21 @@ app.get(
   mediSchedule.getMediSchedule
 );
 app.post(
-  "/api/medicationSchedule/:userId",
+  "/api/medicationSchedule",
   verifyJWT,
   mediValidate.validateSchedule,
   mediSchedule.createSchedule
 );
 app.put(
-  "/api/medicationSchedule/:userId",
+  "/api/medicationSchedule",
   verifyJWT,
   mediValidate.validateSchedule,
   mediSchedule.updateSchedule
 );
 app.delete(
-  "/api/medicationSchedule/:userId/:scheduleId",
+  "/api/medicationSchedule/:scheduleId",
   verifyJWT,
   mediValidate.validateScheduleId,
-  mediValidate.validateSchedule,
   mediSchedule.deleteSchedule
 );
 

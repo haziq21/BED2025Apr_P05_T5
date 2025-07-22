@@ -6,7 +6,7 @@ import * as model from "../models/user.js";
  * @param {import("express").Response} res
  */
 export async function getProfile(req, res) {
-  const userId = req.userId.userId;
+  const userId = req.userId;
   try {
     const user = await model.getProfile(userId);
 
@@ -29,7 +29,7 @@ export async function getProfile(req, res) {
  */
 export async function updateProfile(req, res) {
   // const userId = parseInt(req.params.userId);
-    const userId = req.userId.userId;
+    const userId = req.userId;
   if (isNaN(userId)) {
     res.status(400).json({ error: "Invalid user ID" });
     return;
@@ -65,7 +65,7 @@ export async function updateProfile(req, res) {
 
 export async function deleteUser(req, res) {
   // const userId = parseInt(req.params.userId);
-   const userId = req.userId.userId;
+   const userId = req.userId;
 
   try {
     const deletedUser = await model.deleteUser(userId);
@@ -90,7 +90,7 @@ export async function deleteUser(req, res) {
 
 export async function deleteProfilePicture(req, res) {
   // const userId = parseInt(req.params.userId);
-   const userId = req.userId.userId;
+   const userId = req.userId;
   if (isNaN(userId)) {
     res.status(400).json({ error: "Invalid user ID" });
     return;
