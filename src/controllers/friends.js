@@ -1,10 +1,12 @@
 import * as model from "../models/friends.js";
 /**
  * Get all friends of a user.
- * @type {import("express").RequestHandler}
- */
+ * @typedef {import('express').Request & { userId?: any }} AuthenticatedRequest
+ * @param {AuthenticatedRequest} req
+ * @param {import("express").Response} res
+ * */
 export async function getAllFriends(req, res) {
-  const userId = +req.params.id;
+  const userId = +req.userId;
   if (isNaN(userId)) {
     res.status(400).json({ error: "Invalid user ID" });
     return;
@@ -15,10 +17,11 @@ export async function getAllFriends(req, res) {
 
 /**
  * Delete a friend by their ID.
- * @type {import("express").RequestHandler}
+ * @param {AuthenticatedRequest} req
+ * @param {import("express").Response} res
  * */
 export async function deleteFriend(req, res) {
-  const userId = +req.params.id;
+  const userId = +req.userId;
   const friendId = +req.params.friendId;
   if (isNaN(userId)) {
     res.status(400).json({ error: "Invalid user ID" });
@@ -34,10 +37,11 @@ export async function deleteFriend(req, res) {
 
 /**
  * Send a friend request to another user.
- * @type {import("express").RequestHandler}
- */
+ * @param {AuthenticatedRequest} req
+ * @param {import("express").Response} res
+ * */
 export async function sendFriendRequest(req, res) {
-  const userId = +req.params.id;
+  const userId = +req.userId;
   const friendId = +req.params.friendId;
   if (isNaN(userId) || isNaN(friendId)) {
     res.status(400).json({ error: "Invalid user or friend ID" });
@@ -52,10 +56,11 @@ export async function sendFriendRequest(req, res) {
 }
 
 /** * Accept a friend request from another user.
- * @type {import("express").RequestHandler}
- */
+ * @param {AuthenticatedRequest} req
+ * @param {import("express").Response} res
+ * */
 export async function acceptFriendRequest(req, res) {
-  const userId = +req.params.id;
+  const userId = +req.userId;
   const friendId = +req.params.friendId;
   if (isNaN(userId) || isNaN(friendId)) {
     res.status(400).json({ error: "Invalid user or friend ID" });
@@ -72,10 +77,11 @@ export async function acceptFriendRequest(req, res) {
 }
 
 /** get all users who have sent a friend request to a user
- * @type {import("express").RequestHandler}
- */
+ * @param {AuthenticatedRequest} req
+ * @param {import("express").Response} res
+ * */
 export async function getPendingFriendRequests(req, res) {
-  const userId = +req.params.id;
+  const userId = +req.userId;
   if (isNaN(userId)) {
     res.status(400).json({ error: "Invalid user ID" });
     return;

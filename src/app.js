@@ -131,25 +131,17 @@ app.put("/api/comment/:userId", verifyJWT, comment.updateComment);
 app.delete("/api/comment/:userId/:postId", verifyJWT, comment.deleteComment);
 
 //Friends management
-app.get("/api/friends/:id", verifyJWT, friends.getAllFriends);
-app.get("/api/friends/:id/search", verifyJWT, friends.searchUsers);
-app.get(
-  "/api/friends/:id/requests",
-  verifyJWT,
-  friends.getPendingFriendRequests
-);
-app.get(
-  "/api/friends/:id/:friendId/public",
-  verifyJWT,
-  friends.getPublicProfile
-);
+app.get("/api/friends", verifyJWT, friends.getAllFriends);
+app.get("/api/friends/search", verifyJWT, friends.searchUsers);
+app.get("/api/friends/requests", verifyJWT, friends.getPendingFriendRequests);
+app.get("/api/friends/:friendId/public", verifyJWT, friends.getPublicProfile);
 app.post(
-  "/api/friends/:id/requests/:friendId",
+  "/api/friends/requests/:friendId",
   verifyJWT,
   friends.acceptFriendRequest
 );
-app.post("/api/friends/:id/:friendId", verifyJWT, friends.sendFriendRequest);
-app.delete("/api/friends/:id/:friendId", verifyJWT, friends.deleteFriend);
+app.post("/api/friends/:friendId", verifyJWT, friends.sendFriendRequest);
+app.delete("/api/friends/:friendId", verifyJWT, friends.deleteFriend);
 
 // Events management
 app.get("/api/events/:eventId", verifyJWT, events.getEventById);
@@ -160,21 +152,17 @@ app.get(
   events.getRegistrationsByEventId
 );
 app.get(
-  "/api/events/:userId/:eventId/mutual",
+  "/api/events/:eventId/mutual",
   verifyJWT,
   events.getMutualRegistrations
 );
-app.get("/api/events/:userId/registered", verifyJWT, events.getEventsByUserId);
-app.get("/api/events/cc/:CCid", verifyJWT, events.getEventsByCCId);
-app.post(
-  "/api/events/:userId/:eventId/register",
-  verifyJWT,
-  events.registerForEvent
-);
+app.get("/api/events/registered", verifyJWT, events.getEventsByUserId);
+app.get("/api/events/cc/:CCId", verifyJWT, events.getEventsByCCId);
+app.post("/api/events/:eventId/register", verifyJWT, events.registerForEvent);
 app.post("/api/events/create", verifyJWT, events.createEvent);
 app.delete("/api/events/:eventId", verifyJWT, events.deleteEvent);
 app.delete(
-  "/api/events/:userId/:eventId/unregister",
+  "/api/events/:eventId/unregister",
   verifyJWT,
   events.unregisterFromEvent
 );
