@@ -1,7 +1,7 @@
 const BASE_API_URL = "http://localhost:3000";
 
 // Get token and userId from localStorage
-// const token = localStorage.getItem("token");
+const token1 = localStorage.getItem("token");
 const userId = localStorage.getItem("userId");
 
 // Get DOM elements

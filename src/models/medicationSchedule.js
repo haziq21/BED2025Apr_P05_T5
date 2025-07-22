@@ -113,7 +113,8 @@ export async function deleteSchedule(userId, scheduleID) {
             `);
 
     if (result.recordset.length === 0) {
-      return { message: `No schedule found with ID ${scheduleID}.` };
+      // return { message: `No schedule found with ID ${scheduleID}.` };
+      return null;
     }
 
     return { message: `Schedule with ID ${scheduleID} has been deleted.` };
