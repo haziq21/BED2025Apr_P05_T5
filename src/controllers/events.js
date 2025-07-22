@@ -18,7 +18,7 @@ export async function getEventsByCCId(req, res) {
  * @type {import("express").RequestHandler}
  */
 export async function getEventById(req, res) {
-  const eventId = +req.params.id;
+  const eventId = +req.params.eventId;
   if (isNaN(eventId)) {
     res.status(400).json({ error: "Invalid Event ID" });
     return;
@@ -120,7 +120,7 @@ export async function createEvent(req, res) {
  * @type {import("express").RequestHandler}
  */
 export async function updateEvent(req, res) {
-  const eventId = +req.params.id;
+  const eventId = +req.params.eventId;
   const { name, description, location, startDate, endDate } = req.body;
 
   if (isNaN(eventId)) {
@@ -153,7 +153,7 @@ export async function updateEvent(req, res) {
  * @type {import("express").RequestHandler}
  */
 export async function deleteEvent(req, res) {
-  const eventId = +req.params.id;
+  const eventId = +req.params.eventId;
 
   if (isNaN(eventId)) {
     res.status(400).json({ error: "Invalid Event ID" });
