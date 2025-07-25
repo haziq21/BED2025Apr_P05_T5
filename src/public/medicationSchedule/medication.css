@@ -149,12 +149,24 @@ input[type="checkbox"] {
 
 .days {
   display: flex;
-  gap: 10px;
+  /* gap: 10px; */
   margin: 10px 0;
   flex-wrap: wrap;
+  justify-content:space-between
 }
 
 .day-btn {
+  padding: 8px 16px;
+  background: #aca291;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.toggle-type-btn {
   padding: 8px 14px;
   background: #aca291;
   color: white;
@@ -165,9 +177,14 @@ input[type="checkbox"] {
   transition: background 0.3s ease;
 }
 
+
 .highlighted {
   background: #57534d !important;
 }
+
+
+
+
 
 .close-btn {
   position: absolute;
