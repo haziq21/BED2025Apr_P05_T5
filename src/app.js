@@ -28,11 +28,6 @@ app.get("/api/profile", verifyJWT, profile.getProfile);
 app.put("/api/profile", verifyJWT, profile.updateProfile);
 app.delete("/api/profile", verifyJWT, profile.deleteUser);
 app.put("/api/profile/picture", verifyJWT, profile.deleteProfilePicture);
-app.delete(
-  "/api/profile/:userId/picture",
-  verifyJWT,
-  profile.deleteProfilePicture
-);
 
 // CC management
 app.get("/api/cc", verifyJWT, cc.getAllCCs);
