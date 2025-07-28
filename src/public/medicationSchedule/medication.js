@@ -1,5 +1,7 @@
+
 const apiBaseUrl = "http://localhost:3000";
 const token = localStorage.getItem("token");
+
 
 /**
  * @type {any[]}
@@ -34,7 +36,7 @@ function renderMedications(data) {
       Medication: ${item.DrugName} - StartTime: ${formatTime(
       item.StartDateXTime
       // @ts-ignore
-    )} - EndDate: ${formatTime(item.EndDate)} - ${formatRepeat(item)}
+    )} - EndDate: ${formatEndDate(item.EndDate)} - ${formatRepeat(item)}
       <button class="action-btn update-btn" id="${i.indexOf(
         item
       )}">Update</button>
@@ -63,6 +65,18 @@ function formatTime(iso) {
       hour: "2-digit",
       minute: "2-digit",
     });
+  } else {
+    return "Nil";
+  }
+}
+
+/**
+ * @param {Date} iso
+ */
+function formatEndDate(iso) {
+  if (iso) {
+    const endDate = new Date(iso);
+    return endDate.toISOString().slice(0, 10);
   } else {
     return "Nil";
   }
@@ -321,23 +335,24 @@ function openUpdateForm(existingData) {
   newForm.querySelector('input[type="text"]').value = existingData.name;
   newForm.querySelector('input[type="date"]').value = existingData.startDate;
   newForm.querySelector('input[type="time"]').value = existingData.startTime;
-  newForm.querySelector("#end-date").value = existingData.endDate;
-  newForm.querySelector('input[type="number"]').value = existingData.interval;
 
   //display the original datas in the 2nd half of the form(repeat form)
   //display visual tick marks for the selected checkbox
   const never = newForm.querySelector(".never-check");
   const norepeatCheck = newForm.querySelector(".norepeat-check");
   const repeatCheck = newForm.querySelector(".repeat-check");
+  newForm.querySelector('input[type="date"].end-date').value = formatEndDate(
+    existingData.endDate
+  );
+  newForm.querySelector('input[type="number"]').value = existingData.interval;
   const end = newForm.querySelector(".ends-check");
 
   //if repeat is selected show the following
   if (existingData.matchRepeat != 0) {
-    if (newForm.querySelector("#end-date").value) {
+    if (existingData.endDate) {
       never.checked = false;
       end.checked = true;
     }
-
     norepeatCheck.checked = false;
     repeatCheck.checked = true;
 
@@ -452,7 +467,7 @@ async function deleteMedications(id) {
     console.log("Delete result:", result);
     showToast("Medication delete successfully!");
   } catch (error) {
-    console.error("Ereting medication:", error);
+    console.error("Error deleting medication:", error);
   }
 }
 
@@ -476,7 +491,7 @@ async function updateMedications(data) {
 }
 
 /**
- * create 
+ * create
  * @param {any} data
  */
 async function createMedication(data) {
@@ -489,7 +504,8 @@ async function createMedication(data) {
       `${apiBaseUrl}/api/medicationSchedule`,
       options
     );
-    console.log("Update result:", result);
+    console.log("Create result:", result);
+     console.log(result);
     showToast("Medication create successfully!");
     fetchMedications();
   } catch (error) {
@@ -510,7 +526,6 @@ document.addEventListener("click", (e) => {
     const medicationId = parseInt(form.id);
 
     deleteMedications(medicationId);
-
     fetchMedications();
   }
 });
@@ -550,7 +565,8 @@ function getData(id) {
     const startTime = startTimeInput?.value ?? null;
 
     const transDate = new Date(`${startDate}T${startTime}`);
-    const StartDateXTime = transDate.toISOString();
+    const StartDateXTime = transDate.toISOString(); //auto -8hrs utc
+    console.log(StartDateXTime);
     if (!startDate || !startTime) {
       alert("Please enter the date and time.");
       startDateInput?.focus();
@@ -643,8 +659,6 @@ function getData(id) {
     return updatedData;
   }
 }
-// trigger GET API once page loaded
-fetchMedications();
 
 /**
  * @param {string | null} message
@@ -661,3 +675,103 @@ function showToast(message, duration = 3000) {
     toast.style.display = "none";
   }, duration);
 }
+
+// trigger GET API once page loaded
+fetchMedications();
+
+const searchBtn = document.getElementById("search-btn");
+const medicationSelect = document.getElementById("medication-search");
+
+// @ts-ignore
+searchBtn.addEventListener("click", async () => {
+  // @ts-ignore
+  const selectedMedication = medicationSelect.value.trim();
+
+  if (!selectedMedication) {
+    return showToast("Please enter or select a medication.");
+  }
+
+  try {
+    const data = await fetchMedicationInfo(selectedMedication);
+    displayMedicationResult(data);
+  } catch (err) {
+    console.error(err);
+    displayMedicationResult(null);
+  }
+});
+
+/**
+ * @param {string} name
+ * @returns {Promise<any>}
+ */
+async function fetchMedicationInfo(name) {
+  const url = new URL("https://api.fda.gov/drug/label.json");
+  url.searchParams.set("search", `openfda.brand_name:"${name}"`);
+  url.searchParams.set("limit", "1");
+
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`No data for ${name}`);
+  const json = await res.json();
+  return json.results;
+}
+
+/**
+ * @param {any[] | null} data
+ */
+function displayMedicationResult(data) {
+  const resultContainer = document.getElementById("medication-result");
+
+  if (!data || data.length === 0) {
+    // @ts-ignore
+    resultContainer.innerHTML = `<p>No information found for this medication.</p>`;
+    return;
+  }
+
+  const item = data[0]; // Take first match
+  const brand = item.openfda?.brand_name?.[0] || "Unknown";
+  const purpose = item.purpose?.[0] || "No purpose listed";
+  const reactions = item.adverse_reactions?.[0] || "No known reactions";
+
+  // @ts-ignore
+  resultContainer.innerHTML = `
+    <div class="card">
+      <h3>${brand}</h3>
+      <p><strong>Purpose:</strong> ${purpose}</p>
+      <p><strong>Adverse Reactions:</strong> ${reactions}</p>
+    </div>
+  `;
+}
+
+// async function sendWhatsAppMessage() {
+//   const token =
+//     "EAAJdcClyJRIBPOlyyd22p59tp6WcHQFs77ZAw9NptlgqdAdNLzZCENgWyrhmTZBTfJAnhcFJY1ZCeoRhZAAvXVcZBblAZAsZBkxVFyuuIFcLpgiATViYXN7m73bkuUxXieLZAInUPaRMUPtaXEvn93dDE1aNfZBefUqZCV7dOuYZAhR1ZCDVZBOc93ITIBEDhYBo949anHukBFofAUZAF6zZAGq4fdqvZBDy9qRCuZArDrW5HSxpHomAZDZD";
+//   const phone_number_id = "669177659620528";
+//   const recipient_number = "6583864483"; // in format "65XXXXXXXX"
+
+//   const body = {
+//     messaging_product: "whatsapp",
+//     to: recipient_number,
+//     type: "template",
+//     template: {
+//       name: "hello_world", // Meta provides this default template
+//       language: { code: "en_US" },
+//     },
+//   };
+
+//   const res = await fetch(
+//     `https://graph.facebook.com/v19.0/${phone_number_id}/messages`,
+//     {
+//       method: "POST",
+//       headers: {
+//         Authorization: `Bearer ${token}`,
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify(body),
+//     }
+//   );
+
+//   const data = await res.json();
+//   console.log("Response:", data);
+// }
+
+// sendWhatsAppMessage();
