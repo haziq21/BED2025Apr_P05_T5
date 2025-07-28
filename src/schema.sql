@@ -130,6 +130,21 @@ CREATE TABLE Comment (
   FOREIGN KEY (UserId) REFERENCES Users(UserId)
 );
 
+CREATE TABLE GoogleCredentials (
+  UserId INT PRIMARY KEY,
+  AccessToken NVARCHAR(MAX),
+  RefreshToken NVARCHAR(MAX),
+  ExpiryDate BIGINT, -- Store as Unix timestamp (milliseconds)
+  FOREIGN KEY (UserId) REFERENCES Users(UserId) ON DELETE CASCADE
+);
+
+CREATE TABLE GoogleEventLinks (
+  UserId INT NOT NULL,
+  EventId INT NOT NULL,
+  GoogleEventId NVARCHAR(255) NOT NULL,
+  PRIMARY KEY (UserId, EventId)
+);
+
 
 
 
