@@ -1,13 +1,13 @@
 import * as model from "../models/comment.js";
 
 /**
- * retrieve all comments from the user
- * @type {import("express").RequestHandler}
+ * get the comments by user id
+ * @typedef {import('express').Request & { userId?: any }} AuthenticatedRequest
+ * @param {AuthenticatedRequest} req
+ * @param {import("express").Response} res
  */
-
 export async function getCommentById(req, res) {
-  const userId = parseInt(req.params.userId);
-
+  const userId = req.userId;
   if (isNaN(userId)) {
     res.status(400).json({ error: "Invalid user ID" });
     return;
@@ -41,11 +41,12 @@ export async function getComment(req, res) {
 
 /**
  * update the comment by postId
- * @type {import("express").RequestHandler}
+ * @param {AuthenticatedRequest} req
+ * @param {import("express").Response} res
  */
 
 export async function updateComment(req, res) {
-  const userId = parseInt(req.params.userId);
+  const userId = req.userId;
   if (isNaN(userId)) {
     res.status(400).json({ error: "Invalid user ID" });
     return;
@@ -60,10 +61,11 @@ export async function updateComment(req, res) {
 
 /**
  * create the comment
- * @type {import("express").RequestHandler}
+ * @param {AuthenticatedRequest} req
+ * @param {import("express").Response} res
  */
 export async function createComment(req, res) {
-  const userId = +req.params.userId;
+  const userId = req.userId;
   if (isNaN(userId)) {
     res.status(400).json({ error: "Invalid User ID" });
     return;
@@ -74,20 +76,41 @@ export async function createComment(req, res) {
 
 /**
  * delete the comment
- * @type {import("express").RequestHandler}
+ * @param {AuthenticatedRequest} req
+ * @param {import("express").Response} res
  */
 export async function deleteComment(req, res) {
   const postId = parseInt(req.params.postId);
-  const userId = parseInt(req.params.userId);
+  const userId = req.userId;
   if (isNaN(postId)) {
     res.status(400).json({ error: "Invalid post ID" });
     return;
   }
-
   const comment = await model.deleteComment(userId, postId);
   if (!comment) {
     res.status(404).json({ error: "Comment not found" });
     return;
   }
   res.json(comment);
+}
+
+/**
+ * retrieve all comments from the user
+ * @type {import("express").RequestHandler}
+ */
+export async function getCommentByOthers(req, res) {
+  const postId = parseInt(req.params.postId);
+  if (isNaN(postId)) {
+    res.status(400).json({ error: "Invalid post ID" });
+    return;
+  }
+
+  const comments = await model.getCommentByOthers(postId);
+
+  if (!comments) {
+    res.status(404).json({ error: "Comment not found" });
+    return;
+  }
+
+  res.status(200).json(comments);
 }

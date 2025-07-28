@@ -10,9 +10,9 @@ import * as events from "./controllers/events.js";
 import { verifyJWT } from "./middleware/auth.js";
 import * as comment from "./controllers/comment.js";
 import * as medicalRecordsController from "./controllers/medicalRecordsController.js";
-
 import * as mediSchedule from "./controllers/medicationSchedule.js";
 import * as mediValidate from "./middleware/medicationScheduleValidation.js";
+import * as reminderCron from "./cron/reminderCron.js";
 
 import pool from "./db.js";
 const PORT = process.env.PORT || 3000;
@@ -125,10 +125,11 @@ app.delete(
 
 //Comment
 app.get("/api/comment", verifyJWT, comment.getComment);
-app.get("/api/comment/:userId", verifyJWT, comment.getCommentById);
-app.post("/api/comment/:userId", verifyJWT, comment.createComment);
-app.put("/api/comment/:userId", verifyJWT, comment.updateComment);
-app.delete("/api/comment/:userId/:postId", verifyJWT, comment.deleteComment);
+app.get("/api/comment/getReply/:postId", verifyJWT, comment.getCommentByOthers);
+app.get("/api/comment/byuser", verifyJWT, comment.getCommentById);
+app.post("/api/comment", verifyJWT, comment.createComment);
+app.put("/api/comment", verifyJWT, comment.updateComment);
+app.delete("/api/comment/:postId", verifyJWT, comment.deleteComment);
 
 //Friends management
 app.get("/api/friends", verifyJWT, friends.getAllFriends);
@@ -167,6 +168,7 @@ app.delete(
   events.unregisterFromEvent
 );
 
+reminderCron.getDates();
 // This must come after all the routes
 app.use(errorHandler);
 
