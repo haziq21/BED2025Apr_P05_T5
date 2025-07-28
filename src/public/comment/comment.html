@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kampung Connect - Comments</title>
+    <link rel="stylesheet" href="../global.css" />
+    <link rel="stylesheet" href="comment.css" />
+  </head>
+  <body>
+    <nav class="topnav">
+      <a href="#home">Kampung Connect</a>
+      <a href="#Events">Events</a>
+      <a href="#Location">Location</a>
+      <a href="#Medication">Medication</a>
+      <a href="#profile">Profile</a>
+      <a href="#comments">Comments</a>
+    </nav>
+
+    <div class="button-bar">
+      <div class="filter-buttons">
+        <button onclick="showAllPosts()">All Comments</button>
+        <button onclick="showUserPosts()">My Comments</button>
+      </div>
+      <button class="post-btn" id="openPostModal" onclick="toggleModal()">
+        + Post
+      </button>
+    </div>
+
+    <div class="content" id="postsContainer"></div>
+
+    <!-- Modal Overlay -->
+    <div class="overlay" id="overlay"></div>
+    <div class="modal" id="modal">
+      <h2>New Post</h2>
+      <textarea
+        id="postContent"
+        rows="4"
+        placeholder="Write your thoughts..."
+      ></textarea>
+      <button class="submit-btn" onclick="submitPost()">Submit</button>
+      <button class="cancel-btn" onclick="toggleModal()">Cancel</button>
+    </div>
+    <div id="editOverlay" class="overlay">
+      <div id="editModal" class="modal">
+        <h3>Edit Your Comment</h3>
+        <textarea id="editCommentContent" rows="4"></textarea>
+      </div>
+    </div>
+    <div
+      id="toast"
+      style="
+        display: none;
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #333;
+        color: #fff;
+        padding: 16px 24px;
+        border-radius: 8px;
+        z-index: 9999;
+      "
+    ></div>
+    <script src="comment.js"></script>
+  </body>
+</html>
