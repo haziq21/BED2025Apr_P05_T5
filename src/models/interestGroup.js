@@ -21,11 +21,10 @@ export async function fillApplication(UserId, details) {
 
 /**
  * View all applications submitted by a user
- * @param {}
- * @param {{}}
+ * @param {number} UserId
  */
 
-export async function getApplications() {
+export async function getApplications(UserId) {
   try {
   } catch (error) {
     console.error("Database error:", error);
