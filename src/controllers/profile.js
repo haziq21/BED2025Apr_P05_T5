@@ -1,7 +1,7 @@
 import * as model from "../models/user.js";
 /**
  * Gets the profile of a user 
- * @typedef {import('express').Request & { userId?: any }} AuthenticatedRequest
+* @typedef {import('express').Request & { userId?: any }} AuthenticatedRequest
  * @param {AuthenticatedRequest} req
  * @param {import("express").Response} res
  */
@@ -64,7 +64,6 @@ export async function updateProfile(req, res) {
  */
 
 export async function deleteUser(req, res) {
-  // const userId = parseInt(req.params.userId);
    const userId = req.userId;
 
   try {
@@ -89,7 +88,6 @@ export async function deleteUser(req, res) {
  */
 
 export async function deleteProfilePicture(req, res) {
-  // const userId = parseInt(req.params.userId);
    const userId = req.userId;
   if (isNaN(userId)) {
     res.status(400).json({ error: "Invalid user ID" });
