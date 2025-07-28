@@ -1,10 +1,11 @@
 import * as model from "../models/events.js";
 
 /** get all events for a CC
+ * @typedef {import('express').Request & { userId?: any }} AuthenticatedRequest
  * @type {import("express").RequestHandler}
  */
 export async function getEventsByCCId(req, res) {
-  const CCId = +req.params.CCid;
+  const CCId = +req.params.CCId;
   if (isNaN(CCId)) {
     res.status(400).json({ error: "Invalid CC ID" });
     return;
@@ -18,7 +19,7 @@ export async function getEventsByCCId(req, res) {
  * @type {import("express").RequestHandler}
  */
 export async function getEventById(req, res) {
-  const eventId = +req.params.id;
+  const eventId = +req.params.eventId;
   if (isNaN(eventId)) {
     res.status(400).json({ error: "Invalid Event ID" });
     return;
@@ -34,10 +35,10 @@ export async function getEventById(req, res) {
 }
 
 /** get mutual registrations for an event
- * @type {import("express").RequestHandler}
- */
+ * @param {AuthenticatedRequest} req
+ * @param {import("express").Response} res */
 export async function getMutualRegistrations(req, res) {
-  const userId = +req.params.userId;
+  const userId = +req.userId;
   const eventId = +req.params.eventId;
 
   if (isNaN(userId) || isNaN(eventId)) {
@@ -53,10 +54,10 @@ export async function getMutualRegistrations(req, res) {
 }
 
 /** register for an event
- * @type {import("express").RequestHandler}
- */
+ * @param {AuthenticatedRequest} req
+ * @param {import("express").Response} res */
 export async function registerForEvent(req, res) {
-  const userId = +req.params.userId;
+  const userId = +req.userId;
   const eventId = +req.params.eventId;
 
   if (isNaN(userId) || isNaN(eventId)) {
@@ -74,10 +75,10 @@ export async function registerForEvent(req, res) {
 }
 
 /** unregister from an event
- * @type {import("express").RequestHandler}
- */
+ * @param {AuthenticatedRequest} req
+ * @param {import("express").Response} res */
 export async function unregisterFromEvent(req, res) {
-  const userId = +req.params.userId;
+  const userId = +req.userId;
   const eventId = +req.params.eventId;
 
   if (isNaN(userId) || isNaN(eventId)) {
@@ -120,7 +121,7 @@ export async function createEvent(req, res) {
  * @type {import("express").RequestHandler}
  */
 export async function updateEvent(req, res) {
-  const eventId = +req.params.id;
+  const eventId = +req.params.eventId;
   const { name, description, location, startDate, endDate } = req.body;
 
   if (isNaN(eventId)) {
@@ -153,7 +154,7 @@ export async function updateEvent(req, res) {
  * @type {import("express").RequestHandler}
  */
 export async function deleteEvent(req, res) {
-  const eventId = +req.params.id;
+  const eventId = +req.params.eventId;
 
   if (isNaN(eventId)) {
     res.status(400).json({ error: "Invalid Event ID" });
@@ -173,7 +174,7 @@ export async function deleteEvent(req, res) {
  * @type {import("express").RequestHandler}
  */
 export async function getRegistrationsByEventId(req, res) {
-  const eventId = +req.params.id;
+  const eventId = +req.params.eventId;
 
   if (isNaN(eventId)) {
     res.status(400).json({ error: "Invalid Event ID" });
@@ -185,10 +186,10 @@ export async function getRegistrationsByEventId(req, res) {
 }
 
 /** get all events for a user
- * @type {import("express").RequestHandler}
- */
+ * @param {AuthenticatedRequest} req
+ * @param {import("express").Response} res */
 export async function getEventsByUserId(req, res) {
-  const userId = +req.params.userId;
+  const userId = +req.userId;
 
   if (isNaN(userId)) {
     res.status(400).json({ error: "Invalid User ID" });
