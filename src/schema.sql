@@ -66,14 +66,27 @@ CREATE TABLE CCEventRegistrations (
   PRIMARY KEY (EventId, UserId)
 );
 
+-- CREATE TABLE InterestGroupProposals (
+--   ProposalId INT IDENTITY PRIMARY KEY,
+--   UserId INT NOT NULL REFERENCES Users,
+--   CCId INT NOT NULL REFERENCES CCs,
+--   Title NVARCHAR(255) NOT NULL,
+--   Description NVARCHAR(MAX),
+--   Accepted BIT
+-- );
+
 CREATE TABLE InterestGroupProposals (
   ProposalId INT IDENTITY PRIMARY KEY,
   UserId INT NOT NULL REFERENCES Users,
   CCId INT NOT NULL REFERENCES CCs,
   Title NVARCHAR(255) NOT NULL,
   Description NVARCHAR(MAX),
-  Accepted BIT
+  Email NVARCHAR(255) NOT NULL,
+  Status NVARCHAR(20) DEFAULT 'pending', -- pending, accepted, rejected
+  SubmittedAt DATETIME DEFAULT GETDATE(),
+  UpdatedAt DATETIME DEFAULT GETDATE()
 );
+
 
 CREATE TABLE MedicalRecord (
     MedicalRecordId INT PRIMARY KEY IDENTITY(1,1),
