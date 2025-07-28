@@ -139,7 +139,8 @@ CREATE TABLE Comment (
   UserId INT NOT NULL,
   PostId INT IDENTITY PRIMARY KEY,
   Comment VARCHAR(500) NOT NULL,
-  TimeSpam DATETIME DEFAULT GETDATE(),
+  TimeStamp DATETIME DEFAULT GETDATE(),
+  ParentPostId INT DEFAULT -1,  -- -1 means by default its post not comment 
   FOREIGN KEY (UserId) REFERENCES Users(UserId)
 );
 

@@ -1,7 +1,7 @@
 const BASE_API_URL = "http://localhost:3000";
 
 // Get token and userId from localStorage
-const token1 = localStorage.getItem("token");
+const token1 = localStorage.getItem("token1");
 const userId = localStorage.getItem("userId");
 
 // Get DOM elements
@@ -13,8 +13,8 @@ const uploadInput = document.getElementById("uploadImage");
 const editButtons = document.getElementById("editButtons");
 const saveButtons = document.getElementById("saveButtons");
 
-// Redirect if no token
-if (!token || !userId) {
+// // Redirect if no token
+if (!token1 || !userId) {
   alert("You are not logged in.");
   window.location.href = "login.html";
 }
@@ -25,9 +25,9 @@ window.addEventListener("DOMContentLoaded", loadProfile);
 //  Load profile data
 async function loadProfile() {
   try {
-    const res = await fetch(`${BASE_API_URL}/api/profile/${userId}`, {
+    const res = await fetch(`${BASE_API_URL}/api/profile/`, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token1}`,
       },
     });
 
@@ -41,7 +41,7 @@ async function loadProfile() {
     // @ts-ignore
     bioInput.value = data.bio || "";
     // @ts-ignore
-    profileImage.src = data.image || "images/default-avatar.png";
+    profileImage.src = data.image || "images/default pic.png";
   } catch (err) {
     console.error("Error loading profile:", err);
     alert("Failed to load profile. Please login again.");
@@ -77,14 +77,14 @@ async function saveChanges() {
   };
 
   try {
-    const res = await fetch(`${BASE_API_URL}/api/profile/${userId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(updated),
-    });
+    const res = await fetch(`${BASE_API_URL}/api/profile`, {
+    method: "PUT",
+    headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token1}`,
+  },
+  body: JSON.stringify(updated),
+});
 
     const result = await res.json();
 
@@ -120,10 +120,10 @@ uploadInput.addEventListener("change", async () => {
   formData.append("image", file);
 
   try {
-    const res = await fetch(`${BASE_API_URL}/api/profile/${userId}/upload`, {
-      method: "POST", // or PUT depending on your backend
+    const res = await fetch(`${BASE_API_URL}/api/profile/upload`, {
+      method: "POST",
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token1}`,
       },
       body: formData,
     });
@@ -148,10 +148,10 @@ async function deleteProfilePicture() {
   if (!confirm("Are you sure you want to delete your profile picture?")) return;
 
   try {
-    const res = await fetch(`${BASE_API_URL}/api/profile/${userId}/picture`, {
+    const res = await fetch(`${BASE_API_URL}/api/profile/picture`, {
       method: "PUT",
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token1}`,
       },
     });
 
@@ -159,7 +159,7 @@ async function deleteProfilePicture() {
 
     if (res.ok) {
       // @ts-ignore
-      profileImage.src = "images/default-avatar.png";
+      profileImage.src = "images/default pic.png";
       alert("Profile picture deleted.");
     } else {
       alert(result.error || "Failed to delete picture.");
@@ -175,10 +175,10 @@ async function deleteUser() {
   if (!confirm("Are you sure you want to delete your account? This action is permanent.")) return;
 
   try {
-    const res = await fetch(`${BASE_API_URL}/api/profile/${userId}`, {
+    const res = await fetch(`${BASE_API_URL}/api/profile/`, {
       method: "DELETE",
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token1}`,
       },
     });
 
@@ -197,9 +197,8 @@ async function deleteUser() {
 
 //  Logout
 function logout() {
-  localStorage.removeItem("token");
+  localStorage.removeItem("token1");
   localStorage.removeItem("userId");
   window.location.href = "login.html";
 }
 
-loadProfile() 

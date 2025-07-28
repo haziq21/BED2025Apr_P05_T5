@@ -152,7 +152,7 @@ input[type="checkbox"] {
   /* gap: 10px; */
   margin: 10px 0;
   flex-wrap: wrap;
-  justify-content:space-between
+  justify-content: space-between;
 }
 
 .day-btn {
@@ -177,14 +177,9 @@ input[type="checkbox"] {
   transition: background 0.3s ease;
 }
 
-
 .highlighted {
   background: #57534d !important;
 }
-
-
-
-
 
 .close-btn {
   position: absolute;
@@ -226,4 +221,41 @@ input[type="checkbox"] {
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
   z-index: 998;
+}
+
+#search-btn {
+  width: 20%; 
+  margin-top: 15px;
+  padding: 10px;
+  font-size: 1rem;
+  background-color: #fae7c2; 
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  font-weight: bold;
+  font-family: "Gelasio";
+}
+
+#search-btn:hover {
+  background-color: #c1a77b;
+}
+
+.medication-card .card {
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.medication-card h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+.medication-card p {
+  margin: 8px 0;
 }
