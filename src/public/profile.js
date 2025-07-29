@@ -1,8 +1,7 @@
 const BASE_API_URL = "http://localhost:3000";
 
-// Get token and userId from localStorage
-const token1 = localStorage.getItem("token1");
-const userId = localStorage.getItem("userId");
+// Get token from localStorage
+const token3 = localStorage.getItem("token");
 
 // Get DOM elements
 const nameInput = document.getElementById("Name");
@@ -14,7 +13,7 @@ const editButtons = document.getElementById("editButtons");
 const saveButtons = document.getElementById("saveButtons");
 
 // // Redirect if no token
-if (!token1 || !userId) {
+if (!token3) {
   alert("You are not logged in.");
   window.location.href = "login.html";
 }
@@ -27,7 +26,7 @@ async function loadProfile() {
   try {
     const res = await fetch(`${BASE_API_URL}/api/profile/`, {
       headers: {
-        Authorization: `Bearer ${token1}`,
+        Authorization: `Bearer ${token3}`,
       },
     });
 
@@ -81,7 +80,7 @@ async function saveChanges() {
     method: "PUT",
     headers: {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${token1}`,
+    Authorization: `Bearer ${token3}`,
   },
   body: JSON.stringify(updated),
 });
@@ -123,7 +122,7 @@ uploadInput.addEventListener("change", async () => {
     const res = await fetch(`${BASE_API_URL}/api/profile/upload`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${token1}`,
+        Authorization: `Bearer ${token3}`,
       },
       body: formData,
     });
@@ -151,7 +150,7 @@ async function deleteProfilePicture() {
     const res = await fetch(`${BASE_API_URL}/api/profile/picture`, {
       method: "PUT",
       headers: {
-        Authorization: `Bearer ${token1}`,
+        Authorization: `Bearer ${token3}`,
       },
     });
 
@@ -178,7 +177,7 @@ async function deleteUser() {
     const res = await fetch(`${BASE_API_URL}/api/profile/`, {
       method: "DELETE",
       headers: {
-        Authorization: `Bearer ${token1}`,
+        Authorization: `Bearer ${token3}`,
       },
     });
 
@@ -197,7 +196,7 @@ async function deleteUser() {
 
 //  Logout
 function logout() {
-  localStorage.removeItem("token1");
+  localStorage.removeItem("token");
   localStorage.removeItem("userId");
   window.location.href = "login.html";
 }
