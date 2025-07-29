@@ -7,12 +7,24 @@ import pool from "../db.js";
 /**
  * Fill out the application form
  * @param {number} UserId
- * @param {{CCId: number, Title: string, Description: string, Email: string}} details
+ * @param {{CCId: number, Title: string, Description: string, Email: string, Scope: string, MeetingFrequency: string, BudgetEstimateStart: number, BudgetEstimateEnd: number, AccessibilityConsideration: string, HealthSafetyPrecaution: string}} details
  */
 
 export async function fillApplication(UserId, details) {
   try {
-    const request = pool.request();
+    const request = pool
+      .request()
+      .input("UserId", UserId)
+      .input("CCId", details.CCId)
+      .input("Title", details.Title)
+      .input("Description", details.Description)
+      .input("Email", details.Email)
+      .input("Scope", details.Scope)
+      .input("MeetingFrequency", details.MeetingFrequency)
+      .input("BudgetEstimateStart", details.BudgetEstimateStart)
+      .input("BudgetEstimateEnd", details.BudgetEstimateEnd)
+      .input("AccessibilityConsideration", details.AccessibilityConsideration)
+      .input("HealthSafetyPrecaution", details.HealthSafetyPrecaution);
   } catch (error) {
     console.error("Database error:", error);
     throw error;
