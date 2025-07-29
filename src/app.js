@@ -22,16 +22,9 @@ app.use(express.static("public"));
 
 // Authentication
 app.post("/api/auth/otp", auth.sendOTP);
+app.post("/api/auth/verify", auth.verifyOTP);
 app.post("/api/auth/user", auth.createUser);
 app.post("/api/auth/login", auth.login);
-app.get("/api/profile/:userId", verifyJWT, profile.getProfile);
-app.put("/api/profile/:userId", verifyJWT, profile.updateProfile);
-app.delete("/api/profile/:userId", verifyJWT, profile.deleteUser);
-app.put(
-  "/api/profile/:userId/picture",
-  verifyJWT,
-  profile.deleteProfilePicture
-);
 app.get("/api/profile", verifyJWT, profile.getProfile);
 app.put("/api/profile", verifyJWT, profile.updateProfile);
 app.delete("/api/profile", verifyJWT, profile.deleteUser);
