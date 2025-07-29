@@ -10,9 +10,9 @@ import * as events from "./controllers/events.js";
 import { verifyJWT } from "./middleware/auth.js";
 import * as comment from "./controllers/comment.js";
 import * as medicalRecordsController from "./controllers/medicalRecordsController.js";
-
 import * as mediSchedule from "./controllers/medicationSchedule.js";
 import * as mediValidate from "./middleware/medicationScheduleValidation.js";
+import * as reminderCron from "./cron/reminderCron.js";
 
 import pool from "./db.js";
 const PORT = process.env.PORT || 3000;
@@ -29,6 +29,11 @@ app.get("/api/profile", verifyJWT, profile.getProfile);
 app.put("/api/profile", verifyJWT, profile.updateProfile);
 app.delete("/api/profile", verifyJWT, profile.deleteUser);
 app.put("/api/profile/picture", verifyJWT, profile.deleteProfilePicture);
+app.delete(
+  "/api/profile/:userId/picture",
+  verifyJWT,
+  profile.deleteProfilePicture
+);
 
 // CC management
 app.get("/api/cc", verifyJWT, cc.getAllCCs);
@@ -41,15 +46,23 @@ app.post("/api/cc/:id/admins/:userId", verifyJWT, cc.makeAdmin);
 app.delete("/api/cc/:id/admins/:userId", verifyJWT, cc.removeAdmin);
 
 // Medical Record Management
-app.post("/api/medicalRecords", verifyJWT, medicalRecordsController.uploadFile);
-app.get("/api/medicalRecords", verifyJWT, medicalRecordsController.getFiles);
+app.post(
+  "/api/medicalRecords/:UserId",
+  verifyJWT,
+  medicalRecordsController.uploadFile
+);
+app.get(
+  "/api/medicalRecords/:UserId",
+  verifyJWT,
+  medicalRecordsController.getFiles
+);
 app.delete(
-  "/api/medicalRecords/:MedicalRecordId",
+  "/api/medicalRecords/:UserId/:MedicalRecordId",
   verifyJWT,
   medicalRecordsController.deleteFile
 );
 app.put(
-  "/api/medicalRecords/:MedicalRecordId",
+  "/api/medicalRecords/:UserId/:MedicalRecordId",
   verifyJWT,
   medicalRecordsController.updateFileName
 );
@@ -105,10 +118,11 @@ app.delete(
 
 //Comment
 app.get("/api/comment", verifyJWT, comment.getComment);
-app.get("/api/comment/:userId", verifyJWT, comment.getCommentById);
-app.post("/api/comment/:userId", verifyJWT, comment.createComment);
-app.put("/api/comment/:userId", verifyJWT, comment.updateComment);
-app.delete("/api/comment/:userId/:postId", verifyJWT, comment.deleteComment);
+app.get("/api/comment/getReply/:postId", verifyJWT, comment.getCommentByOthers);
+app.get("/api/comment/byuser", verifyJWT, comment.getCommentById);
+app.post("/api/comment", verifyJWT, comment.createComment);
+app.put("/api/comment", verifyJWT, comment.updateComment);
+app.delete("/api/comment/:postId", verifyJWT, comment.deleteComment);
 
 //Friends management
 app.get("/api/friends", verifyJWT, friends.getAllFriends);
@@ -147,6 +161,7 @@ app.delete(
   events.unregisterFromEvent
 );
 
+reminderCron.getDates();
 // This must come after all the routes
 app.use(errorHandler);
 
