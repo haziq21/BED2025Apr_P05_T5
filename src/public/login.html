@@ -1,52 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login / Sign Up</title>
-   <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login / Sign Up</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Gelasio:ital,wght@0,400..700;1,400..700&family=Libre+Franklin:ital,wght@0,100..900;1,100..900&display=swap"
       rel="stylesheet"
-  />
-  <link href="login.css" rel="stylesheet" />
-  <link rel="stylesheet" href="global.css" />
-</head>
-<body>
-  <div style="max-width: 400px; margin: 50px auto;">
-    <div class="tab">
-      <button class="tabLinks" onclick="clickTab(event, 'Login')">Login</button>
-      <button class="tabLinks" onclick="clickTab(event, 'Signup')">Sign Up</button>
+    />
+    <link href="login.css" rel="stylesheet" />
+    <link rel="stylesheet" href="global.css" />
+  </head>
+  <body>
+    <div style="max-width: 400px; margin: 50px auto">
+      <div class="tab">
+        <button class="tabLinks" onclick="clickTab(event, 'Login')">
+          Login
+        </button>
+        <button class="tabLinks" onclick="clickTab(event, 'Signup')">
+          Sign Up
+        </button>
+      </div>
+
+      <!-- Login -->
+      <div id="Login" class="tabContent">
+        <h2>Log In As a Member</h2>
+        <label>Phone Number</label>
+        <input type="text" id="login_phone" placeholder="Enter phone number" />
+        <button onclick="requestOTP()">Login</button>
+      </div>
+
+      <!-- OTP Verification -->
+      <div id="OTPSection" class="tabContent" style="display: none">
+        <h2>Enter OTP</h2>
+        <label>OTP</label>
+        <input type="text" id="otp" placeholder="Enter OTP" />
+        <button onclick="verifyOTP()">Verify OTP</button>
+        <button onclick="resendOTP()">Resend OTP</button>
+      </div>
+
+      <!-- Sign Up -->
+      <div id="Signup" class="tabContent" style="display: none">
+        <h2>Create Account</h2>
+        <label>Name</label>
+        <input type="text" id="signup_name" placeholder="Enter name" />
+        <label>Phone Number</label>
+        <input type="text" id="signup_phone" placeholder="Enter phone number" />
+        <button onclick="signUp()">Sign Up</button>
+      </div>
     </div>
 
-    <!-- Login -->
-    <div id="Login" class="tabContent">
-      <h2>Log In As a Member</h2>
-      <label>Phone Number</label>
-      <input type="text" id="login_phone" placeholder="Enter phone number" />
-      <button onclick="requestOTP()">Login</button>
-    </div>
-
-    <!-- OTP Verification -->
-    <div id="OTPSection" class="tabContent" style="display: none;">
-      <h2>Enter OTP</h2>
-      <label>OTP</label>
-      <input type="text" id="otp" placeholder="Enter OTP" />
-      <button onclick="verifyOTP()">Verify OTP</button>
-    </div>
-
-    <!-- Sign Up -->
-    <div id="Signup" class="tabContent" style="display: none;">
-      <h2>Create Account</h2>
-      <label>Name</label>
-      <input type="text" id="signup_name" placeholder="Enter name" />
-      <label>Phone Number</label>
-      <input type="text" id="signup_phone" placeholder="Enter phone number" />
-      <button onclick="signUp()">Sign Up</button>
-    </div>
-  </div>
-
-  <script src="login.js"></script>
-</body>
+    <script src="login.js"></script>
+  </body>
 </html>
