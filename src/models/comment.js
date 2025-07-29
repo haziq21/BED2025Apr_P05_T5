@@ -8,12 +8,11 @@ import pool from "../db.js";
 export async function getCommentById(userId) {
   try {
     const result = await pool.request().input("userId", userId).query(`
-            SELECT c.Comment,c.PostId,u.UserId,u.Name AS UserName 
+            SELECT c.Comment,c.PostId,u.UserId,c.TimeStamp,c.ParentPostId,u.Name AS UserName
             FROM Comment c 
             JOIN Users u ON c.UserId = u.UserId
-            WHERE c.UserId = @userId
+            WHERE c.UserId = @userId AND c.ParentPostId = -1;
          `);
-
     return result.recordset;
   } catch (error) {
     console.error("Database error:", error);
@@ -27,9 +26,10 @@ export async function getCommentById(userId) {
 export async function getComment() {
   try {
     const result = await pool.request().query(`
-            SELECT c.Comment,c.PostId,u.UserId,u.Name AS UserName
+            SELECT c.Comment,c.PostId,u.UserId,c.TimeStamp,c.ParentPostId,u.Name AS UserName
             FROM Comment c 
             JOIN Users u ON c.UserId = u.UserId 
+            WHERE c.ParentPostId = -1;
          `);
 
     return result.recordset;
@@ -73,19 +73,20 @@ export async function updateComment(userId, postData) {
 /**
  * create comment by userId and PostId
  * @param {number} userId
- * @param {{PostId: number, Comment: string}} newComment
+ * @param {{PostId: number, Comment: string,ParentPostId:number}} newComment
  */
 export async function createComment(userId, newComment) {
   try {
     const request = pool
       .request()
       .input("UserId", userId)
-      .input("Comment", newComment.Comment);
+      .input("Comment", newComment.Comment)
+      .input("ParentPostId", newComment.ParentPostId);
 
     const result = await request.query(`
-        INSERT INTO Comment (UserId,Comment)
+        INSERT INTO Comment (UserId,Comment,ParentPostId)
         OUTPUT INSERTED.*
-        VALUES(@userId,@Comment)  
+        VALUES(@userId,@Comment,@ParentPostId)  
             `);
     return result.recordset[0];
   } catch (error) {
@@ -120,5 +121,24 @@ export async function deleteComment(userId, PostId) {
   } catch (error) {
     console.error("Database error:", error);
     throw error;
+  }
+}
+
+/**
+ * @param {number} PostID
+ */
+export async function getCommentByOthers(PostID) {
+  try {
+    const request = pool.request().input("PostId", PostID);
+
+    const result = await request.query(`
+            SELECT c.Comment,c.PostId,u.UserId,c.TimeStamp,c.ParentPostId,u.Name AS UserName
+            FROM Comment c 
+            JOIN Users u ON c.UserId = u.UserId 
+            WHERE c.ParentPostId = @PostId;
+         `);
+    return result.recordset;
+  } catch (err) {
+    console.error("Database error:", err);
   }
 }

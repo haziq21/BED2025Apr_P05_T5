@@ -1,4 +1,3 @@
-import sql from "mssql";
 import pool from "../db.js";
 
 /**
@@ -12,6 +11,21 @@ export async function getMediSchedule(userId) {
       .input("userId", userId)
       .query("SELECT * FROM MedicationSchedules WHERE UserId = @userId");
 
+    return result.recordset;
+  } catch (error) {
+    console.error("Database error:", error);
+    throw error;
+  }
+}
+
+/**
+ * get all scheduled starttime and endtime for cron job
+ */
+export async function getAllMediSchedule() {
+  try {
+    const result = await pool
+      .request()
+      .query("SELECT * FROM MedicationSchedules");
     return result.recordset;
   } catch (error) {
     console.error("Database error:", error);
