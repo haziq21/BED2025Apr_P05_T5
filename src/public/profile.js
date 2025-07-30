@@ -1,14 +1,13 @@
 const BASE_API_URL = "http://localhost:3000";
 
 // Get token from localStorage
-// const token3 = localStorage.getItem("token");
-const token3 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsIm5hbWUiOiJUYW4gTWVpIExpbmciLCJpYXQiOjE3NTM4NjQxMzYsImV4cCI6MTc1Mzg2NzczNn0.zaJOncXh4moTFIvnjfo4tANL_Yp58jYN5C2IRgZ6cSU";
+const token3 = localStorage.getItem("token");
 
-// // Redirect if no token
-// if (!token3) {
-//   alert("You are not logged in.");
-//   window.location.href = "login.html";
-// }
+// Redirect if no token
+if (!token3) {
+  alert("You are not logged in.");
+  window.location.href = "login.html";
+}
 // Get DOM elements
 const nameInput = document.getElementById("Name");
 const phoneInput = document.getElementById("Phone");
@@ -165,7 +164,6 @@ async function deleteProfilePicture() {
     const result = await res.json();
 
     if (res.ok) {
-      // You can either remove the `src` or reload profile:
       // @ts-ignore
       profileImage.src = ""; 
       alert("Profile picture deleted.");
