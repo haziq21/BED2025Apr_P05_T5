@@ -1,8 +1,9 @@
+/** @import { AuthenticatedRequestHandler } from "../types.js" */
 import * as model from "../models/cc.js";
 
 /**
  * Create a CC from the JSON body.
- * @type {import("express").RequestHandler}
+ * @type {AuthenticatedRequestHandler}
  */
 export async function createCC(req, res) {
   const createdCC = await model.createCC(req.body);
@@ -11,7 +12,7 @@ export async function createCC(req, res) {
 
 /**
  * Retrieve the CC specified by the `id` path parameter.
- * @type {import("express").RequestHandler}
+ * @type {AuthenticatedRequestHandler}
  */
 export async function getCCById(req, res) {
   const ccId = +req.params.id;
@@ -34,7 +35,7 @@ export async function getCCById(req, res) {
  *   the CCs will be sorted by distance from that point.
  * - If the `admin` query parameter is provided, only CCs
  *   where the specified user is an admin will be returned.
- * @type {import("express").RequestHandler}
+ * @type {AuthenticatedRequestHandler}
  */
 export async function getAllCCs(req, res) {
   const lat = req.query.lat ? +req.query.lat : null;
@@ -60,7 +61,7 @@ export async function getAllCCs(req, res) {
 
 /**
  * Update the name or location of the CC specified by the `id` path parameter.
- * @type {import("express").RequestHandler}
+ * @type {AuthenticatedRequestHandler}
  */
 export async function updateCC(req, res) {
   const ccId = +req.params.id;
@@ -80,7 +81,7 @@ export async function updateCC(req, res) {
 
 /**
  * Delete the CC specified by the `id` path parameter.
- * @type {import("express").RequestHandler}
+ * @type {AuthenticatedRequestHandler}
  */
 export async function deleteCC(req, res) {
   const ccId = +req.params.id;
@@ -100,7 +101,7 @@ export async function deleteCC(req, res) {
 
 /**
  * Retrieve all admins of the CC specified by the `id` path parameter.
- * @type {import("express").RequestHandler}
+ * @type {AuthenticatedRequestHandler}
  */
 export async function getAdmins(req, res) {
   const ccId = +req.params.id;
@@ -115,7 +116,7 @@ export async function getAdmins(req, res) {
 
 /**
  * Make the specified user (`userId` path parameter) an admin of the CC (`id` path parameter).
- * @type {import("express").RequestHandler}
+ * @type {AuthenticatedRequestHandler}
  */
 export async function makeAdmin(req, res) {
   const ccId = +req.params.id;
@@ -131,7 +132,7 @@ export async function makeAdmin(req, res) {
 
 /**
  * Remove the specified user (`userId` path parameter) as an admin of the CC (`id` path parameter).
- * @type {import("express").RequestHandler}
+ * @type {AuthenticatedRequestHandler}
  */
 export async function removeAdmin(req, res) {
   const ccId = +req.params.id;
