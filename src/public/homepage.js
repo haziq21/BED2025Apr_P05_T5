@@ -24,7 +24,7 @@ async function loadHomepageUser() {
 
     const data = await res.json();
     // @ts-ignore
-    document.getElementById("welcomeMsg").textContent = `Welcome, ${data.name}!`;
+    document.getElementById("welcomeMsg").textContent = `Welcome, ${data.Name}!`;
     
 
   } catch (err) {
@@ -32,5 +32,62 @@ async function loadHomepageUser() {
     alert("Session expired or invalid. Please login again.");
     localStorage.removeItem("token");
     window.location.href = "login.html";
+  }
+}
+window.addEventListener("DOMContentLoaded", () => {
+  setTimeout(checkProfileCompletion, 3000);
+});
+
+async function checkProfileCompletion() {
+  if (!token4) return;
+
+  try {
+    const res = await fetch(`${apiBaseUrl1}/api/profile`, {
+      headers: {
+        Authorization: `Bearer ${token4}`,
+      },
+    });
+
+    if (!res.ok) {
+      console.error("Failed to load profile");
+      return;
+    }
+
+    const data = await res.json();
+    const count = parseInt(localStorage.getItem("profilePopupCount") || "0");
+
+    const createdAt = new Date(data.CreatedAt || Date.now());
+    const today = new Date();
+    const isNewUser =
+      createdAt.toDateString() === today.toDateString();
+
+    const profileIncomplete = !data.Bio || !data.ProfilePhotoURL;
+
+    if (profileIncomplete && (isNewUser || count < 2)) {
+      
+      localStorage.setItem("profilePopupCount", String(count + 1));
+
+      // Show popup
+      const popup = document.getElementById("completeProfilePopup");
+      const closeBtn = document.getElementById("closeCompleteProfile");
+
+      if (popup && closeBtn) {
+        popup.style.display = "block";
+
+        closeBtn.onclick = () => {
+          popup.style.display = "none";
+        };
+
+        window.onclick = (e) => {
+          if (e.target === popup) {
+            popup.style.display = "none";
+          }
+        };
+      } else {
+        console.warn("Popup elements not found in DOM");
+      }
+    }
+  } catch (err) {
+    console.error("Error checking profile:", err);
   }
 }
