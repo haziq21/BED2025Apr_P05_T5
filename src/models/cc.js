@@ -1,4 +1,4 @@
-import sql from "mssql";
+/** @import sql from "mssql" */
 import pool from "../db.js";
 
 /**
@@ -163,6 +163,21 @@ export async function deleteCC(ccId) {
     name: cc.Name,
     location: { lat: cc.Lat, lon: cc.Lon },
   };
+}
+
+/**
+ * Return whether the specified user is an admin of the specified CC.
+ * @param {number} userId
+ * @param {number} ccId
+ * @returns {Promise<boolean>}
+ */
+export async function isAdmin(userId, ccId) {
+  const result = await pool
+    .request()
+    .input("userId", userId)
+    .input("ccId", ccId)
+    .query(`SELECT * FROM CCAdmins WHERE UserId = @userId AND CCId = @ccId`);
+  return result.recordset.length > 0;
 }
 
 /**
