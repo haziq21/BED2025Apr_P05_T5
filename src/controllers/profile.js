@@ -35,14 +35,14 @@ export async function updateProfile(req, res) {
     return;
   }
 
-  const { name, phoneNumber, bio, image } = req.body;
+  const { name, phoneNumber, bio, ProfilePhotoURL } = req.body;
 
   try {
     const updated = await model.updateProfile(userId, {
       name,
       phoneNumber,
       bio,
-      image,
+      ProfilePhotoURL,
     });
 
     if (!updated) {
@@ -106,5 +106,33 @@ export async function deleteProfilePicture(req, res) {
     console.error("Database error:", error);
     res.status(500).json({ error: "Internal server error" });
     return;
+  }
+}
+/**
+ * Uploads a profile picture and updates the user's profile with the image URL.
+ * @param {AuthenticatedRequest} req
+ * @param {import("express").Response} res
+ */
+export async function uploadProfilePicture(req, res) {
+  const userId = req.userId;
+  if (!req.file) {
+    res.status(400).json({ error: "No file uploaded" });
+    return;
+  }
+
+  try {
+    const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+
+    const updated = await model.updateProfile(userId, { ProfilePhotoURL: imageUrl });
+
+
+    if (!updated) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+    res.status(200).json({ ProfilePhotoURL: imageUrl });
+  } catch (error) {
+    console.error("Error uploading profile picture:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 }

@@ -14,11 +14,15 @@ import * as mediSchedule from "./controllers/medicationSchedule.js";
 import * as mediValidate from "./middleware/medicationScheduleValidation.js";
 import * as reminderCron from "./cron/reminderCron.js";
 import { getOAuthClient, getAuthUrl } from "./utils/googleAuth.js";
+import * as map from "./controllers/map.js";
+
 import pool from "./db.js";
 import { oauthCallback } from "./controllers/googleCalendar.js";
 const PORT = process.env.PORT || 3000;
 const app = express();
 app.use(express.json());
+
+app.use("/uploads", express.static("uploads"));
 app.use(express.static("src/public"));
 
 // Authentication
@@ -29,11 +33,12 @@ app.post("/api/auth/login", auth.login);
 app.get("/api/profile", verifyJWT, profile.getProfile);
 app.put("/api/profile", verifyJWT, profile.updateProfile);
 app.delete("/api/profile", verifyJWT, profile.deleteUser);
-app.put("/api/profile/picture", verifyJWT, profile.deleteProfilePicture);
-app.delete(
-  "/api/profile/:userId/picture",
+app.delete("/api/profile/picture", verifyJWT, profile.deleteProfilePicture);
+app.post(
+  "/api/profile/upload",
   verifyJWT,
-  profile.deleteProfilePicture
+  upload.single("image"),
+  profile.uploadProfilePicture
 );
 
 // CC management
@@ -161,6 +166,15 @@ app.delete(
   verifyJWT,
   events.unregisterFromEvent
 );
+
+// Map features
+app.get("/api/map/services", verifyJWT, map.getLocalServices);
+app.post("/api/map/services", verifyJWT, map.addLocalService);
+app.put("/api/map/my-location", verifyJWT, map.updateUserLocation);
+app.get("/api/map/shared-with-me", verifyJWT, map.getSharedLocations);
+app.put("/api/map/shared-with-me/:userId", verifyJWT, map.acceptShareRequest);
+app.post("/api/map/shared-by-me/:userId", verifyJWT, map.shareLocation);
+app.delete("/api/map/shared-by-me/:userId", verifyJWT, map.revokeShare);
 
 app.get("/auth/google", (req, res) => {
   const oAuth2Client = getOAuthClient();

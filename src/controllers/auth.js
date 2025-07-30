@@ -81,7 +81,7 @@ export async function verifyOTP(req, res) {
   const payload = { userId: user.UserId, name: user.Name };
   const token = jwt.sign(payload, secretKey, { expiresIn: "1h" });
 
-  res.status(200).json({ token });//inlude userid
+  res.status(200).json({ token });
 }
 
 /**
@@ -92,17 +92,22 @@ export async function createUser(req, res) {
   const { Name, PhoneNumber, Bio, Image } = req.body;
 
   try {
+    // Check if phone number already exists
+    const existingUser = await model.getUserByPhoneNumber(PhoneNumber);
+    if (existingUser) {
+      res.status(409).json({ error: "Phone number already registered" });
+      return;
+    }
     const user = await model.createUser(Name, PhoneNumber, Bio, Image);
     if (!user) {
       res.status(400).json({ error: "Failed to create user" });
       return;
     }
+
     res.status(201).json({ message: "User created successfully", user });
-    return;
   } catch (error) {
     console.error("Database error:", error);
     res.status(500).json({ error: "Internal server error" });
-    return;
   }
 }
 /**
