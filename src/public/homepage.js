@@ -25,6 +25,7 @@ async function loadHomepageUser() {
     const data = await res.json();
     // @ts-ignore
     document.getElementById("welcomeMsg").textContent = `Welcome, ${data.name}!`;
+    
 
   } catch (err) {
     console.error(err);

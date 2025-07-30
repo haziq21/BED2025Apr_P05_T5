@@ -4,8 +4,11 @@
 */
 
 body {
-  font-family: "Libre Franklin", sans-serif;
   margin: 0;
+  padding: 0;
+  font-family: 'Libre Franklin', Arial, sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
 }
 
 h1,
@@ -17,29 +20,28 @@ h6 {
   font-family: "Gelasio", serif;
 }
 
-/* navigation bar */
+ /* Nav Bar */
 .topnav {
-  overflow: hidden;
   background-color: #c1a77b;
-  justify-content: space-between;
-  font-family: "Gelasio";
-  font-weight: bold;
+  overflow: hidden;
   display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 12px 0;
 }
 
 .topnav a {
-  float: 1.5px;
-  color: #000;
-  text-align: center;
-  padding: 20px 16px;
+  color: #282521;
   text-decoration: none;
-  font-size: 17px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
 }
 
 .topnav a:hover {
-  background-color: #fae7c2;
+  background-color: #e8cb90;
 }
-
 .topnav a.active {
   background-color: #fae7c2;
   color: rgb(0, 0, 0);
