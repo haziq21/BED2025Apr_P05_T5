@@ -53,7 +53,11 @@ export async function addCalendarEvent(req, res) {
   if (!tokens) return res.status(401).json({ error: "Google not linked" });
 
   try {
-    await calendarService.addEventToGoogleCalendar(tokens, req.body);
+    await calendarService.addEventToGoogleCalendar(
+      tokens,
+      req.body,
+      req.userId
+    );
     res.status(201).json({ message: "Event added to Google Calendar!" });
   } catch (err) {
     console.error(err);
