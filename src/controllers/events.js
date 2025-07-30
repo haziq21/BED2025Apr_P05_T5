@@ -62,40 +62,35 @@ export async function registerForEvent(req, res) {
   const userId = req.userId;
   const eventId = parseInt(req.params.eventId);
 
-  try {
-    const success = await model.registerForEvent(userId, eventId);
-    if (!success) throw new Error("Event registration failed.");
+  const success = await model.registerForEvent(userId, eventId);
+  if (!success) throw new Error("Event registration failed.");
 
-    const eventDetails = await model.getEventById(eventId);
-    const tokens = await authModel.getGoogleTokens(userId);
+  const eventDetails = await model.getEventById(eventId);
+  const tokens = await authModel.getGoogleTokens(userId);
 
-    if (tokens && eventDetails) {
-      const eventInput = {
-        summary: eventDetails.name,
-        description: eventDetails.description,
-        location: eventDetails.location,
-        startDateTime: new Date(eventDetails.StartDateTime).toISOString(),
-        endDateTime: new Date(eventDetails.EndDateTime).toISOString(),
-      };
+  if (tokens && eventDetails) {
+    const eventInput = {
+      summary: eventDetails.name,
+      description: eventDetails.description,
+      location: eventDetails.location,
+      startDateTime: new Date(eventDetails.StartDateTime).toISOString(),
+      endDateTime: new Date(eventDetails.EndDateTime).toISOString(),
+    };
 
-      const googleEventId = await calendarService.addEventToGoogleCalendar(
-        tokens,
-        eventInput,
-        userId
-      );
+    const googleEventId = await calendarService.addEventToGoogleCalendar(
+      tokens,
+      eventInput,
+      userId
+    );
 
-      if (typeof googleEventId === "string") {
-        await model.saveGoogleCalendarEventId(userId, eventId, googleEventId);
-      } else {
-        throw new Error("Failed to create Google Calendar event ID.");
-      }
+    if (typeof googleEventId === "string") {
+      await model.saveGoogleCalendarEventId(userId, eventId, googleEventId);
+    } else {
+      throw new Error("Failed to create Google Calendar event ID.");
     }
-
-    res.status(200).json({ message: "Registered and added to calendar." });
-  } catch (err) {
-    console.error("Registration or calendar sync failed:", err);
-    res.status(500).json({ error: "Registration failed." });
   }
+
+  res.status(200).json({ message: "Registered and added to calendar." });
 }
 
 /** Unregister from event and remove from Google Calendar */
@@ -106,32 +101,27 @@ export async function unregisterFromEvent(req, res) {
   const userId = req.userId;
   const eventId = parseInt(req.params.eventId);
 
-  try {
-    await model.unregisterFromEvent(userId, eventId);
-    const tokens = await authModel.getGoogleTokens(userId);
-
-    if (tokens) {
-      const googleEventId = await model.getGoogleCalendarEventId(
-        userId,
-        eventId
-      );
-      if (googleEventId) {
-        await calendarService.removeEventFromGoogleCalendar(
-          tokens,
-          googleEventId,
-          userId
-        );
-        await model.deleteGoogleCalendarEventId(userId, eventId);
-      }
-    }
-
+  const success = await model.unregisterFromEvent(userId, eventId);
+  if (!success) {
     res
-      .status(200)
-      .json({ message: "Unregistered and removed from calendar." });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Unregistration failed." });
+      .status(404)
+      .json({ error: "Event not found or user is not registered." });
   }
+  const tokens = await authModel.getGoogleTokens(userId);
+
+  if (tokens) {
+    const googleEventId = await model.getGoogleCalendarEventId(userId, eventId);
+    if (googleEventId) {
+      await calendarService.removeEventFromGoogleCalendar(
+        tokens,
+        googleEventId,
+        userId
+      );
+      await model.deleteGoogleCalendarEventId(userId, eventId);
+    }
+  }
+
+  res.status(200).json({ message: "Unregistered and removed from calendar." });
 }
 
 /** create a new event

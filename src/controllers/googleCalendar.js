@@ -22,7 +22,7 @@ export function redirectToGoogleOAuth(req, res) {
 export async function oauthCallback(req, res) {
   const oAuth2Client = getOAuthClient();
   const code = req.query.code;
-  const userId = 1;
+  const userId = req.userId;
   if (!userId) {
     res.status(401).json({ error: "Unauthorized" });
     return;
