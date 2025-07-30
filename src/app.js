@@ -13,6 +13,7 @@ import * as medicalRecordsController from "./controllers/medicalRecordsControlle
 import * as mediSchedule from "./controllers/medicationSchedule.js";
 import * as mediValidate from "./middleware/medicationScheduleValidation.js";
 import * as reminderCron from "./cron/reminderCron.js";
+import * as map from "./controllers/map.js";
 
 import pool from "./db.js";
 const PORT = process.env.PORT || 3000;
@@ -160,6 +161,15 @@ app.delete(
   verifyJWT,
   events.unregisterFromEvent
 );
+
+// Map features
+app.get("/api/map/services", verifyJWT, map.getLocalServices);
+app.post("/api/map/services", verifyJWT, map.addLocalService);
+app.put("/api/map/my-location", verifyJWT, map.updateUserLocation);
+app.get("/api/map/shared-with-me", verifyJWT, map.getSharedLocations);
+app.put("/api/map/shared-with-me/:userId", verifyJWT, map.acceptShareRequest);
+app.post("/api/map/shared-by-me/:userId", verifyJWT, map.shareLocation);
+app.delete("/api/map/shared-by-me/:userId", verifyJWT, map.revokeShare);
 
 reminderCron.getDates();
 // This must come after all the routes
