@@ -89,45 +89,7 @@ export async function registerForEvent(userId, eventId) {
        VALUES (@eventId, @userId)`
     );
 
-  if (result.rowsAffected[0] === 0) return false;
-
-  // --- GOOGLE CALENDAR SYNC ---
-  const tokens = await getGoogleTokens(userId);
-  if (!tokens) return true; // User not linked to Google, skip sync
-
-  const oAuth2Client = getOAuthClient();
-  oAuth2Client.setCredentials(tokens);
-  const calendar = google.calendar({ version: "v3", auth: oAuth2Client });
-
-  const eventResult = await pool
-    .request()
-    .input("eventId", eventId)
-    .query(
-      `SELECT Name, Description, StartDateTime, EndDateTime FROM Events WHERE EventId = @eventId`
-    );
-  const event = eventResult.recordset[0];
-
-  const googleEvent = {
-    summary: event.Name,
-    description: event.Description,
-    start: { dateTime: event.StartDateTime },
-    end: { dateTime: event.EndDateTime },
-  };
-
-  const inserted = await calendar.events.insert({
-    calendarId: "primary",
-    requestBody: googleEvent,
-  });
-
-  const googleEventId = inserted.data.id;
-  if (typeof googleEventId === "string") {
-    await saveGoogleCalendarEventId(userId, eventId, googleEventId);
-  } else {
-    // Optionally handle the error or log it
-    throw new Error("Google Calendar event ID is missing or invalid.");
-  }
-
-  return true;
+  return result.rowsAffected[0] > 0;
 }
 /**
  * Unregister a user from an event

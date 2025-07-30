@@ -63,7 +63,9 @@ export async function registerForEvent(req, res) {
   const eventId = parseInt(req.params.eventId);
 
   try {
-    await model.registerForEvent(userId, eventId);
+    const success = await model.registerForEvent(userId, eventId);
+    if (!success) throw new Error("Event registration failed.");
+
     const eventDetails = await model.getEventById(eventId);
     const tokens = await authModel.getGoogleTokens(userId);
 
@@ -75,10 +77,12 @@ export async function registerForEvent(req, res) {
         startDateTime: new Date(eventDetails.StartDateTime).toISOString(),
         endDateTime: new Date(eventDetails.EndDateTime).toISOString(),
       };
+
       const googleEventId = await calendarService.addEventToGoogleCalendar(
         tokens,
         eventInput
       );
+
       if (typeof googleEventId === "string") {
         await model.saveGoogleCalendarEventId(userId, eventId, googleEventId);
       } else {
@@ -88,10 +92,11 @@ export async function registerForEvent(req, res) {
 
     res.status(200).json({ message: "Registered and added to calendar." });
   } catch (err) {
-    console.error(err);
+    console.error("Registration or calendar sync failed:", err);
     res.status(500).json({ error: "Registration failed." });
   }
 }
+
 /** Unregister from event and remove from Google Calendar */
 /** @param {AuthenticatedRequest} req
  * @param {import("express").Response} res
