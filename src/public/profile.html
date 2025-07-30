@@ -22,7 +22,6 @@
     <a href="#Location">Location</a>
     <a href="medicationSchedule/medication.html">Medication</a>
     <a href="profile.html">Profile</a>
-    <a href="#comments"></a>
   </nav>
 
   <!-- Profile Heading -->
@@ -30,49 +29,40 @@
     <h1>Profile</h1>
   </div>
 
-  <!-- Profile Content -->
-  <div class="profile-container">
-    <div class="profile-pic-container">
-      <img src="images/cute-cat-sunglasses-profile-picture-mw7qp9gjrp272zky.jpg" alt="Profile Picture" class="profile-pic" id="profileImage">
-      <button class="upload-btn" onclick="document.getElementById('uploadImage').click();">Upload Picture</button>
-      <button class="upload-btn" style="margin-top: 10px;" onclick="deleteProfilePicture()">Delete Picture</button>
+<div class="profile-card">
+  <!-- Profile Picture -->
+  <div class="profile-photo-wrapper">
+    <div class="profile-photo" id="profilePhoto">
+      <span id="profileInitials">pic</span>
+      <img id="profileImage" src="" alt="Profile Picture" style="display: none;">
     </div>
-
-    <div class="profile-info">
-      <form id="profileInfo">
-        <div class="personal-info">
-          <label for="Name">Name</label>
-          <input type="text" id="Name" readonly>
-        </div>
-        <div class="personal-info">
-          <label for="Phone">Phone Number</label>
-          <input type="text" id="Phone" readonly>
-        </div>
-        <div class="personal-info">
-          <label for="Bio">Bio</label>
-          <input type="text" id="Bio" readonly>
-        </div>
-
-        <!-- Edit and Save Buttons -->
-        <div class="form-group" id="editButtons">
-          <button type="button" onclick="enableEdit()">Edit</button>
-        </div>
-
-        <div class="form-group" id="saveButtons" style="display: none;">
-          <button type="button" onclick="saveChanges()">Save</button>
-        </div>
-      </form>
-    </div>
+    <button class="btn" onclick="document.getElementById('uploadImage').click();">Upload Picture</button>
+    <button class="btn delete-btn" onclick="deleteProfilePicture()">Delete Picture</button>
+    <input type="file" id="uploadImage" style="display: none;">
   </div>
 
-  <!-- Logout & Delete Account Buttons -->
-  <div class="form-group" style="justify-content: center; margin-top: 30px;">
-    <button type="button" onclick="logout()">Logout</button>
-    <button type="button" onclick="deleteUser()">Delete Account</button>
-  </div>
+  <!-- Profile Details -->
+  <div class="profile-details">
+    <label for="Name">Name</label>
+    <input type="text" id="Name" readonly>
 
-  <!-- Hidden file input for Upload -->
-  <input type="file" id="uploadImage" style="display: none;" />
+    <label for="Phone">Phone Number</label>
+    <input type="text" id="Phone" readonly>
+
+    <label for="Bio">Bio</label>
+    <input type="text" id="Bio" readonly>
+
+    <div class="buttons">
+      <button onclick="enableEdit()">Edit</button>
+      <button onclick="logout()">Logout</button>
+      <button class="delete-btn" onclick="deleteUser()">Delete Account</button>
+    </div>
+    <div class="buttons" id="saveButtons" style="display: none;">
+    <button onclick="saveChanges()">Save</button>
+    </div>
+  </div>
+</div>
+
 
   <script src="global.js"></script>
   <script src="profile.js"></script>
