@@ -13,12 +13,13 @@ import * as medicalRecordsController from "./controllers/medicalRecordsControlle
 import * as mediSchedule from "./controllers/medicationSchedule.js";
 import * as mediValidate from "./middleware/medicationScheduleValidation.js";
 import * as reminderCron from "./cron/reminderCron.js";
-
+import { getOAuthClient, getAuthUrl } from "./utils/googleAuth.js";
 import pool from "./db.js";
+import { oauthCallback } from "./controllers/googleCalendar.js";
 const PORT = process.env.PORT || 3000;
 const app = express();
 app.use(express.json());
-app.use(express.static("public"));
+app.use(express.static("src/public"));
 
 // Authentication
 app.post("/api/auth/otp", auth.sendOTP);
@@ -160,6 +161,14 @@ app.delete(
   verifyJWT,
   events.unregisterFromEvent
 );
+
+app.get("/auth/google", (req, res) => {
+  const oAuth2Client = getOAuthClient();
+  const url = getAuthUrl(oAuth2Client);
+  res.json({ authUrl: url });
+});
+
+app.get("/auth/google/callback", oauthCallback);
 
 reminderCron.getDates();
 // This must come after all the routes
