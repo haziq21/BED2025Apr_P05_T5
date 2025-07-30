@@ -80,7 +80,8 @@ export async function registerForEvent(req, res) {
 
       const googleEventId = await calendarService.addEventToGoogleCalendar(
         tokens,
-        eventInput
+        eventInput,
+        userId
       );
 
       if (typeof googleEventId === "string") {
@@ -117,7 +118,8 @@ export async function unregisterFromEvent(req, res) {
       if (googleEventId) {
         await calendarService.removeEventFromGoogleCalendar(
           tokens,
-          googleEventId
+          googleEventId,
+          userId
         );
         await model.deleteGoogleCalendarEventId(userId, eventId);
       }
