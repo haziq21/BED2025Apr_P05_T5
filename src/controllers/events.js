@@ -1,5 +1,6 @@
 import * as model from "../models/events.js";
-
+import * as authModel from "../models/googleAuth.js";
+import * as calendarService from "../services/googleCalendarService.js";
 /** get all events for a CC
  * @typedef {import('express').Request & { userId?: any }} AuthenticatedRequest
  * @type {import("express").RequestHandler}
@@ -53,46 +54,82 @@ export async function getMutualRegistrations(req, res) {
   res.status(200).json(mutualRegistrations);
 }
 
-/** register for an event
+/** Register for event and add to Google Calendar
+ * @type {import("express").RequestHandler}
  * @param {AuthenticatedRequest} req
- * @param {import("express").Response} res */
+ */
 export async function registerForEvent(req, res) {
-  const userId = +req.userId;
-  const eventId = +req.params.eventId;
+  const userId = req.userId;
+  const eventId = parseInt(req.params.eventId);
 
-  if (isNaN(userId) || isNaN(eventId)) {
-    res.status(400).json({ error: "Invalid User ID or Event ID" });
-    return;
+  try {
+    const success = await model.registerForEvent(userId, eventId);
+    if (!success) throw new Error("Event registration failed.");
+
+    const eventDetails = await model.getEventById(eventId);
+    const tokens = await authModel.getGoogleTokens(userId);
+
+    if (tokens && eventDetails) {
+      const eventInput = {
+        summary: eventDetails.name,
+        description: eventDetails.description,
+        location: eventDetails.location,
+        startDateTime: new Date(eventDetails.StartDateTime).toISOString(),
+        endDateTime: new Date(eventDetails.EndDateTime).toISOString(),
+      };
+
+      const googleEventId = await calendarService.addEventToGoogleCalendar(
+        tokens,
+        eventInput
+      );
+
+      if (typeof googleEventId === "string") {
+        await model.saveGoogleCalendarEventId(userId, eventId, googleEventId);
+      } else {
+        throw new Error("Failed to create Google Calendar event ID.");
+      }
+    }
+
+    res.status(200).json({ message: "Registered and added to calendar." });
+  } catch (err) {
+    console.error("Registration or calendar sync failed:", err);
+    res.status(500).json({ error: "Registration failed." });
   }
-
-  const registration = await model.registerForEvent(userId, eventId);
-  if (!registration) {
-    res.status(404).json({ error: "Event not found or already registered" });
-    return;
-  }
-
-  res.status(201).json({ message: "Successfully registered for the event" });
 }
 
-/** unregister from an event
- * @param {AuthenticatedRequest} req
- * @param {import("express").Response} res */
+/** Unregister from event and remove from Google Calendar */
+/** @param {AuthenticatedRequest} req
+ * @param {import("express").Response} res
+ * @returns {Promise<void>} */
 export async function unregisterFromEvent(req, res) {
-  const userId = +req.userId;
-  const eventId = +req.params.eventId;
+  const userId = req.userId;
+  const eventId = parseInt(req.params.eventId);
 
-  if (isNaN(userId) || isNaN(eventId)) {
-    res.status(400).json({ error: "Invalid User ID or Event ID" });
-    return;
+  try {
+    await model.unregisterFromEvent(userId, eventId);
+    const tokens = await authModel.getGoogleTokens(userId);
+
+    if (tokens) {
+      const googleEventId = await model.getGoogleCalendarEventId(
+        userId,
+        eventId
+      );
+      if (googleEventId) {
+        await calendarService.removeEventFromGoogleCalendar(
+          tokens,
+          googleEventId
+        );
+        await model.deleteGoogleCalendarEventId(userId, eventId);
+      }
+    }
+
+    res
+      .status(200)
+      .json({ message: "Unregistered and removed from calendar." });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Unregistration failed." });
   }
-
-  const unregistration = await model.unregisterFromEvent(userId, eventId);
-  if (!unregistration) {
-    res.status(404).json({ error: "Event not found or not registered" });
-    return;
-  }
-
-  res.status(200).json({ message: "Successfully unregistered from the event" });
 }
 
 /** create a new event

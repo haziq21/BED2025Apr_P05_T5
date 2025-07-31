@@ -1,6 +1,8 @@
 import sql from "mssql";
 import pool from "../db.js";
-
+import { getOAuthClient } from "../utils/googleAuth.js";
+import { getGoogleTokens } from "./googleAuth.js";
+import { google } from "googleapis";
 /** * Get all events for a CC
  * @param {number} CCId
  * @returns {Promise<{eventId: number, name: string, description: string, location: string, StartDateTime: Date, EndDateTime: Date}[]>} */
@@ -86,10 +88,8 @@ export async function registerForEvent(userId, eventId) {
       `INSERT INTO CCEventRegistrations (EventId, UserId)
        VALUES (@eventId, @userId)`
     );
-  if (result.rowsAffected[0] === 0) {
-    return false; // Registration failed, possibly already registered
-  }
-  return true; // Successfully registered
+
+  return result.rowsAffected[0] > 0;
 }
 /**
  * Unregister a user from an event
@@ -233,4 +233,53 @@ export async function getEventsByUserId(userId) {
     StartDateTime: new Date(event.StartDateTime),
     EndDateTime: new Date(event.EndDateTime),
   }));
+}
+/** Save Google Calendar event ID for a user and event
+ * @param {number} userId - The ID of the user
+ * @param {number} eventId - The ID of the event
+ * @param {string} googleEventId - The Google Calendar event ID to save
+ */
+export async function saveGoogleCalendarEventId(
+  userId,
+  eventId,
+  googleEventId
+) {
+  await pool
+    .request()
+    .input("userId", userId)
+    .input("eventId", eventId)
+    .input("googleEventId", googleEventId).query(`
+      MERGE GoogleEventLinks AS target
+      USING (SELECT @userId AS UserId, @eventId AS EventId) AS source
+      ON target.UserId = source.UserId AND target.EventId = source.EventId
+      WHEN MATCHED THEN UPDATE SET GoogleEventId = @googleEventId
+      WHEN NOT MATCHED THEN INSERT (UserId, EventId, GoogleEventId)
+      VALUES (@userId, @eventId, @googleEventId)
+    `);
+}
+/** Get Google Calendar event ID for a user and event
+ * @param {number} userId - The ID of the user
+ * @param {number} eventId - The ID of the event
+ * @return {Promise<string|null>} - Returns the Google Calendar event ID or null if not found
+ */
+export async function getGoogleCalendarEventId(userId, eventId) {
+  const result = await pool
+    .request()
+    .input("userId", userId)
+    .input("eventId", eventId).query(`
+      SELECT GoogleEventId FROM GoogleEventLinks
+      WHERE UserId = @userId AND EventId = @eventId
+    `);
+  return result.recordset[0]?.GoogleEventId || null;
+}
+/** Delete Google Calendar event ID for a user and event
+ * @param {number} userId - The ID of the user
+ * @param {number} eventId - The ID of the event
+ * @return {Promise<void>} - Deletes the Google Calendar event ID for the user and event
+ */
+export async function deleteGoogleCalendarEventId(userId, eventId) {
+  await pool.request().input("userId", userId).input("eventId", eventId).query(`
+      DELETE FROM GoogleEventLinks
+      WHERE UserId = @userId AND EventId = @eventId
+    `);
 }

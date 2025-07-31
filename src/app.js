@@ -14,29 +14,33 @@ import * as mediSchedule from "./controllers/medicationSchedule.js";
 import * as mediValidate from "./middleware/medicationScheduleValidation.js";
 import * as reminderCron from "./cron/reminderCron.js";
 import { sentiment } from "./controllers/sentiment.js"
+import { getOAuthClient, getAuthUrl } from "./utils/googleAuth.js";
+import * as map from "./controllers/map.js";
 
 import pool from "./db.js";
+import { oauthCallback } from "./controllers/googleCalendar.js";
 const PORT = process.env.PORT || 3000;
 const app = express();
 app.use(express.json());
+
+app.use("/uploads", express.static("uploads"));
 app.use(express.static("src/public"));
 
 // Authentication
 app.post("/api/auth/otp", auth.sendOTP);
+app.post("/api/auth/verify", auth.verifyOTP);
 app.post("/api/auth/user", auth.createUser);
 app.post("/api/auth/login", auth.login);
-app.get("/api/profile/:userId", verifyJWT, profile.getProfile);
-app.put("/api/profile/:userId", verifyJWT, profile.updateProfile);
-app.delete("/api/profile/:userId", verifyJWT, profile.deleteUser);
-app.put(
-  "/api/profile/:userId/picture",
-  verifyJWT,
-  profile.deleteProfilePicture
-);
 app.get("/api/profile", verifyJWT, profile.getProfile);
 app.put("/api/profile", verifyJWT, profile.updateProfile);
 app.delete("/api/profile", verifyJWT, profile.deleteUser);
-app.put("/api/profile/picture", verifyJWT, profile.deleteProfilePicture);
+app.delete("/api/profile/picture", verifyJWT, profile.deleteProfilePicture);
+app.post(
+  "/api/profile/upload",
+  verifyJWT,
+  upload.single("image"),
+  profile.uploadProfilePicture
+);
 
 // CC management
 app.get("/api/cc", verifyJWT, cc.getAllCCs);
@@ -49,15 +53,23 @@ app.post("/api/cc/:id/admins/:userId", verifyJWT, cc.makeAdmin);
 app.delete("/api/cc/:id/admins/:userId", verifyJWT, cc.removeAdmin);
 
 // Medical Record Management
-app.post("/api/medicalRecords", verifyJWT, medicalRecordsController.uploadFile);
-app.get("/api/medicalRecords", verifyJWT, medicalRecordsController.getFiles);
+app.post(
+  "/api/medicalRecords/:UserId",
+  verifyJWT,
+  medicalRecordsController.uploadFile
+);
+app.get(
+  "/api/medicalRecords/:UserId",
+  verifyJWT,
+  medicalRecordsController.getFiles
+);
 app.delete(
-  "/api/medicalRecords/:MedicalRecordId",
+  "/api/medicalRecords/:UserId/:MedicalRecordId",
   verifyJWT,
   medicalRecordsController.deleteFile
 );
 app.put(
-  "/api/medicalRecords/:MedicalRecordId",
+  "/api/medicalRecords/:UserId/:MedicalRecordId",
   verifyJWT,
   medicalRecordsController.updateFileName
 );
@@ -127,6 +139,23 @@ app.delete(
   verifyJWT,
   events.unregisterFromEvent
 );
+
+// Map features
+app.get("/api/map/services", verifyJWT, map.getLocalServices);
+app.post("/api/map/services", verifyJWT, map.addLocalService);
+app.put("/api/map/my-location", verifyJWT, map.updateUserLocation);
+app.get("/api/map/shared-with-me", verifyJWT, map.getSharedLocations);
+app.put("/api/map/shared-with-me/:userId", verifyJWT, map.acceptShareRequest);
+app.post("/api/map/shared-by-me/:userId", verifyJWT, map.shareLocation);
+app.delete("/api/map/shared-by-me/:userId", verifyJWT, map.revokeShare);
+
+app.get("/auth/google", (req, res) => {
+  const oAuth2Client = getOAuthClient();
+  const url = getAuthUrl(oAuth2Client);
+  res.json({ authUrl: url });
+});
+
+app.get("/auth/google/callback", oauthCallback);
 
 reminderCron.getDates();
 app.get('/api/sentiment', sentiment);

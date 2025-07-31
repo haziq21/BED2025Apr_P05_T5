@@ -1,9 +1,13 @@
 const BASE_API_URL = "http://localhost:3000";
 
-// Get token and userId from localStorage
-const token1 = localStorage.getItem("token1");
-const userId = localStorage.getItem("userId");
+// Get token from localStorage
+const token3 = localStorage.getItem("token");
 
+// Redirect if no token
+if (!token3) {
+  alert("You are not logged in.");
+  window.location.href = "login.html";
+}
 // Get DOM elements
 const nameInput = document.getElementById("Name");
 const phoneInput = document.getElementById("Phone");
@@ -12,40 +16,38 @@ const profileImage = document.getElementById("profileImage");
 const uploadInput = document.getElementById("uploadImage");
 const editButtons = document.getElementById("editButtons");
 const saveButtons = document.getElementById("saveButtons");
-
-// // Redirect if no token
-if (!token1 || !userId) {
-  alert("You are not logged in.");
-  window.location.href = "login.html";
-}
+const deleteButton = document.getElementById("deleteButton");
 
 // Load profile when page loads
 window.addEventListener("DOMContentLoaded", loadProfile);
 
 //  Load profile data
 async function loadProfile() {
+ console.log("check check");
   try {
     const res = await fetch(`${BASE_API_URL}/api/profile/`, {
       headers: {
-        Authorization: `Bearer ${token1}`,
+        Authorization: `Bearer ${token3}`,
       },
     });
 
-    if (!res.ok) throw new Error("Failed to fetch profile");
-
+    if (!res.ok) throw new Error("Failed to load profile");
+    
     const data = await res.json();
+    console.log("testing");
+    console.log(data);
     // @ts-ignore
-    nameInput.value = data.name || "";
+    nameInput.value = data.Name || "";
     // @ts-ignore
-    phoneInput.value = data.phoneNumber || "";
+    phoneInput.value = data.PhoneNumber || "";
     // @ts-ignore
-    bioInput.value = data.bio || "";
+    bioInput.value = data.Bio || "";
     // @ts-ignore
-    profileImage.src = data.image || "images/default pic.png";
+    profileImage.src = data.ProfilePhotoURL || ""; 
   } catch (err) {
     console.error("Error loading profile:", err);
     alert("Failed to load profile. Please login again.");
-    logout();
+    // logout();
   }
 }
 
@@ -81,7 +83,7 @@ async function saveChanges() {
     method: "PUT",
     headers: {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${token1}`,
+    Authorization: `Bearer ${token3}`,
   },
   body: JSON.stringify(updated),
 });
@@ -116,23 +118,29 @@ uploadInput.addEventListener("change", async () => {
   const file = uploadInput.files[0];
   if (!file) return;
 
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    // @ts-ignore
+    profileImage.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+
   const formData = new FormData();
   formData.append("image", file);
-
   try {
     const res = await fetch(`${BASE_API_URL}/api/profile/upload`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${token1}`,
+        Authorization: `Bearer ${token3}`,
       },
       body: formData,
     });
 
     const result = await res.json();
 
-    if (res.ok && result.imageUrl) {
+    if (res.ok && result.ProfilePhotoURL) {
       // @ts-ignore
-      profileImage.src = result.imageUrl;
+      profileImage.src = result.ProfilePhotoURL;
       alert("Profile picture updated!");
     } else {
       alert(result.error || "Image upload failed.");
@@ -145,13 +153,11 @@ uploadInput.addEventListener("change", async () => {
 
 //  Delete profile picture
 async function deleteProfilePicture() {
-  if (!confirm("Are you sure you want to delete your profile picture?")) return;
-
   try {
     const res = await fetch(`${BASE_API_URL}/api/profile/picture`, {
-      method: "PUT",
+      method: "DELETE",
       headers: {
-        Authorization: `Bearer ${token1}`,
+        Authorization: `Bearer ${token3}`,
       },
     });
 
@@ -159,7 +165,7 @@ async function deleteProfilePicture() {
 
     if (res.ok) {
       // @ts-ignore
-      profileImage.src = "images/default pic.png";
+      profileImage.src = ""; 
       alert("Profile picture deleted.");
     } else {
       alert(result.error || "Failed to delete picture.");
@@ -169,7 +175,6 @@ async function deleteProfilePicture() {
     alert("Error deleting profile picture.");
   }
 }
-
 //  Delete account
 async function deleteUser() {
   if (!confirm("Are you sure you want to delete your account? This action is permanent.")) return;
@@ -178,7 +183,7 @@ async function deleteUser() {
     const res = await fetch(`${BASE_API_URL}/api/profile/`, {
       method: "DELETE",
       headers: {
-        Authorization: `Bearer ${token1}`,
+        Authorization: `Bearer ${token3}`,
       },
     });
 
@@ -197,8 +202,9 @@ async function deleteUser() {
 
 //  Logout
 function logout() {
-  localStorage.removeItem("token1");
+  localStorage.removeItem("token");
   localStorage.removeItem("userId");
   window.location.href = "login.html";
 }
 
+loadProfile();
