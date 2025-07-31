@@ -1,7 +1,9 @@
 import cron from "node-cron";
 import moment from "moment-timezone";
 import { getAllMediSchedule } from "../models/medicationSchedule.js";
+import { sendWhatsAppTemplate } from "../services/whatsappService.js";
 
+console.log("come in");
 // In-memory store of all jobs
 /**
  * @param {Map<number,import("node-cron").ScheduledTask>} scheduledJobs
@@ -26,6 +28,7 @@ export async function getDates() {
  * @property {number|null} RepeatEveryXDays
  * @property {number|null} RepeatEveryXWeeks
  * @property {string|null} RepeatWeekDate
+ * @property {string} PhoneNumber
  * @param {Medication[]} datas
  * Convert startTime to a cron expression for the cron job: startDate to '* * * * *'
  */
@@ -45,12 +48,12 @@ async function convertTimer(datas) {
  * @property {number|null} RepeatEveryXDays
  * @property {number|null} RepeatEveryXWeeks
  * @property {string|null} RepeatWeekDate
+ * @property {string} PhoneNumber
  * @param {Medication} element
  */
 function formatData(element) {
   // let formattedEnd; //formatted endDate: Thu Jul 17 2025 16:40:00 GMT+0800 or 2025-07-23
   let reminderDate;
-
   //endDate from database
   const endDate = element.EndDate;
   //formatted end date (to local time)
@@ -63,9 +66,9 @@ function formatData(element) {
     //if null endDate from database, keep the value as null
     endDate2 = endDate;
   }
-
   //convert utc time string to a moment object
   const startDateTime = moment.utc(element.StartDateXTime); //Moment<2025-07-11T11:30:00Z> (exact same as database)
+
   //convert start moment object to local time
   const localStart = startDateTime.tz("Asia/Singapore"); //Moment<2025-07-11T19:30:00+08:00>  local time startDateTime + 8hr
 
@@ -83,13 +86,32 @@ function formatData(element) {
     reminderDate = `${minutes} ${hours} ${dayOfTheMonth} ${month} *`;
     //no repeat - no endDate by default - set it as 10 mins later than startDate to stop the cron job once it triggered next time
     endDate2 = localStart.clone().add(10, "minutes");
-    // creatCron(scheduleId, reminderDate, localStart, endDate2, null, null);
+    creatCron(
+      scheduleId,
+      reminderDate,
+      localStart,
+      endDate2,
+      null,
+      null,
+      element.DrugName,
+      element.PhoneNumber
+    );
   }
   //repeat by day
   else if (element.RepeatRequest === 1) {
     const repeatedEvDay = element.RepeatEveryXDays;
     reminderDate = `${minutes} ${hours} */${repeatedEvDay} * *`;
-    // creatCron(scheduleId, reminderDate, localStart, endDate2, null, null);
+    creatCron(
+      scheduleId,
+      reminderDate,
+      localStart,
+      endDate2,
+      null,
+      null,
+      element.DrugName,
+      element.PhoneNumber
+    );
+    console.log("yes crfea");
   }
   //repeat by week
   else if (element.RepeatRequest === 2) {
@@ -105,14 +127,16 @@ function formatData(element) {
     }
     const weekDays = selectedDays.join(","); //"6,7"
     reminderDate = `${minutes} ${hours} * * ${weekDays}`;
-    // creatCron(
-    //   scheduleId,
-    //   reminderDate,
-    //   localStart,
-    //   endDate2,
-    //   selectedDays,
-    //   element.RepeatEveryXWeeks
-    // );
+    creatCron(
+      scheduleId,
+      reminderDate,
+      localStart,
+      endDate2,
+      selectedDays,
+      element.RepeatEveryXWeeks,
+      element.DrugName,
+      element.PhoneNumber
+    );
   }
 }
 
@@ -123,6 +147,8 @@ function formatData(element) {
  * @param {number} scheduleId
  * @param {any[number]} weekDays
  * @param {number | null} weekInterval
+ * @param {string} DrugName
+ * @param {string} PhoneNumber
  */
 function creatCron(
   scheduleId,
@@ -130,9 +156,14 @@ function creatCron(
   startDate,
   endDate,
   weekDays,
-  weekInterval
+  weekInterval,
+  DrugName,
+  PhoneNumber
 ) {
   //see if the first startweek is executed
+  /**
+   * @type {number}
+   */
   let w;
 
   const job = cron.schedule(reminderDate, () => {
@@ -151,10 +182,12 @@ function creatCron(
       return;
     }
     //check if the start week is executed
-    if (dayNum <= weekDays.at(-1)) {
-      w = 1;
-    } else {
-      w = 2;
+    if (weekDays) {
+      if (dayNum <= weekDays.at(-1)) {
+        w = 1;
+      } else {
+        w = 2;
+      }
     }
 
     //check for correct weeks
@@ -167,6 +200,15 @@ function creatCron(
       }
     }
     //call whats app api
+    console.log("created");
+    const start = startDate.add(30,"minutes").format("HH:mm");
+    sendWhatsAppTemplate("6583864483", DrugName, start)
+      .then((response) => {
+        console.log("WhatsApp API Response:", response);
+      })
+      .catch((err) => {
+        console.error("Error sending WhatsApp message:", err);
+      });
   });
   scheduledJobs.set(scheduleId, job);
 }
@@ -180,10 +222,16 @@ export function checkExistance(id, data, action) {
   if (scheduledJobs.has(id)) {
     scheduledJobs.get(id).stop();
     scheduledJobs.delete(id);
+    console.log("testing");
+    console.log(action);
+    console.log(data);
+    console.log("deleted");
     if (action === 0) {
       formatData(data);
+      console.log("updated");
     }
+  } else {
+    formatData(data);
+    console.log("successful");
   }
-  formatData(data);
-  console.log("successful");
 }

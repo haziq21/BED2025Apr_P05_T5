@@ -1,5 +1,5 @@
 import * as model from "../models/comment.js";
-
+// import { getCommentAndAnalyze } from "../services/sentimentService.js";
 /**
  * get the comments by user id
  * @typedef {import('express').Request & { userId?: any }} AuthenticatedRequest
@@ -24,12 +24,13 @@ export async function getCommentById(req, res) {
 }
 
 /**
- * retrieve all comments on comment page
- * @type {import("express").RequestHandler}
+ * @param {AuthenticatedRequest} req
+ * @param {import("express").Response} res
  */
 
 export async function getComment(req, res) {
-  const comment = await model.getComment();
+  const userId = req.userId;
+  const comment = await model.getComment(userId);
 
   if (!comment) {
     res.status(404).json({ error: "Comment not found" });
@@ -56,6 +57,8 @@ export async function updateComment(req, res) {
     res.status(404).json({ error: "Comment not found" });
     return;
   }
+  // check the sentiment of updated comment
+  // getCommentAndAnalyze();
   res.status(200).json(comment);
 }
 
@@ -91,6 +94,8 @@ export async function deleteComment(req, res) {
     res.status(404).json({ error: "Comment not found" });
     return;
   }
+  //
+  // getCommentAndAnalyze();
   res.json(comment);
 }
 
@@ -111,6 +116,5 @@ export async function getCommentByOthers(req, res) {
     res.status(404).json({ error: "Comment not found" });
     return;
   }
-
   res.status(200).json(comments);
 }

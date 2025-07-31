@@ -18,20 +18,6 @@ export async function getMediSchedule(userId) {
   }
 }
 
-/**
- * get all scheduled starttime and endtime for cron job
- */
-export async function getAllMediSchedule() {
-  try {
-    const result = await pool
-      .request()
-      .query("SELECT * FROM MedicationSchedules");
-    return result.recordset;
-  } catch (error) {
-    console.error("Database error:", error);
-    throw error;
-  }
-}
 
 /**
  * update the schedule by userId
@@ -137,3 +123,30 @@ export async function deleteSchedule(userId, scheduleID) {
     throw error;
   }
 }
+
+/**
+ * get all scheduled starttime and endtime for cron job
+ */
+export async function getAllMediSchedule() {
+  try {
+    const result = await pool
+      .request()
+      .query(`SELECT m.MedicationScheduleId,m.DrugName,m.UserId,m.StartDateXTime,m.EndDate,m.RepeatRequest,m.RepeatEveryXDays,m.RepeatEveryXWeeks,m.RepeatWeekDate,u.PhoneNumber as PhoneNumber
+        FROM MedicationSchedules m
+        JOIN Users u ON m.UserId = u.UserId 
+        `);
+    return result.recordset;
+  } catch (error) {
+    console.error("Database error:", error);
+    throw error;
+  }
+}
+
+
+
+
+
+
+
+
+
