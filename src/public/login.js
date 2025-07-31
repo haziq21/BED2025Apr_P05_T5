@@ -1,5 +1,5 @@
 const Baseapiurl = "http://localhost:3000";
-
+const token5 = localStorage.getItem("token");
 // Switch Tabs
 // @ts-ignore
 function clickTab(evt, tabName) {
@@ -18,7 +18,7 @@ async function requestOTP() {
     return;
   }
 
-  const res = await fetch(`${BASE_API_URL}/api/request-otp`, {
+  const res = await fetch(`${Baseapiurl}/api/auth/otp`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ phoneNumber: phone }),
@@ -47,7 +47,7 @@ async function verifyOTP() {
     return;
   }
 
-  const res = await fetch(`${BASE_API_URL}/api/verify-otp`, {
+  const res = await fetch(`${Baseapiurl}/api/auth/verify`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ phoneNumber: phone, otp }),
@@ -55,14 +55,34 @@ async function verifyOTP() {
 
   const result = await res.json();
   if (res.ok) {
-    localStorage.setItem("token1", result.token);
+    localStorage.setItem("token", result.token);
     alert("Login successful!");
     window.location.href = "index.html"; 
   } else {
     alert(result.error || "Invalid OTP");
   }
 }
+async function resendOTP() {
+  // @ts-ignore
+  const phone = document.getElementById("login_phone").value.trim();
+  if (!phone) {
+    alert("Please enter your phone number");
+    return;
+  }
 
+  const res = await fetch(`${Baseapiurl}/api/auth/otp`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ phoneNumber: phone }),
+  });
+
+  const result = await res.json();
+  if (res.ok) {
+    alert("A new OTP has been sent to your phone!");
+  } else {
+    alert(result.error || "Failed to resend OTP");
+  }
+}
 async function signUp() {
   // @ts-ignore
   const name = document.getElementById("signup_name").value.trim();
@@ -74,7 +94,7 @@ async function signUp() {
     return;
   }
 
-  const res = await fetch(`${BASE_API_URL}/api/users`, {
+  const res = await fetch(`${Baseapiurl}/api/auth/user`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ Name: name, PhoneNumber: phone }),

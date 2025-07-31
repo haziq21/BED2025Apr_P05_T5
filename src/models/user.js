@@ -1,20 +1,75 @@
 import pool from "../db.js";
-import sql from "mssql"; 
+import sql from "mssql";
 
 /**
- * Sets the specified OTP for a user.
- * @param {number} userId - The ID of the user.
- * @param {string} otp - The one-time password to set for the user.
+ * Saves the specified OTP for a user.
+ * @param {number} userId
+ * @param {string} otp
+ * @param {Date} expiresAt
  */
-export async function setOTP(userId, otp) {
-  // TODO
+export async function saveOTP(userId, otp, expiresAt) {
+  try {
+    const result = await pool
+      .request()
+      .input("userId", userId)
+      .query(`DELETE FROM UserOTPs WHERE UserId = @userId`);
+
+    await pool
+      .request()
+      .input("userId", userId)
+      .input("otp", otp)
+      .input("expiresAt", expiresAt).query(`
+        INSERT INTO UserOTPs (UserId, OTP, ExpiresAt)
+        VALUES (@userId, @otp, @expiresAt);
+
+      `);
+  } catch (error) {
+    console.error("Database error:", error);
+    throw error;
+  }
 }
 /**
+ * Retrieves the OTP for a user.
+ * @param {number} userId
+ */
+export async function getOTP(userId) {
+  try {
+    const result = await pool
+      .request()
+      .input("userId", userId)
+      .query("SELECT OTP, ExpiresAt FROM UserOTPs WHERE UserId = @userId");
+
+    if (result.recordset.length === 0) {
+      return null; // No OTP found for the user
+    }
+    return result.recordset[0];
+  } catch (error) {
+    console.error("Database error:", error);
+    throw error;
+  }
+}
+/**
+ * Deletes the OTP for a user.
+ * @param {number} userId
+ */
+export async function deleteOTP(userId) {
+  try {
+    await pool
+      .request()
+      .input("userId", sql.Int, userId)
+      .query(`DELETE FROM UserOTPs WHERE UserId = @userId`);
+  } catch (error) {
+    console.error("Database error:", error);
+    throw error;
+  }
+}
+
+/**
  * Creates a new user profile.
- * @param {string} name 
- * @param {string} PhoneNumber 
- * @param {string} bio 
- * @param {string} image 
+ * @param {string} name
+ * @param {string} PhoneNumber
+ * @param {string} bio
+ * @param {string} image
  */
 export async function createUser(name, PhoneNumber, bio, image) {
   try {
@@ -23,8 +78,7 @@ export async function createUser(name, PhoneNumber, bio, image) {
       .input("name", name)
       .input("phoneNumber", PhoneNumber)
       .input("bio", bio)
-      .input("image", image)
-      .query(`
+      .input("image", image).query(`
         INSERT INTO Users (Name, PhoneNumber, Bio, ProfilePhotoURL)
         VALUES (@name, @phoneNumber, @bio, @image);
 
@@ -38,34 +92,33 @@ export async function createUser(name, PhoneNumber, bio, image) {
   }
 }
 
-
 /**
  * Gets the profile of a user by their ID.
-  * @param {number} userId - The ID of the user.
-  */
+ * @param {number} userId - The ID of the user.
+ */
 export async function getProfile(userId) {
-  try{
+  try {
     const result = await pool
-    .request()
-    .input("id", userId)
-    .query("SELECT * FROM Users WHERE UserId = @id");
+      .request()
+      .input("id", userId)
+      .query("SELECT * FROM Users WHERE UserId = @id");
 
-  if (result.recordset.length === 0) {
-    return null; // User not found
-  }
-  return result.recordset[0];
-}catch (error) {
+    if (result.recordset.length === 0) {
+      return null; // User not found
+    }
+    return result.recordset[0];
+  } catch (error) {
     console.error("Database error:", error);
-    throw error; // Rethrow the error to be handled by the caller
+    throw error;
   }
 }
 
 /**
  * Updates the user's profile details.
- * @param {number} userId 
- * @param {{ name?: string, phoneNumber?: string, bio?: string, image?: string }} profileData - Fields to update.
+ * @param {number} userId
+ * @param {{ name?: string, phoneNumber?: string, bio?: string, ProfilePhotoURL?: string }} profileData - Fields to update.
  */
-export async function updateProfile(userId, { name, phoneNumber, bio, image }) {
+export async function updateProfile(userId, { name, phoneNumber, bio, ProfilePhotoURL }) {
   try {
     const request = pool.request().input("id", userId);
 
@@ -86,9 +139,9 @@ export async function updateProfile(userId, { name, phoneNumber, bio, image }) {
       updates.push("Bio = @bio");
     }
 
-    if (image !== undefined && image !== null) {
-      request.input("image", image);
-      updates.push("ProfilePhotoURL = @image");
+    if (ProfilePhotoURL !== undefined && ProfilePhotoURL !== null) {
+      request.input("ProfilePhotoURL", ProfilePhotoURL);
+      updates.push("ProfilePhotoURL = @ProfilePhotoURL");
     }
 
     if (updates.length === 0) {
@@ -109,10 +162,10 @@ export async function updateProfile(userId, { name, phoneNumber, bio, image }) {
     throw error;
   }
 }
-    
+
 /**
  * Deletes the profile of a user.
- * @param {number} userId 
+ * @param {number} userId
  */
 
 export async function deleteUser(userId) {
@@ -122,15 +175,15 @@ export async function deleteUser(userId) {
       .input("id", userId)
       .query("DELETE FROM Users WHERE UserId = @id");
 
-    return result.rowsAffected[0] > 0; 
+    return result.rowsAffected[0] > 0;
   } catch (error) {
     console.error("Database error:", error);
-    throw error; 
+    throw error;
   }
 }
 
 /** * Deletes the profile picture of a user.
- * @param {number} userId 
+ * @param {number} userId
  */
 
 export async function deleteProfilePicture(userId) {
@@ -142,21 +195,23 @@ export async function deleteProfilePicture(userId) {
         "UPDATE Users SET ProfilePhotoURL = NULL WHERE UserId = @id AND ProfilePhotoURL IS NOT NULL"
       );
 
-    return result.rowsAffected[0] > 0; 
+    return result.rowsAffected[0] > 0;
   } catch (error) {
     console.error("Database error:", error);
-    throw error; 
+    throw error;
   }
 }
-/** *gets profile of user using phonenum
- * @param {string} phoneNumber 
+/** gets profile of user using phonenum
+ * @param {string} phoneNumber
  */
-export async function getUserByPhoneNumber(phoneNumber) {   
+export async function getUserByPhoneNumber(phoneNumber) {
   try {
     const result = await pool
       .request()
-      .input("phoneNumber", sql.VarChar, phoneNumber)  //
-      .query("SELECT UserId, Name, PhoneNumber, Bio, ProfilePhotoURL FROM Users WHERE PhoneNumber = @phoneNumber");
+      .input("phoneNumber", sql.VarChar, phoneNumber)
+      .query(
+        "SELECT UserId, Name, PhoneNumber, Bio, ProfilePhotoURL FROM Users WHERE PhoneNumber = @phoneNumber"
+      );
 
     if (result.recordset.length === 0) {
       return null; // User not found
@@ -164,6 +219,31 @@ export async function getUserByPhoneNumber(phoneNumber) {
     return result.recordset[0];
   } catch (error) {
     console.error("Database error:", error);
-    throw error; 
+    throw error;
+  }
+}
+/**
+ * Updates the profile picture of a user.
+ * @param {number} userId
+ * @param {string} imageUrl
+ */
+export async function updateProfilePicture(userId, imageUrl) {
+  try {
+    const result = await pool
+      .request()
+      .input("id", userId)
+      .input("imageUrl", imageUrl)
+      .query(`
+        UPDATE Users
+        SET ProfilePhotoURL = @imageUrl
+        WHERE UserId = @id;
+
+        SELECT * FROM Users WHERE UserId = @id;
+      `);
+
+    return result.recordset[0];
+  } catch (error) {
+    console.error("Database error:", error);
+    throw error;
   }
 }
