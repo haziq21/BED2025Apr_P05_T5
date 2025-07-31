@@ -13,12 +13,13 @@ import * as medicalRecordsController from "./controllers/medicalRecordsControlle
 import * as mediSchedule from "./controllers/medicationSchedule.js";
 import * as mediValidate from "./middleware/medicationScheduleValidation.js";
 import * as reminderCron from "./cron/reminderCron.js";
+import { sentiment } from "./controllers/sentiment.js"
 
 import pool from "./db.js";
 const PORT = process.env.PORT || 3000;
 const app = express();
 app.use(express.json());
-app.use(express.static("public"));
+app.use(express.static("src/public"));
 
 // Authentication
 app.post("/api/auth/otp", auth.sendOTP);
@@ -62,35 +63,7 @@ app.put(
 );
 
 // Medication Schedule
-app.get(
-  "/api/medicationSchedule/:userId",
-  verifyJWT,
-  mediSchedule.getMediSchedule
-);
-app.post(
-  "/api/medicationSchedule/:userId",
-  verifyJWT,
-  mediValidate.validateSchedule,
-  mediSchedule.createSchedule
-);
-app.put(
-  "/api/medicationSchedule/:userId",
-  verifyJWT,
-  mediValidate.validateSchedule,
-  mediSchedule.updateSchedule
-);
-app.delete(
-  "/api/medicationSchedule/:userId/:scheduleId",
-  verifyJWT,
-  mediValidate.validateScheduleId,
-  mediValidate.validateSchedule,
-  mediSchedule.deleteSchedule
-);
-app.get(
-  "/api/medicationSchedule/:userId",
-  verifyJWT,
-  mediSchedule.getMediSchedule
-);
+app.get("/api/medicationSchedule", verifyJWT, mediSchedule.getMediSchedule);
 app.post(
   "/api/medicationSchedule",
   verifyJWT,
@@ -156,6 +129,10 @@ app.delete(
 );
 
 reminderCron.getDates();
+app.get('/api/sentiment', sentiment);
+
+
+
 // This must come after all the routes
 app.use(errorHandler);
 
