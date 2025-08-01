@@ -21,6 +21,9 @@ IF OBJECT_ID('CCEvents', 'U') IS NOT NULL DROP TABLE CCEvents;
 IF OBJECT_ID('CCs', 'U') IS NOT NULL DROP TABLE CCs;
 IF OBJECT_ID('Users', 'U') IS NOT NULL DROP TABLE Users;
 IF OBJECT_ID('Comment', 'U') IS NOT NULL DROP TABLE Comment;
+IF OBJECT_ID('GoogleCredentials', 'U') IS NOT NULL DROP TABLE GoogleCredentials;
+IF OBJECT_ID('GoogleEventLinks', 'U') IS NOT NULL DROP TABLE GoogleEventLinks;
+IF OBJECT_ID('UserOTPs', 'U') IS NOT NULL DROP TABLE UserOTPs;
 
 ALTER TABLE Users ADD CONSTRAINT UQ_PhoneNumber UNIQUE (PhoneNumber);
 
@@ -74,27 +77,6 @@ CREATE TABLE CCEventRegistrations (
   UserId INT NOT NULL REFERENCES Users,
   PRIMARY KEY (EventId, UserId)
 );
-
--- CREATE TABLE InterestGroupProposals (
---   ProposalId INT IDENTITY PRIMARY KEY,
---   UserId INT NOT NULL REFERENCES Users,
---   CCId INT NOT NULL REFERENCES CCs,
---   Title NVARCHAR(255) NOT NULL,
---   Description NVARCHAR(MAX),
---   Accepted BIT
--- );
-
--- CREATE TABLE InterestGroupProposals (
---   ProposalId INT IDENTITY PRIMARY KEY,
---   UserId INT NOT NULL REFERENCES Users,
---   CCId INT NOT NULL REFERENCES CCs,
---   Title NVARCHAR(255) NOT NULL,
---   Description NVARCHAR(MAX),
---   Email NVARCHAR(255) NOT NULL,
---   Status NVARCHAR(20) DEFAULT 'pending', -- pending, accepted, rejected
---   SubmittedAt DATETIME DEFAULT GETDATE(),
---   UpdatedAt DATETIME DEFAULT GETDATE()
--- );
 
 CREATE TABLE InterestGroupProposals (
   ProposalId INT IDENTITY PRIMARY KEY,
@@ -320,23 +302,51 @@ INSERT INTO CCEventRegistrations (EventId, UserId) VALUES
 ((SELECT EventId FROM CCEvents WHERE Name = 'Sustainable Living Fair'), (SELECT UserId FROM Users WHERE Name = 'Shawn Tan')),
 ((SELECT EventId FROM CCEvents WHERE Name = 'Beach Cleanup & Picnic'), (SELECT UserId FROM Users WHERE Name = 'Vanessa Lee'));
 
--- NEED NEW SAMPLE DATA !!
--- INSERT INTO InterestGroupProposals (UserId, CCId, Title, Description, Accepted) VALUES
--- ((SELECT UserId FROM Users WHERE Name = 'Lim Wei Leong'), (SELECT CCId FROM CCs WHERE Name = 'Bishan Community Club'), 'Hawker Food Explorers', 'A group to explore and review new and old hawker gems.', 1),
--- ((SELECT UserId FROM Users WHERE Name = 'Tan Mei Ling'), (SELECT CCId FROM CCs WHERE Name = 'Tampines West Community Club'), 'Cycling Kakis', 'Group cycling sessions around Singapore parks and PCNs.', 0),
--- ((SELECT UserId FROM Users WHERE Name = 'Goh Eng Chuan'), (SELECT CCId FROM CCs WHERE Name = 'Jurong Green Community Club'), 'Prawning Enthusiasts', 'Meetups for prawning and sharing tips and tricks.', 1),
--- ((SELECT UserId FROM Users WHERE Name = 'Siti Nurul Huda'), (SELECT CCId FROM CCs WHERE Name = 'Ang Mo Kio Community Club'), 'Kueh Baking Workshop', 'Learn to bake traditional Malay and Peranakan kueh.', 1),
--- ((SELECT UserId FROM Users WHERE Name = 'Deepak Kumar'), (SELECT CCId FROM CCs WHERE Name = 'Clementi Community Club'), 'Heritage Trail Blazers', 'Organized walks to uncover the hidden history of Singapore neighbourhoods.', 0),
--- ((SELECT UserId FROM Users WHERE Name = 'Chua Kim Seng'), (SELECT CCId FROM CCs WHERE Name = 'Serangoon Community Club'), 'Kopi & Teh O''clock', 'A social group for seniors to chat over kopi/teh.', 1),
--- ((SELECT UserId FROM Users WHERE Name = 'Fiona Tan'), (SELECT CCId FROM CCs WHERE Name = 'Bedok Community Club'), 'Tech & Tiong', 'Casual discussions about new tech gadgets and trends.', 1),
--- ((SELECT UserId FROM Users WHERE Name = 'Marcus Lim'), (SELECT CCId FROM CCs WHERE Name = 'Queenstown Community Club'), 'Basketball Pick-up Games', 'Organize friendly basketball matches at local courts.', 0),
--- ((SELECT UserId FROM Users WHERE Name = 'Nurul Aishah'), (SELECT CCId FROM CCs WHERE Name = 'Geylang West Community Club'), 'Nature Photography Walks', 'Capturing Singapore''s flora and fauna.', 1),
--- ((SELECT UserId FROM Users WHERE Name = 'Rajesh Suppiah'), (SELECT CCId FROM CCs WHERE Name = 'Sengkang Community Club'), 'Void Deck Chess Club', 'Regular chess games and strategy sharing at the void deck.', 1),
--- ((SELECT UserId FROM Users WHERE Name = 'Kelly Ong'), (SELECT CCId FROM CCs WHERE Name = 'Nee Soon Central Community Club'), 'Cafe Hopping Crew', 'Exploring new cafes and reviewing their food and ambiance.', 0),
--- ((SELECT UserId FROM Users WHERE Name = 'Zainal Bin Ahmad'), (SELECT CCId FROM CCs WHERE Name = 'Marsiling Community Club'), 'Kampung Spirit Volunteers', 'A group dedicated to organizing community clean-ups and aid.', 1),
--- ((SELECT UserId FROM Users WHERE Name = 'Priya Sharma'), (SELECT CCId FROM CCs WHERE Name = 'Punggol Community Club'), 'Yoga by the Water', 'Outdoor yoga sessions along the Punggol Waterway.', 1),
--- ((SELECT UserId FROM Users WHERE Name = 'Shawn Tan'), (SELECT CCId FROM CCs WHERE Name = 'Choa Chu Kang Community Club'), 'Beach Clean-up Warriors', 'Regular trips to clean up Singapore''s beaches.', 0),
--- ((SELECT UserId FROM Users WHERE Name = 'Vanessa Lee'), (SELECT CCId FROM CCs WHERE Name = 'Joo Chiat Community Club'), 'Food Blogging & Reviewers', 'For foodies who love to eat, review, and share their experiences.', 1);
+INSERT INTO InterestGroupProposals (
+  UserId, CCId, Name, Description, Email, Scope, MeetingFrequency,
+  BudgetEstimateStart, BudgetEstimateEnd, AccessibilityConsideration, HealthSafetyPrecaution
+)
+VALUES
+(1, 1, 'Badminton Buddies', 
+ 'A casual group for residents to play badminton every weekend. Great for all ages and skill levels.',
+ 'weileong@example.com',
+ 'Bishan residents who enjoy active sports.', 'Weekly', 50, 200,
+ 'Wheelchair access to indoor courts.', 'First-aid kits on site and hydration breaks.'),
+(4, 7, 'Kueh Baking Circle', 
+ 'A friendly group for aunties and uncles to share and learn traditional Malay dessert recipes.',
+ 'siti@example.com',
+ 'Focus on intergenerational sharing of cultural recipes.', 'Monthly', 100, 300,
+ 'Tables and chairs for seniors. Recipe cards in large font.', 'Masks and gloves during food prep.'),
+(5, 14, 'Heritage Walkers', 
+ 'Join us as we explore hidden historical gems around Choa Chu Kang and share stories of Singapore’s past.',
+ 'deepak@example.com',
+ 'Open to residents interested in heritage and culture.', 'Biweekly', 30, 100,
+ 'Walking routes accessible to older participants.', 'Sunscreen and hydration encouraged.'),
+(7, 2, 'Tech for Seniors', 
+ 'A group to help elderly residents learn to use smartphones, messaging apps, and online tools.',
+ 'fiona@example.com',
+ 'Tampines residents aged 55+ who want to get digitally connected.', 'Weekly', 150, 500,
+ 'Classroom with audio support and seating.', 'Sanitize devices before/after sessions.'),
+(10, 9, 'Void Deck Chess Club', 
+ 'A regular gathering of chess lovers of all ages to play, learn, and improve their skills.',
+ 'rajesh@example.com',
+ 'Geylang West community members keen on strategy games.', 'Weekly', 20, 80,
+ 'Tables accessible to wheelchair users.', 'Hand sanitiser provided for shared pieces.'),
+(12, 3, 'Sunrise Yoga', 
+ 'Start your weekend right with peaceful morning yoga at the Jurong Green park.',
+ 'priya@example.com',
+ 'Jurong residents interested in mindfulness and wellness.', 'Weekly', 100, 250,
+ 'Mats for older residents and flat grassy terrain.', 'Sessions limited to 10 for distancing.'),
+(14, 5, 'Eco Warriors', 
+ 'Organizing monthly litter-picking events and sustainability workshops for Clementi youth.',
+ 'shawn@example.com',
+ 'Youth aged 15–25 in Clementi.', 'Monthly', 50, 150,
+ 'Outdoor-friendly and accessible paths.', 'Gloves, masks, and proper disposal protocols.'),
+(3, 6, 'Nature Photography Club', 
+ 'Meet fellow photographers, go on outings, and share your best nature shots from around Serangoon.',
+ 'engchuan@example.com',
+ 'Open to all residents with a phone or camera.', 'Monthly', 60, 200,
+ 'Rest stops planned in each outing.', 'Mosquito repellent and hydration breaks.');
 
 
 INSERT INTO MedicalRecord (UserId, originalName, fileName, mimeType, filePath) VALUES
