@@ -1,6 +1,13 @@
+// import { getCommentAndAnalyze } from "../../services/sentimentService.js";
 const apiBaseUrl2 = "http://localhost:3000";
+
 const token2 = localStorage.getItem("token");
 
+//see which page the user is at(my comment/all comments)
+/**
+ * @type {string}
+ */
+let page;
 
 /**
  * @typedef {object} post
@@ -10,6 +17,7 @@ const token2 = localStorage.getItem("token");
  * @property {Date} TimeStamp
  * @property {number} ParentPostId
  * @property {string} UserName
+ * @property {boolean} loginUser
  * @param {post[]} posts
  */
 function renderPosts(posts) {
@@ -26,9 +34,15 @@ function renderPosts(posts) {
           <h3>${post.UserName}</h3>
           <p>${post.Comment}</p>
           <button onclick="v(${post.PostId})">View Comments</button>
-          <button onclick="editComment(${post.PostId})">Edit</button>
-          <button onclick="deleteComment(${post.PostId})">Delete</button>
-        `;
+          ${
+            post.loginUser === true
+              ? `
+            <button onclick="editComment(${post.PostId})">Edit</button>
+            <button onclick="deleteComment(${post.PostId})">Delete</button>
+            `
+              : ""
+          }`;
+
     // @ts-ignore
     container.appendChild(div);
   });
@@ -81,8 +95,9 @@ function editComment(id) {
     const data = {
       Comment: updateContent,
       PostId: id,
+      AnalysisStatus: "false",
     };
-    console.log(data.PostId)
+    console.log(data.PostId);
     updateComment(data);
   };
   //cancel btn
@@ -158,11 +173,11 @@ function submitPost() {
     const data = {
       Comment: content,
       ParentPostId: -1,
+      AnalysisStatus: "false",
     };
     toggleModal();
     // @ts-ignore
     document.getElementById("postContent").value = "";
-    // renderPosts();
     createComment(data);
   }
 }
@@ -189,10 +204,12 @@ function addComment(postId) {
 }
 
 function showAllPosts() {
+  page = "all";
   getAllComment();
 }
 
 function showUserPosts() {
+  page = "person";
   getUserComment();
 }
 
@@ -236,6 +253,12 @@ async function createComment(data) {
     const result = await fetchWithToken(`${apiBaseUrl2}/api/comment`, options);
     console.log("Create result:", result);
     showToast("Comment created successfully!");
+    if (page === "all") {
+      getAllComment();
+    } else {
+      getUserComment();
+    }
+    commentSentiment();
   } catch (error) {
     console.error("Error creating comment:", error);
   }
@@ -250,7 +273,6 @@ async function getAllComment() {
     };
     const result = await fetchWithToken(`${apiBaseUrl2}/api/comment`, options);
     console.log("Get result:", result);
-    // showToast("Comments get successfully!");
     renderPosts(result);
   } catch (error) {
     console.error("Error getting comment:", error);
@@ -269,7 +291,6 @@ async function getUserComment() {
       options
     );
     console.log("Get result:", result);
-    // showToast("Comments by userId get successfully!");
     renderPosts(result);
   } catch (error) {
     console.error("Error getting comment by Id:", error);
@@ -311,7 +332,12 @@ async function deleteComment(id) {
     );
     console.log("Delete result:", result);
     showToast("Comment delete successfully!");
-    getUserComment();
+    if (page === "all") {
+      getAllComment();
+    } else {
+      getUserComment();
+    }
+    commentSentiment();
   } catch (error) {
     console.error("Error deleting comment:", error);
   }
@@ -329,13 +355,16 @@ async function updateComment(data) {
     const result = await fetchWithToken(`${apiBaseUrl2}/api/comment`, options);
     console.log("Update result:", result);
     showToast("Comment updated successfully!");
+    if (page === "all") {
+      getAllComment();
+    } else {
+      getUserComment();
+    }
+    commentSentiment();
   } catch (error) {
     console.error("Error updating comment:", error);
   }
 }
-
-
-
 
 getAllComment();
 
@@ -355,4 +384,81 @@ function showToast(message, duration = 3000) {
   }, duration);
 }
 
+async function commentSentiment() {
+  try {
+    const options = {
+      method: "GET",
+    };
+    const result = await fetchWithToken(`/api/sentiment`, options);
+    console.log("Sentiment counts:", result);
+    renderSentimentChart(result);
+  } catch (error) {
+    console.error("Error getting reply comment by Id:", error);
+  }
+}
 
+/**
+ * @type {{ destroy: () => void; } | null}
+ */
+let sentimentChartInstance = null;
+/**
+ * @param {undefined} [sentimentCount]
+ */
+async function renderSentimentChart(sentimentCount) {
+  // @ts-ignore
+  const ctx = document.getElementById("sentimentChart").getContext("2d");
+
+  if (sentimentChartInstance) {
+    sentimentChartInstance.destroy();
+  }
+  // @ts-ignore
+  sentimentChartInstance = new Chart(ctx, {
+    type: "pie",
+    data: {
+      labels: ["Positive", "Neutral", "Negative"],
+      datasets: [
+        {
+          data: sentimentCount,
+          backgroundColor: ["#4CAF50", "#FFCE56", "#F44336"],
+          borderColor: "#fff",
+          borderWidth: 2,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: "Sentiment Distribution",
+          font: {
+            size: 18,
+            weight: "bold",
+          },
+        },
+        tooltip: {
+          callbacks: {
+            label: function (
+              /** @type {{ label: string; parsed: number; chart: { _metasets: { [x: string]: { total: any; }; }; }; datasetIndex: string | number; }} */ context
+            ) {
+              let label = context.label || "";
+              let value = context.parsed || 0;
+              let total = context.chart._metasets[context.datasetIndex].total;
+              let percentage = ((value / total) * 100).toFixed(1);
+              return `${label}: ${value} (${percentage}%)`;
+            },
+          },
+        },
+        legend: {
+          position: "bottom",
+          labels: {
+            font: {
+              size: 14,
+            },
+          },
+        },
+      },
+    },
+  });
+}
+commentSentiment();
