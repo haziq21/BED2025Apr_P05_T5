@@ -36,11 +36,16 @@ export async function sendOTP(req, res) {
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
     await model.saveOTP(user.UserId, otp, expiresAt);
+
+    if (process.env.MOCK_TWILIO_SMS === 'true') {
+      console.log(`MOCK OTP for ${formattedPhone}: ${otp}`);
+    } else {
     await twilioClient.messages.create({
       body: `Your OTP is ${otp}`,
       from: process.env.TWILIO_PHONE_NUMBER,
       to: formattedPhone,
     });
+    }
     res.status(200).json({ message: "OTP sent successfully" });
   } catch (error) {
     console.error("Error sending OTP:", error);

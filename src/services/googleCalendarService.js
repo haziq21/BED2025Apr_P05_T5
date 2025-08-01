@@ -1,5 +1,6 @@
 import { google } from "googleapis";
 import { getOAuthClient } from "../utils/googleAuth.js";
+import { saveGoogleTokens } from "../models/googleAuth.js";
 
 /**
  * Add event to Google Calendar after validation.
@@ -20,8 +21,9 @@ import { getOAuthClient } from "../utils/googleAuth.js";
  * Add event to Google Calendar after validation.
  * @param {import('google-auth-library').Credentials} tokens
  * @param {EventInput} eventInput
+ * @param {number} userId
  */
-export async function addEventToGoogleCalendar(tokens, eventInput) {
+export async function addEventToGoogleCalendar(tokens, eventInput, userId) {
   const {
     summary,
     description,
@@ -57,6 +59,13 @@ export async function addEventToGoogleCalendar(tokens, eventInput) {
   const oAuth2Client = getOAuthClient();
   oAuth2Client.setCredentials(tokens);
 
+  oAuth2Client.on("tokens", (newTokens) => {
+    if (newTokens.access_token) {
+      console.log("Token refreshed, saving new access token for user:", userId);
+      const allTokens = { ...tokens, ...newTokens };
+      saveGoogleTokens(userId, allTokens);
+    }
+  });
   const calendar = google.calendar({ version: "v3", auth: oAuth2Client });
 
   const event = {
@@ -82,11 +91,22 @@ export async function addEventToGoogleCalendar(tokens, eventInput) {
  * Remove calendar event by Google Event ID
  * @param {import('google-auth-library').Credentials} tokens
  * @param {string} googleEventId
+ * @param {number} userId
  */
-export async function removeEventFromGoogleCalendar(tokens, googleEventId) {
+export async function removeEventFromGoogleCalendar(
+  tokens,
+  googleEventId,
+  userId
+) {
   const oAuth2Client = getOAuthClient();
   oAuth2Client.setCredentials(tokens);
-
+  oAuth2Client.on("tokens", (newTokens) => {
+    if (newTokens.access_token) {
+      console.log("Token refreshed, saving new access token for user:", userId);
+      const allTokens = { ...tokens, ...newTokens };
+      saveGoogleTokens(userId, allTokens);
+    }
+  });
   const calendar = google.calendar({ version: "v3", auth: oAuth2Client });
 
   await calendar.events.delete({
