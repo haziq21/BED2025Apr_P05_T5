@@ -1,0 +1,69 @@
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  width: 50%; /* Make calendar 50% of its container width */
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 8px;
+  background-color: #fff;
+  margin: 0 auto; /* Center the calendar horizontally */
+  margin-left: 25%;
+}
+
+.calendar-and-button {
+  display: flex;
+  align-items: flex-start; /* Align items to the top */
+  justify-content: center; /* Center flex items */
+  max-width: 100%; /* Allow the container to be wide */
+  margin: 20px auto; /* Center the flex container */
+}
+
+.day-header {
+  text-align: center;
+  font-weight: bold;
+  padding: 10px;
+  background-color: #c1a77b;
+  color: #282521;
+  border-radius: 4px;
+}
+
+.calendar-cell {
+  border: 1px solid #eee;
+  padding: 10px;
+  min-height: 100px;
+  position: relative;
+  border-radius: 4px;
+}
+.date-number {
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+.event {
+  background-color: #fae7c2;
+  border: 1px solid #e8cb90;
+  border-left: 4px solid #e8cb90;
+  padding: 5px;
+  margin-bottom: 3px;
+  border-radius: 3px;
+  font-size: 0.9em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#linkGoogleCalendar {
+  background-color: #4caf50;
+  color: white;
+  padding: 15px 30px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  align-self: flex-start;
+  margin-top: 10px; /* Adjust to align with calendar header row */
+  margin-right: 7%;
+}
+#linkGoogleCalendar:hover {
+  background-color: #45a049;
+}

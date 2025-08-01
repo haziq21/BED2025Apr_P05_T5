@@ -13,12 +13,12 @@ import * as medicalRecordsController from "./controllers/medicalRecordsControlle
 import * as mediSchedule from "./controllers/medicationSchedule.js";
 import * as mediValidate from "./middleware/medicationScheduleValidation.js";
 import * as reminderCron from "./cron/reminderCron.js";
-import { sentiment } from "./controllers/sentiment.js"
+import { sentiment } from "./controllers/sentiment.js";
 import { getOAuthClient, getAuthUrl } from "./utils/googleAuth.js";
+import * as googleCalendar from "./controllers/googleCalendar.js";
 import * as map from "./controllers/map.js";
 
 import pool from "./db.js";
-import { oauthCallback } from "./controllers/googleCalendar.js";
 const PORT = process.env.PORT || 3000;
 const app = express();
 app.use(express.json());
@@ -149,18 +149,21 @@ app.put("/api/map/shared-with-me/:userId", verifyJWT, map.acceptShareRequest);
 app.post("/api/map/shared-by-me/:userId", verifyJWT, map.shareLocation);
 app.delete("/api/map/shared-by-me/:userId", verifyJWT, map.revokeShare);
 
-app.get("/auth/google", (req, res) => {
-  const oAuth2Client = getOAuthClient();
-  const url = getAuthUrl(oAuth2Client);
-  res.json({ authUrl: url });
-});
-
-app.get("/auth/google/callback", oauthCallback);
+// Google Calendar Integration
+app.get(
+  "/api/calendar/google/auth/url",
+  verifyJWT,
+  googleCalendar.redirectToGoogleOAuth
+);
+app.get("/auth/google/callback", googleCalendar.oauthCallback);
+app.post(
+  "/api/googleCalendar/events",
+  verifyJWT,
+  googleCalendar.addCalendarEvent
+);
 
 reminderCron.getDates();
-app.get('/api/sentiment', sentiment);
-
-
+app.get("/api/sentiment", sentiment);
 
 // This must come after all the routes
 app.use(errorHandler);

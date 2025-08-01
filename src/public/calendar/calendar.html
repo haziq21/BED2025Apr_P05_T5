@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calendar - Kampung Connect</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Gelasio:ital,wght@0,400..700;1,400..700&family=Libre+Franklin:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../global.css" />
+    <link rel="stylesheet" href="calendar.css" />
+  </head>
+
+  <body>
+    <nav class="topnav">
+      <a href="../index.html">Home</a>
+      <a href="#Events">Events</a>
+      <a href="#Location">Location</a>
+      <a href="../medicationSchedule/medication.html">Medication</a>
+      <a href="../profile.html">Profile</a>
+      <a href="../comment/comment.html">Comments</a>
+      <a href="calendar.html" class="active">Calendar</a>
+    </nav>
+
+    <div class="calendar-and-button">
+      <div class="calendar">
+        <div class="day-header">Sun</div>
+        <div class="day-header">Mon</div>
+        <div class="day-header">Tue</div>
+        <div class="day-header">Wed</div>
+        <div class="day-header">Thu</div>
+        <div class="day-header">Fri</div>
+        <div class="day-header">Sat</div>
+        <!-- Calendar cells will be added here by JavaScript -->
+      </div>
+      <button id="linkGoogleCalendar">Link Google Calendar</button>
+    </div>
+
+    <script type="module" src="calendar.js"></script>
+    <script src="../global.js"></script>
+  </body>
+</html>
