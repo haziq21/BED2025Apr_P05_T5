@@ -1,8 +1,7 @@
-
 const apiBaseUrl = "http://localhost:3000";
-const token = localStorage.getItem("token");
-
-
+// const token = localStorage.getItem("token");
+const token =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjUsIm5hbWUiOiJEZWVwYWsgS3VtYXIiLCJpYXQiOjE3NTQwMjczNTcsImV4cCI6MTc1NDAzMDk1N30.4ER-sIdph1q2TwCRGxlK98NBEyKJ6WhqNfJmAD8Ppuw";
 
 /**
  * @type {any[]}
@@ -506,7 +505,7 @@ async function createMedication(data) {
       options
     );
     console.log("Create result:", result);
-     console.log(result);
+    console.log(result);
     showToast("Medication create successfully!");
     fetchMedications();
   } catch (error) {
@@ -742,5 +741,3 @@ function displayMedicationResult(data) {
     </div>
   `;
 }
-
-
