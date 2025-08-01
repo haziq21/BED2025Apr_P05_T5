@@ -20,13 +20,15 @@ export function getOAuthClient() {
 
 /**
  * Generate the Google OAuth URL for user authentication.
- * @param {OAuth2Client} oAuth2Client
+ * @param {OAuth2Client} oAuth2Client\
+ * @param {string} state
  * @returns {string}
  */
-export function getAuthUrl(oAuth2Client) {
+export function getAuthUrl(oAuth2Client, state) {
   return oAuth2Client.generateAuthUrl({
     access_type: "offline",
     scope: SCOPES,
     prompt: "consent",
+    state, // Include state for CSRF protection
   });
 }
