@@ -13,6 +13,7 @@ import * as medicalRecordsController from "./controllers/medicalRecordsControlle
 import * as mediSchedule from "./controllers/medicationSchedule.js";
 import * as mediValidate from "./middleware/medicationScheduleValidation.js";
 import * as reminderCron from "./cron/reminderCron.js";
+import { sentiment } from "./controllers/sentiment.js"
 import { getOAuthClient, getAuthUrl } from "./utils/googleAuth.js";
 import * as map from "./controllers/map.js";
 
@@ -74,35 +75,7 @@ app.put(
 );
 
 // Medication Schedule
-app.get(
-  "/api/medicationSchedule/:userId",
-  verifyJWT,
-  mediSchedule.getMediSchedule
-);
-app.post(
-  "/api/medicationSchedule/:userId",
-  verifyJWT,
-  mediValidate.validateSchedule,
-  mediSchedule.createSchedule
-);
-app.put(
-  "/api/medicationSchedule/:userId",
-  verifyJWT,
-  mediValidate.validateSchedule,
-  mediSchedule.updateSchedule
-);
-app.delete(
-  "/api/medicationSchedule/:userId/:scheduleId",
-  verifyJWT,
-  mediValidate.validateScheduleId,
-  mediValidate.validateSchedule,
-  mediSchedule.deleteSchedule
-);
-app.get(
-  "/api/medicationSchedule/:userId",
-  verifyJWT,
-  mediSchedule.getMediSchedule
-);
+app.get("/api/medicationSchedule", verifyJWT, mediSchedule.getMediSchedule);
 app.post(
   "/api/medicationSchedule",
   verifyJWT,
@@ -185,6 +158,10 @@ app.get("/auth/google", (req, res) => {
 app.get("/auth/google/callback", oauthCallback);
 
 reminderCron.getDates();
+app.get('/api/sentiment', sentiment);
+
+
+
 // This must come after all the routes
 app.use(errorHandler);
 

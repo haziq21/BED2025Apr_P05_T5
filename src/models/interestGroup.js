@@ -25,6 +25,24 @@ export async function fillApplication(UserId, details) {
       .input("BudgetEstimateEnd", details.BudgetEstimateEnd)
       .input("AccessibilityConsideration", details.AccessibilityConsideration)
       .input("HealthSafetyPrecaution", details.HealthSafetyPrecaution);
+
+    const result = await request.query(`
+        INSERT INTO InterestGroupProposals (
+          UserId, CCId, Title, Description, Email,
+          Status, SubmittedAt, UpdatedAt, Scope, MeetingFrequency,
+          BudgetEstimateStart, BudgetEstimateEnd,
+          AccessibilityConsideration, HealthSafetyPrecaution
+        )
+        OUTPUT INSERTED.*
+        VALUES (
+          @UserId, @CCId, @Title, @Description, @Email,
+          'pending', GETDATE(), GETDATE(), @Scope, @MeetingFrequency,
+          @BudgetEstimateStart, @BudgetEstimateEnd,
+          @AccessibilityConsideration, @HealthSafetyPrecaution
+        )
+      `);
+
+    return result.recordset[0];
   } catch (error) {
     console.error("Database error:", error);
     throw error;
@@ -38,6 +56,14 @@ export async function fillApplication(UserId, details) {
 
 export async function getApplications(UserId) {
   try {
+    const request = pool.request().input("UserId", UserId);
+
+    const result = await request.query(
+      ` SELECT * FROM InterestGroupProposals WHERE UserId = @UserId
+      `
+    );
+
+    return result.recordset;
   } catch (error) {
     console.error("Database error:", error);
     throw error;
@@ -46,12 +72,45 @@ export async function getApplications(UserId) {
 
 /**
  * Update or change details of a previously submitted application
- * @param {}
- * @param {{}}
+ * @param {number} ProposalId
+ * @param {{CCId: number, Title: string, Description: string, Email: string, Scope: string, MeetingFrequency: string, BudgetEstimateStart: number, BudgetEstimateEnd: number, AccessibilityConsideration: string, HealthSafetyPrecaution: string}} details
  */
 
-export async function updateApplication() {
+export async function updateApplication(ProposalId, details) {
   try {
+    const request = pool
+      .request()
+      .input("ProposalId", ProposalId)
+      .input("Title", details.Title ?? null)
+      .input("Description", details.Description ?? null)
+      .input("Email", details.Email ?? null)
+      .input("Scope", details.Scope ?? null)
+      .input("MeetingFrequency", details.MeetingFrequency ?? null)
+      .input("BudgetEstimateStart", details.BudgetEstimateStart ?? null)
+      .input("BudgetEstimateEnd", details.BudgetEstimateEnd ?? null)
+      .input(
+        "AccessibilityConsideration",
+        details.AccessibilityConsideration ?? null
+      )
+      .input("HealthSafetyPrecaution", details.HealthSafetyPrecaution ?? null);
+
+    const result = await request.query(`
+    UPDATE InterestGroupProposals
+    SET
+        Title = ISNULL(@Title, Title),
+        Description = ISNULL(@Description, Description),
+        Email = ISNULL(@Email, Email),
+        Scope = ISNULL(@Scope, Scope),
+        MeetingFrequency = ISNULL(@MeetingFrequency, MeetingFrequency),
+        BudgetEstimateStart = ISNULL(@BudgetEstimateStart, BudgetEstimateStart),
+        BudgetEstimateEnd = ISNULL(@BudgetEstimateEnd, BudgetEstimateEnd),
+        AccessibilityConsideration = ISNULL(@AccessibilityConsideration, AccessibilityConsideration),
+        HealthSafetyPrecaution = ISNULL(@HealthSafetyPrecaution, HealthSafetyPrecaution),
+        UpdatedAt = GETDATE()
+    WHERE ProposalId = @ProposalId
+      `);
+
+    return result;
   } catch (error) {
     console.error("Database error:", error);
     throw error;

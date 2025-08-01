@@ -173,6 +173,8 @@ CREATE TABLE Comment (
   PostId INT IDENTITY PRIMARY KEY,
   Comment VARCHAR(500) NOT NULL,
   TimeStamp DATETIME DEFAULT GETDATE(),
+  AnalysisStatus VARCHAR(5) NOT NULL,
+  SentimentType VARCHAR(20), -- postive,negetive,neutral
   ParentPostId INT DEFAULT -1,  -- -1 means by default its post not comment 
   FOREIGN KEY (UserId) REFERENCES Users(UserId)
 );
@@ -427,19 +429,20 @@ INSERT INTO SharedLocations (ViewingUserId, LocatedUserId, RequestAccepted) VALU
 ((SELECT UserId FROM Users WHERE Name = 'Shawn Tan'), (SELECT UserId FROM Users WHERE Name = 'Lim Wei Leong'), 1);
 
 
-INSERT INTO Comment (UserId, Comment) VALUES
-((SELECT UserId FROM Users WHERE Name = 'Lim Wei Leong'), 'Shiok! The Kampung Connect Bazaar was awesome!'),
-((SELECT UserId FROM Users WHERE Name = 'Tan Mei Ling'), 'Learned so much at the Kopi & Teh workshop. Can make my own kopi-o now!'),
-((SELECT UserId FROM Users WHERE Name = 'Goh Eng Chuan'), 'Dragon Boat Festival celebration was so vibrant. Good vibes!'),
-((SELECT UserId FROM Users WHERE Name = 'Siti Nurul Huda'), 'The healthy hawker food tour showed me so many hidden gems. Sedap!'),
-((SELECT UserId FROM Users WHERE Name = 'Deepak Kumar'), 'Peranakan culture showcase was truly enriching. Loved the intricate kebaya!'),
-((SELECT UserId FROM Users WHERE Name = 'Chua Kim Seng'), 'Futsal tournament was so intense! Good workout.'),
-((SELECT UserId FROM Users WHERE Name = 'Fiona Tan'), 'Durian session was mind-blowing! So many varieties.'),
-((SELECT UserId FROM Users WHERE Name = 'Marcus Lim'), 'Had a great time playing traditional games with my grandparents!'),
-((SELECT UserId FROM Users WHERE Name = 'Nurul Aishah'), 'The Hari Raya Light-Up was beautiful. Feeling the festive spirit!'),
-((SELECT UserId FROM Users WHERE Name = 'Rajesh Suppiah'), 'My homemade bubble tea from the workshop turned out pretty good!'),
-((SELECT UserId FROM Users WHERE Name = 'Kelly Ong'), 'Kampung Games Day brought back so many childhood memories!'),
-((SELECT UserId FROM Users WHERE Name = 'Zainal Bin Ahmad'), 'Happy to see so many cats finding their furever homes!'),
-((SELECT UserId FROM Users WHERE Name = 'Priya Sharma'), 'Kayaking in Punggol Waterway was so peaceful and refreshing.'),
-((SELECT UserId FROM Users WHERE Name = 'Shawn Tan'), 'The Sustainable Living Fair gave me so many ideas for reducing waste.'),
-((SELECT UserId FROM Users WHERE Name = 'Vanessa Lee'), 'Great initiative with the beach cleanup! Let''s keep our beaches clean.');
+INSERT INTO Comment (UserId, Comment, AnalysisStatus) VALUES
+((SELECT UserId FROM Users WHERE Name = 'Lim Wei Leong'), 'Shiok! The Kampung Connect Bazaar was awesome!', 'false'),
+((SELECT UserId FROM Users WHERE Name = 'Tan Mei Ling'), 'The Kopi & Teh workshop was okay, but a bit too crowded for me.', 'false'),
+((SELECT UserId FROM Users WHERE Name = 'Goh Eng Chuan'), 'Dragon Boat Festival celebration was vibrant and fun!', 'false'),
+((SELECT UserId FROM Users WHERE Name = 'Siti Nurul Huda'), 'The hawker food tour was disappointing. Some stalls were closed.', 'false'),
+((SELECT UserId FROM Users WHERE Name = 'Deepak Kumar'), 'Peranakan culture showcase was truly enriching. Loved the atmosphere!', 'false'),
+((SELECT UserId FROM Users WHERE Name = 'Chua Kim Seng'), 'Futsal tournament left me exhausted, but glad I participated.', 'false'),
+((SELECT UserId FROM Users WHERE Name = 'Fiona Tan'), 'The durian tasting session gave me a headache... too strong!', 'false'),
+((SELECT UserId FROM Users WHERE Name = 'Marcus Lim'), 'Loved playing traditional games again. Brought back good memories.', 'false'),
+((SELECT UserId FROM Users WHERE Name = 'Nurul Aishah'), 'The Hari Raya Light-Up was stunning! Felt very nostalgic.', 'false'),
+((SELECT UserId FROM Users WHERE Name = 'Rajesh Suppiah'), 'Bubble tea workshop was alright, but not worth the fee.', 'false'),
+((SELECT UserId FROM Users WHERE Name = 'Kelly Ong'), 'Kampung Games Day was fun overall, though it ended too early.', 'false'),
+((SELECT UserId FROM Users WHERE Name = 'Zainal Bin Ahmad'), 'The adoption drive was touching. So many happy animals!', 'false'),
+((SELECT UserId FROM Users WHERE Name = 'Priya Sharma'), 'Kayaking was peaceful, but the weather was too hot.', 'false'),
+((SELECT UserId FROM Users WHERE Name = 'Shawn Tan'), 'Sustainable Living Fair gave me lots of ideas. Well done!', 'false'),
+((SELECT UserId FROM Users WHERE Name = 'Vanessa Lee'), 'Beach cleanup was tiring but worth it. Let’s keep it up!', 'false');
+
