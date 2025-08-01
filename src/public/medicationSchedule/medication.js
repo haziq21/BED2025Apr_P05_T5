@@ -3,6 +3,7 @@ const apiBaseUrl = "http://localhost:3000";
 const token = localStorage.getItem("token");
 
 
+
 /**
  * @type {any[]}
  */
@@ -742,36 +743,4 @@ function displayMedicationResult(data) {
   `;
 }
 
-// async function sendWhatsAppMessage() {
-//   const token =
-//     "EAAJdcClyJRIBPOlyyd22p59tp6WcHQFs77ZAw9NptlgqdAdNLzZCENgWyrhmTZBTfJAnhcFJY1ZCeoRhZAAvXVcZBblAZAsZBkxVFyuuIFcLpgiATViYXN7m73bkuUxXieLZAInUPaRMUPtaXEvn93dDE1aNfZBefUqZCV7dOuYZAhR1ZCDVZBOc93ITIBEDhYBo949anHukBFofAUZAF6zZAGq4fdqvZBDy9qRCuZArDrW5HSxpHomAZDZD";
-//   const phone_number_id = "669177659620528";
-//   const recipient_number = "6583864483"; // in format "65XXXXXXXX"
 
-//   const body = {
-//     messaging_product: "whatsapp",
-//     to: recipient_number,
-//     type: "template",
-//     template: {
-//       name: "hello_world", // Meta provides this default template
-//       language: { code: "en_US" },
-//     },
-//   };
-
-//   const res = await fetch(
-//     `https://graph.facebook.com/v19.0/${phone_number_id}/messages`,
-//     {
-//       method: "POST",
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//         "Content-Type": "application/json",
-//       },
-//       body: JSON.stringify(body),
-//     }
-//   );
-
-//   const data = await res.json();
-//   console.log("Response:", data);
-// }
-
-// sendWhatsAppMessage();

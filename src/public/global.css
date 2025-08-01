@@ -4,8 +4,11 @@
 */
 
 body {
-  font-family: "Libre Franklin", sans-serif;
   margin: 0;
+  padding: 0;
+  font-family: 'Libre Franklin', Arial, sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
 }
 
 h1,
@@ -17,30 +20,83 @@ h6 {
   font-family: "Gelasio", serif;
 }
 
-/* navigation bar */
+ /* Nav Bar */
 .topnav {
-  overflow: hidden;
   background-color: #c1a77b;
-  justify-content: space-between;
-  font-family: "Gelasio";
-  font-weight: bold;
+  overflow: hidden;
   display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 12px 0;
 }
 
 .topnav a {
-  float: 1.5px;
-  color: #000;
-  text-align: center;
-  padding: 20px 16px;
+  color: #282521;
   text-decoration: none;
-  font-size: 17px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
 }
 
 .topnav a:hover {
-  background-color: #fae7c2;
+  background-color: #e8cb90;
 }
-
 .topnav a.active {
   background-color: #fae7c2;
   color: rgb(0, 0, 0);
+}
+/* Popup overlay background */
+.popup-overlay {
+  display: none; 
+  position: fixed;
+  top: 0; 
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 9999;
+}
+
+/* Popup content box */
+.popup-content {
+  position: relative;
+  background: #fff;
+  width: 90%;
+  max-width: 400px;
+  margin: 10% auto;
+  padding: 30px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+.popup-content h2 {
+  margin-top: 0;
+}
+
+.popup-buttons {
+  margin-top: 20px;
+}
+
+.popup-buttons button {
+  margin: 0 10px;
+  padding: 10px 20px;
+  border: none;
+  background: #007bff;
+  color: #fff;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.popup-buttons button#closeCompleteProfile {
+  background: #ccc;
+  color: #333;
+}
+#welcomeMsg {
+  font-size: 55px;  
+  font-weight: 600; 
+  margin: 20px auto;
+  text-align: center;
+  color: #333;
 }
