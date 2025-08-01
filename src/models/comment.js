@@ -11,8 +11,16 @@ export async function getCommentById(userId) {
             SELECT c.Comment,c.PostId,u.UserId,c.TimeStamp,c.ParentPostId,u.Name AS UserName
             FROM Comment c 
             JOIN Users u ON c.UserId = u.UserId
-            WHERE c.UserId = @userId AND c.ParentPostId = -1;
+            WHERE c.UserId = @userId AND c.ParentPostId = -1
+            ORDER BY c.TimeStamp DESC;
          `);
+    result.recordset.forEach((comment) => {
+      if (comment.UserId === userId) {
+        comment.loginUser = true;
+      } else {
+        comment.loginUser = false;
+      }
+    });
     return result.recordset;
   } catch (error) {
     console.error("Database error:", error);
@@ -22,16 +30,26 @@ export async function getCommentById(userId) {
 
 /**
  * get all the comments on comment page
+ * @param {number} [uid]
  */
-export async function getComment() {
+export async function getComment(uid) {
   try {
     const result = await pool.request().query(`
-            SELECT c.Comment,c.PostId,u.UserId,c.TimeStamp,c.ParentPostId,u.Name AS UserName
+            SELECT c.Comment,c.PostId,u.UserId,c.TimeStamp,c.ParentPostId,c.AnalysisStatus,c.SentimentType,u.Name AS UserName 
             FROM Comment c 
             JOIN Users u ON c.UserId = u.UserId 
-            WHERE c.ParentPostId = -1;
+            WHERE c.ParentPostId = -1
+            ORDER BY c.TimeStamp DESC;
          `);
 
+    result.recordset.forEach((comment) => {
+      if (comment.UserId === uid) {
+        comment.loginUser = true;
+      } else {
+        comment.loginUser = false;
+      }
+    });
+    // console.log(uid);
     return result.recordset;
   } catch (error) {
     console.error("Database error:", error);
@@ -42,7 +60,7 @@ export async function getComment() {
 /**
  * update the comment by userId
  * @param {number} userId
- * @param {{PostId: number, Comment: string}} postData
+ * @param {{PostId: number, Comment: string, AnalysisStatus:string,SentimentType:string}} postData
  */
 export async function updateComment(userId, postData) {
   try {
@@ -50,12 +68,16 @@ export async function updateComment(userId, postData) {
       .request()
       .input("PostId", postData.PostId)
       .input("userId", userId)
-      .input("Comment", postData.Comment);
+      .input("Comment", postData.Comment)
+      .input("AnalysisStatus", postData.AnalysisStatus)
+      .input("SentimentType",postData.SentimentType)
 
     const result = await request.query(`
         UPDATE Comment
         SET 
-            Comment = @Comment
+            Comment = @Comment,
+            AnalysisStatus = @AnalysisStatus,
+            SentimentType = @SentimentType
         OUTPUT INSERTED.*
         WHERE PostId = @PostId AND UserId = @userId
     `);
@@ -70,10 +92,11 @@ export async function updateComment(userId, postData) {
   }
 }
 
+
 /**
  * create comment by userId and PostId
  * @param {number} userId
- * @param {{PostId: number, Comment: string,ParentPostId:number}} newComment
+ * @param {{PostId: number, Comment: string,ParentPostId:number,AnalysisStatus:string}} newComment
  */
 export async function createComment(userId, newComment) {
   try {
@@ -81,12 +104,13 @@ export async function createComment(userId, newComment) {
       .request()
       .input("UserId", userId)
       .input("Comment", newComment.Comment)
-      .input("ParentPostId", newComment.ParentPostId);
+      .input("ParentPostId", newComment.ParentPostId)
+      .input("AnalysisStatus", newComment.AnalysisStatus);
 
     const result = await request.query(`
-        INSERT INTO Comment (UserId,Comment,ParentPostId)
+        INSERT INTO Comment (UserId,Comment,ParentPostId,AnalysisStatus)
         OUTPUT INSERTED.*
-        VALUES(@userId,@Comment,@ParentPostId)  
+        VALUES(@userId,@Comment,@ParentPostId,@AnalysisStatus)  
             `);
     return result.recordset[0];
   } catch (error) {
@@ -135,7 +159,8 @@ export async function getCommentByOthers(PostID) {
             SELECT c.Comment,c.PostId,u.UserId,c.TimeStamp,c.ParentPostId,u.Name AS UserName
             FROM Comment c 
             JOIN Users u ON c.UserId = u.UserId 
-            WHERE c.ParentPostId = @PostId;
+            WHERE c.ParentPostId = @PostId
+            ORDER BY c.TimeStamp DESC;
          `);
     return result.recordset;
   } catch (err) {

@@ -116,9 +116,9 @@ export async function getProfile(userId) {
 /**
  * Updates the user's profile details.
  * @param {number} userId
- * @param {{ name?: string, phoneNumber?: string, bio?: string, image?: string }} profileData - Fields to update.
+ * @param {{ name?: string, phoneNumber?: string, bio?: string, ProfilePhotoURL?: string }} profileData - Fields to update.
  */
-export async function updateProfile(userId, { name, phoneNumber, bio, image }) {
+export async function updateProfile(userId, { name, phoneNumber, bio, ProfilePhotoURL }) {
   try {
     const request = pool.request().input("id", userId);
 
@@ -139,9 +139,9 @@ export async function updateProfile(userId, { name, phoneNumber, bio, image }) {
       updates.push("Bio = @bio");
     }
 
-    if (image !== undefined && image !== null) {
-      request.input("image", image);
-      updates.push("ProfilePhotoURL = @image");
+    if (ProfilePhotoURL !== undefined && ProfilePhotoURL !== null) {
+      request.input("ProfilePhotoURL", ProfilePhotoURL);
+      updates.push("ProfilePhotoURL = @ProfilePhotoURL");
     }
 
     if (updates.length === 0) {
@@ -216,6 +216,31 @@ export async function getUserByPhoneNumber(phoneNumber) {
     if (result.recordset.length === 0) {
       return null; // User not found
     }
+    return result.recordset[0];
+  } catch (error) {
+    console.error("Database error:", error);
+    throw error;
+  }
+}
+/**
+ * Updates the profile picture of a user.
+ * @param {number} userId
+ * @param {string} imageUrl
+ */
+export async function updateProfilePicture(userId, imageUrl) {
+  try {
+    const result = await pool
+      .request()
+      .input("id", userId)
+      .input("imageUrl", imageUrl)
+      .query(`
+        UPDATE Users
+        SET ProfilePhotoURL = @imageUrl
+        WHERE UserId = @id;
+
+        SELECT * FROM Users WHERE UserId = @id;
+      `);
+
     return result.recordset[0];
   } catch (error) {
     console.error("Database error:", error);
