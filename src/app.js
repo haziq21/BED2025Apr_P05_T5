@@ -17,7 +17,8 @@ import { sentiment } from "./controllers/sentiment.js";
 import { getOAuthClient, getAuthUrl } from "./utils/googleAuth.js";
 import * as googleCalendar from "./controllers/googleCalendar.js";
 import * as map from "./controllers/map.js";
-import * as interestGroupController from "./controllers/interestGroupController.js";
+import * as interestGroupUserController from "./controllers/interestGroupUserController.js";
+import * as interestGroupAdminController from "./controllers/interestGroupAdminController.js";
 
 import pool from "./db.js";
 const PORT = process.env.PORT || 3000;
@@ -168,41 +169,41 @@ app.get("/api/sentiment", sentiment);
 
 // Interest Group Application (USER SIDE)
 app.post(
-  "/api/interestGroup",
+  "/api/interestGroupUser",
   verifyJWT,
-  interestGroupController.fillApplication
+  interestGroupUserController.fillApplication
 );
 app.get(
   "/api/interestGroup",
   verifyJWT,
-  interestGroupController.getApplications
+  interestGroupUserController.getApplications
 );
 app.put(
-  "/api/interestGroup/:ProposalId",
+  "/api/interestGroupUser/:ProposalId",
   verifyJWT,
-  interestGroupController.updateApplication
+  interestGroupUserController.updateApplication
 );
 app.delete(
-  "/api/interestGroup/:ProposalId",
+  "/api/interestGroupUser/:ProposalId",
   verifyJWT,
-  interestGroupController.deleteApplication
+  interestGroupUserController.deleteApplication
 );
 
 // Interest Group Application (ADMIN SIDE)
 app.get(
-  "/api/interestGroup/:CCId",
+  "/api/interestGroupAdmin/:CCId",
   verifyJWT,
-  interestGroupController.getPendingApplicationsByCC
+  interestGroupAdminController.getPendingApplicationsByCC
 );
 app.put(
-  "/api/interestGroup/:ProposalId",
+  "/api/interestGroupAdmin/:ProposalId",
   verifyJWT,
-  interestGroupController.reviewApplication
+  interestGroupAdminController.reviewApplication
 );
 app.get(
-  "/api/interestGroup/:ProposalId",
+  "/api/interestGroupAdmin/:ProposalId",
   verifyJWT,
-  interestGroupController.getApplicationById
+  interestGroupAdminController.getApplicationById
 );
 
 // This must come after all the routes
