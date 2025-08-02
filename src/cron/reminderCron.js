@@ -111,7 +111,6 @@ function formatData(element) {
       element.DrugName,
       element.PhoneNumber
     );
-    console.log("yes crfea");
   }
   //repeat by week
   else if (element.RepeatRequest === 2) {
@@ -222,16 +221,16 @@ export function checkExistance(id, data, action) {
   if (scheduledJobs.has(id)) {
     scheduledJobs.get(id).stop();
     scheduledJobs.delete(id);
-    console.log("testing");
+    // console.log("testing");
     console.log(action);
     console.log(data);
-    console.log("deleted");
+    // console.log("deleted");
     if (action === 0) {
       formatData(data);
-      console.log("updated");
+      // console.log("updated");
     }
   } else {
     formatData(data);
-    console.log("successful");
+    // console.log("successful");
   }
 }

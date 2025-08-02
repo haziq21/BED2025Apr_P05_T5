@@ -1,7 +1,8 @@
 const apiBaseUrl = "http://localhost:3000";
-// const token = localStorage.getItem("token");
-const token =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjUsIm5hbWUiOiJEZWVwYWsgS3VtYXIiLCJpYXQiOjE3NTQwMjczNTcsImV4cCI6MTc1NDAzMDk1N30.4ER-sIdph1q2TwCRGxlK98NBEyKJ6WhqNfJmAD8Ppuw";
+const token = localStorage.getItem("token");
+console.log(token);
+
+
 
 /**
  * @type {any[]}
@@ -446,6 +447,7 @@ async function fetchMedications() {
     );
     console.log("Get result:", result);
     renderMedications(result);
+
   } catch (error) {
     console.error("Error fetching medications:", error);
   }
