@@ -193,9 +193,6 @@ export async function reviewApplication(ProposalId, Status) {
 export async function getApplicationById(ProposalId) {
   try {
     const request = pool.request().input("ProposalId", ProposalId);
-    // .input("Name", relevantInformation.Name)
-    // .input("Email", relevantInformation.Email)
-    // .input("Status", relevantInformation.Status);
 
     const result = await request.query(`
       SELECT * FROM InterestGroupProposals 
