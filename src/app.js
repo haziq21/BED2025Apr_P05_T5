@@ -14,7 +14,6 @@ import * as mediSchedule from "./controllers/medicationSchedule.js";
 import * as mediValidate from "./middleware/medicationScheduleValidation.js";
 import * as reminderCron from "./cron/reminderCron.js";
 import { sentiment } from "./controllers/sentiment.js";
-import { sentiment } from "./controllers/sentiment.js";
 import { getOAuthClient, getAuthUrl } from "./utils/googleAuth.js";
 import * as googleCalendar from "./controllers/googleCalendar.js";
 import * as map from "./controllers/map.js";
