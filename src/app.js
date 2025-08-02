@@ -170,9 +170,6 @@ app.post(
 );
 
 
-reminderCron.getDates();
-app.get("/api/sentiment", sentiment);
-
 // Interest Group Application (USER SIDE)
 app.post(
   "/api/interestGroup",
