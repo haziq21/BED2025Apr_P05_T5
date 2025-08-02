@@ -23,7 +23,7 @@ window.addEventListener("DOMContentLoaded", loadProfile);
 
 //  Load profile data
 async function loadProfile() {
- console.log("check check");
+  console.log("check check");
   try {
     const res = await fetch(`${BASE_API_URL}/api/profile/`, {
       headers: {
@@ -32,7 +32,7 @@ async function loadProfile() {
     });
 
     if (!res.ok) throw new Error("Failed to load profile");
-    
+
     const data = await res.json();
     console.log("testing");
     console.log(data);
@@ -43,16 +43,26 @@ async function loadProfile() {
     // @ts-ignore
     bioInput.value = data.Bio || "";
     // @ts-ignore
-    profileImage.src = data.ProfilePhotoURL || ""; 
+    if (data.ProfilePhotoURL) {
+      // If user has photo, show it
+      // @ts-ignore
+      profileImage.style.display = "block";
+      // @ts-ignore
+      profileImage.src = data.ProfilePhotoURL;
+      // @ts-ignore
+      document.getElementById("profileInitials").style.display = "none";
+    } else {
+      // @ts-ignore
+      profileImage.style.display = "none";
+      // @ts-ignore
+      document.getElementById("profileInitials").style.display = "inline-block";
+    }
   } catch (err) {
     console.error("Error loading profile:", err);
     alert("Failed to load profile. Please login again.");
-    // logout();
   }
 }
-
 //  Enable Edit
-
 function enableEdit() {
   // @ts-ignore
   nameInput.removeAttribute("readonly");
@@ -67,7 +77,6 @@ function enableEdit() {
 }
 
 //  Save changes
-
 async function saveChanges() {
   const updated = {
     // @ts-ignore
@@ -80,13 +89,13 @@ async function saveChanges() {
 
   try {
     const res = await fetch(`${BASE_API_URL}/api/profile`, {
-    method: "PUT",
-    headers: {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${token3}`,
-  },
-  body: JSON.stringify(updated),
-});
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token3}`,
+      },
+      body: JSON.stringify(updated),
+    });
 
     const result = await res.json();
 
@@ -119,7 +128,7 @@ uploadInput.addEventListener("change", async () => {
   if (!file) return;
 
   const reader = new FileReader();
-  reader.onload = function(e) {
+  reader.onload = function (e) {
     // @ts-ignore
     profileImage.src = e.target.result;
   };
@@ -142,6 +151,7 @@ uploadInput.addEventListener("change", async () => {
       // @ts-ignore
       profileImage.src = result.ProfilePhotoURL;
       alert("Profile picture updated!");
+      loadProfile(); // Reload profile to update image
     } else {
       alert(result.error || "Image upload failed.");
     }
@@ -165,8 +175,9 @@ async function deleteProfilePicture() {
 
     if (res.ok) {
       // @ts-ignore
-      profileImage.src = ""; 
+      profileImage.src = "";
       alert("Profile picture deleted.");
+      loadProfile(); // Reload profile to update image
     } else {
       alert(result.error || "Failed to delete picture.");
     }
@@ -177,7 +188,12 @@ async function deleteProfilePicture() {
 }
 //  Delete account
 async function deleteUser() {
-  if (!confirm("Are you sure you want to delete your account? This action is permanent.")) return;
+  if (
+    !confirm(
+      "Are you sure you want to delete your account? This action is permanent."
+    )
+  )
+    return;
 
   try {
     const res = await fetch(`${BASE_API_URL}/api/profile/`, {
@@ -204,6 +220,7 @@ async function deleteUser() {
 function logout() {
   localStorage.removeItem("token");
   localStorage.removeItem("userId");
+  localStorage.setItem("profilePopupCount", "0");
   window.location.href = "login.html";
 }
 
