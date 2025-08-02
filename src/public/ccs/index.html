@@ -28,6 +28,15 @@
     <div class="header">
       <h1>Community Centers</h1>
       <div class="actions">
+        <div class="search-section">
+          <label for="searchInput">Search:</label>
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search community centers..."
+            oninput="handleSearchInput()"
+          />
+        </div>
         <div class="sort-section">
           <label for="sortSelect">Sort by:</label>
           <select id="sortSelect" onchange="handleSortChange()">
@@ -53,7 +62,22 @@
         <form id="createCCForm">
           <div class="form-group">
             <label for="ccName">Name:</label>
-            <input type="text" id="ccName" name="name" required />
+            <div class="autocomplete-container">
+              <input
+                type="text"
+                id="ccName"
+                name="name"
+                required
+                oninput="handleNameAutocomplete(this.value)"
+                onblur="hideAutocompleteSuggestions()"
+                onfocus="showAutocompleteSuggestions()"
+                autocomplete="off"
+              />
+              <div
+                id="autocompleteSuggestions"
+                class="autocomplete-suggestions"
+              ></div>
+            </div>
           </div>
           <div class="form-group">
             <label for="ccLat">Latitude:</label>

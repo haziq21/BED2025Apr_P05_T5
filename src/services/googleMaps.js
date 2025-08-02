@@ -18,7 +18,7 @@ const mapsClient = new MapsClient();
  * @param {string} input
  * @returns {Promise<{name: string, placeId: string}[]>}
  */
-async function autocompleteCCs(input) {
+export async function autocompleteCCs(input) {
   // Retrieve only the main name of the autocompleted place
   const headers = {
     "X-Goog-FieldMask":
@@ -51,7 +51,7 @@ async function autocompleteCCs(input) {
  * @param {string} placeId
  * @return {Promise<string | null>}
  */
-async function getZipCodeFromPlaceId(placeId) {
+export async function getZipCodeFromPlaceId(placeId) {
   // Retrieve only the main name of the autocompleted place
   const headers = {
     "X-Goog-FieldMask": "postalAddress.postalCode",
@@ -68,33 +68,38 @@ async function getZipCodeFromPlaceId(placeId) {
 /**
  * Retrieve the latitude and longitude of a place from its Google Maps place ID.
  * @param {string} placeId
- * @returns {Promise<{lat: number, lng: number}>}
+ * @returns {Promise<{lat: number, lon: number}>}
  */
-async function getCoordinatesFromPlaceId(placeId) {
+export async function getCoordinatesFromPlaceId(placeId) {
   const response = await mapsClient.geocode({
     params: {
       place_id: placeId,
       key: process.env.GOOGLE_MAPS_API_KEY ?? "",
     },
   });
-  return response.data.results[0].geometry.location;
+  return {
+    lat: response.data.results[0].geometry.location.lat,
+    lon: response.data.results[0].geometry.location.lng,
+  };
 }
 
-async function main() {
-  const suggestions = await autocompleteCCs("marym");
-  console.log("Autocomplete suggestions for 'marym':");
-
-  const suggestionsWithLocations = await Promise.all(
-    suggestions.map(async (sug) => ({
-      ...sug,
-      zipCode: await getZipCodeFromPlaceId(sug.placeId),
-      coordinates: await getCoordinatesFromPlaceId(sug.placeId),
-    }))
-  );
-
-  for (const sug of suggestionsWithLocations) {
-    console.log(sug);
-  }
+/**
+ * Retrieve the latitude and longitude of a place from its postal code.
+ * @param {string} postalCode
+ * @returns {Promise<{lat: number, lon: number}>}
+ */
+export async function getCoordinatesFromPostalCode(postalCode) {
+  const response = await mapsClient.geocode({
+    params: {
+      components: {
+        country: "SG",
+        postal_code: postalCode,
+      },
+      key: process.env.GOOGLE_MAPS_API_KEY ?? "",
+    },
+  });
+  return {
+    lat: response.data.results[0].geometry.location.lat,
+    lon: response.data.results[0].geometry.location.lng,
+  };
 }
-
-// main()
