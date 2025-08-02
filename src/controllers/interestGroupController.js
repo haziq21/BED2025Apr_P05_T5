@@ -11,7 +11,7 @@ import * as model from "../models/interestGroup.js";
  * @type {import("express").RequestHandler}
  */
 
-export async function fillApplication(req, res, next) {
+export async function fillApplication(req, res) {
   try {
     const userId = req.userId;
 
@@ -29,7 +29,7 @@ export async function fillApplication(req, res, next) {
 
     res.status(200).json(application);
   } catch (error) {
-    next(error);
+    console.log(error);
   }
 }
 

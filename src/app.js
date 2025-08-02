@@ -14,9 +14,11 @@ import * as mediSchedule from "./controllers/medicationSchedule.js";
 import * as mediValidate from "./middleware/medicationScheduleValidation.js";
 import * as reminderCron from "./cron/reminderCron.js";
 import { sentiment } from "./controllers/sentiment.js";
+import { sentiment } from "./controllers/sentiment.js";
 import { getOAuthClient, getAuthUrl } from "./utils/googleAuth.js";
 import * as googleCalendar from "./controllers/googleCalendar.js";
 import * as map from "./controllers/map.js";
+import * as interestGroupController from "./controllers/interestGroupController.js";
 
 import pool from "./db.js";
 const PORT = process.env.PORT || 3000;
@@ -164,6 +166,13 @@ app.post(
 
 reminderCron.getDates();
 app.get("/api/sentiment", sentiment);
+
+// Interest Group Application
+app.post(
+  "/api/interestGroup",
+  verifyJWT,
+  interestGroupController.fillApplication
+);
 
 // This must come after all the routes
 app.use(errorHandler);
