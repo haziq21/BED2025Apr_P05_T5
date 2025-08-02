@@ -155,6 +155,7 @@ app.get("/api/map/shared-with-me", verifyJWT, map.getSharedLocations);
 app.put("/api/map/shared-with-me/:userId", verifyJWT, map.acceptShareRequest);
 app.post("/api/map/shared-by-me/:userId", verifyJWT, map.shareLocation);
 app.delete("/api/map/shared-by-me/:userId", verifyJWT, map.revokeShare);
+app.get("/api/map/autocomplete", verifyJWT, map.getAutocompleteSuggestions);
 
 // Google Calendar Integration
 app.get(

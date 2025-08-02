@@ -11,24 +11,33 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="../global.css" />
-    <link rel="stylesheet" href="ccs.css" />
+    <link rel="stylesheet" href="styles.css" />
   </head>
 
   <body>
     <nav class="topnav">
-      <a href="../index.html">Home</a>
-      <a href="index.html" class="active">Community Centers</a>
+      <a href="/">Home</a>
+      <a href="/ccs" class="active">Community Centers</a>
       <a href="#Events">Events</a>
       <a href="#Location">Location</a>
-      <a href="../medicationSchedule/medication.html">Medication</a>
-      <a href="../profile.html">Profile</a>
-      <a href="../comment/comment.html">Comments</a>
+      <a href="/medicationSchedule">Medication</a>
+      <a href="/profile">Profile</a>
+      <a href="/comment">Comments</a>
       <a href="/calendar"> Calendar</a>
     </nav>
 
     <div class="header">
       <h1>Community Centers</h1>
       <div class="actions">
+        <div class="search-section">
+          <label for="searchInput">Search:</label>
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search community centers..."
+            oninput="handleSearchInput()"
+          />
+        </div>
         <div class="sort-section">
           <label for="sortSelect">Sort by:</label>
           <select id="sortSelect" onchange="handleSortChange()">
@@ -54,7 +63,22 @@
         <form id="createCCForm">
           <div class="form-group">
             <label for="ccName">Name:</label>
-            <input type="text" id="ccName" name="name" required />
+            <div class="autocomplete-container">
+              <input
+                type="text"
+                id="ccName"
+                name="name"
+                required
+                oninput="handleNameAutocomplete(this.value)"
+                onblur="hideAutocompleteSuggestions()"
+                onfocus="showAutocompleteSuggestions()"
+                autocomplete="off"
+              />
+              <div
+                id="autocompleteSuggestions"
+                class="autocomplete-suggestions"
+              ></div>
+            </div>
           </div>
           <div class="form-group">
             <label for="ccLat">Latitude:</label>
@@ -111,6 +135,6 @@
     </div>
 
     <script src="../global.js"></script>
-    <script src="ccs.js"></script>
+    <script src="script.js"></script>
   </body>
 </html>

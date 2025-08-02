@@ -43,6 +43,156 @@ async function apiCall(endpoint, options = {}) {
   return response.json();
 }
 
+/**
+ * Handle autocomplete for CC name input
+ * @param {string} query - The search query
+ */
+async function handleNameAutocomplete(query) {
+  // Clear any existing timeout
+  if (autocompleteTimeoutId) {
+    clearTimeout(autocompleteTimeoutId);
+  }
+
+  // Don't search for very short queries
+  if (query.trim().length < 2) {
+    hideAutocompleteSuggestions();
+    return;
+  }
+
+  // Debounce API calls
+  autocompleteTimeoutId = setTimeout(async () => {
+    try {
+      const suggestions = await apiCall(
+        `/api/map/autocomplete?query=${encodeURIComponent(query.trim())}`
+      );
+      autocompleteSuggestions = suggestions;
+      renderAutocompleteSuggestions();
+    } catch (error) {
+      console.error("Error fetching autocomplete suggestions:", error);
+      hideAutocompleteSuggestions();
+    }
+  }, 300);
+}
+
+/**
+ * Render autocomplete suggestions
+ */
+function renderAutocompleteSuggestions() {
+  const suggestionsContainer = document.getElementById(
+    "autocompleteSuggestions"
+  );
+  if (!suggestionsContainer) return;
+
+  if (autocompleteSuggestions.length === 0) {
+    hideAutocompleteSuggestions();
+    return;
+  }
+
+  suggestionsContainer.innerHTML = autocompleteSuggestions
+    .map(
+      (suggestion, index) => `
+        <div class="autocomplete-suggestion" 
+             onclick="selectSuggestion(${index}, event)" 
+             ontouchend="selectSuggestion(${index}, event)"
+             onmousedown="selectSuggestion(${index}, event)"
+             data-index="${index}">
+          <div class="suggestion-name">${escapeHtml(suggestion.name)}</div>
+        </div>
+      `
+    )
+    .join("");
+
+  suggestionsContainer.style.display = "block";
+}
+
+/**
+ * Hide autocomplete suggestions
+ */
+function hideAutocompleteSuggestions() {
+  const suggestionsContainer = document.getElementById(
+    "autocompleteSuggestions"
+  );
+  if (suggestionsContainer) {
+    suggestionsContainer.style.display = "none";
+  }
+}
+
+/**
+ * Show autocomplete suggestions if they exist
+ */
+function showAutocompleteSuggestions() {
+  const suggestionsContainer = document.getElementById(
+    "autocompleteSuggestions"
+  );
+  if (suggestionsContainer && autocompleteSuggestions.length > 0) {
+    suggestionsContainer.style.display = "block";
+  }
+}
+
+/**
+ * Select an autocomplete suggestion
+ * @param {number} index - Index of the selected suggestion
+ * @param {Event} [event] - The event object
+ */
+function selectSuggestion(index, event) {
+  // Prevent event bubbling
+  event?.preventDefault();
+  event?.stopPropagation();
+
+  const suggestion = autocompleteSuggestions[index];
+  if (!suggestion) return;
+
+  const nameInput = /** @type {HTMLInputElement} */ (
+    document.getElementById("ccName")
+  );
+  if (nameInput) {
+    nameInput.value = suggestion.name;
+    selectedPlaceId = suggestion.placeId;
+  }
+
+  // Hide suggestions immediately
+  const suggestionsContainer = document.getElementById(
+    "autocompleteSuggestions"
+  );
+  if (suggestionsContainer) {
+    suggestionsContainer.style.display = "none";
+  }
+
+  // Try to get coordinates from the place ID
+  getCoordinatesFromPlaceId(suggestion.placeId);
+}
+
+/**
+ * Get coordinates from Google Places using place ID
+ * @param {string} placeId - The Google Places place ID
+ */
+async function getCoordinatesFromPlaceId(placeId) {
+  try {
+    // This would require a separate API endpoint to get place details
+    // For now, we'll just clear the lat/lon fields so user can enter manually
+    const latInput = /** @type {HTMLInputElement} */ (
+      document.getElementById("ccLat")
+    );
+    const lonInput = /** @type {HTMLInputElement} */ (
+      document.getElementById("ccLon")
+    );
+
+    if (latInput && lonInput) {
+      latInput.value = "";
+      lonInput.value = "";
+      latInput.focus(); // Focus on lat input to guide user
+    }
+
+    console.log(
+      "Selected place ID:",
+      placeId,
+      "- Please enter coordinates manually"
+    );
+  } catch (error) {
+    console.error("Error getting coordinates:", error);
+  }
+}
+
 // DOM elements
 const loadingElement = document.getElementById("loading");
 const errorElement = document.getElementById("error");
@@ -56,8 +206,17 @@ const editForm = document.getElementById("editCCForm");
 /** @type {Array<{id: number, name: string, location: {lat: number, lon: number}, isAdmin?: boolean}>} */
 let currentCCs = [];
 let currentSortMode = "alphabetical";
+let currentSearchTerm = "";
 /** @type {{lat: number, lon: number} | null} */
 let userLocation = null;
+
+// Autocomplete state
+/** @type {Array<{name: string, placeId: string}>} */
+let autocompleteSuggestions = [];
+/** @type {ReturnType<typeof setTimeout> | null} */
+let autocompleteTimeoutId = null;
+/** @type {string | null} */
+let selectedPlaceId = null;
 
 // Initialize page
 document.addEventListener("DOMContentLoaded", () => {
@@ -116,13 +275,8 @@ async function loadCCs() {
     const ccs = await apiCall(apiUrl);
     currentCCs = ccs;
 
-    // Apply client-side sorting if needed
-    if (currentSortMode === "alphabetical") {
-      currentCCs.sort((a, b) => a.name.localeCompare(b.name));
-    }
-
     hideLoading();
-    renderCCs(currentCCs);
+    applyFiltersAndRender();
   } catch (error) {
     hideLoading();
     showError(/** @type {Error} */ (error).message);
@@ -172,6 +326,55 @@ function handleSortChange() {
 }
 
 /**
+ * Handle search input change
+ */
+function handleSearchInput() {
+  const searchInput = /** @type {HTMLInputElement} */ (
+    document.getElementById("searchInput")
+  );
+  if (!searchInput) return;
+
+  currentSearchTerm = searchInput.value.toLowerCase().trim();
+  applyFiltersAndRender();
+}
+
+/**
+ * Clear search input and show all results
+ */
+function clearSearch() {
+  const searchInput = /** @type {HTMLInputElement} */ (
+    document.getElementById("searchInput")
+  );
+  if (searchInput) {
+    searchInput.value = "";
+  }
+  currentSearchTerm = "";
+  applyFiltersAndRender();
+}
+
+/**
+ * Apply current search and sort filters and render the filtered results
+ */
+function applyFiltersAndRender() {
+  let filteredCCs = [...currentCCs];
+
+  // Apply search filter
+  if (currentSearchTerm) {
+    filteredCCs = filteredCCs.filter((cc) =>
+      cc.name.toLowerCase().includes(currentSearchTerm)
+    );
+  }
+
+  // Apply sorting
+  if (currentSortMode === "alphabetical") {
+    filteredCCs.sort((a, b) => a.name.localeCompare(b.name));
+  }
+  // Distance sorting is handled by the backend
+
+  renderCCs(filteredCCs);
+}
+
+/**
  * Render CCs list
  * @param {Array<{id: number, name: string, location: {lat: number, lon: number}, isAdmin?: boolean}>} ccs - Array of community centers
  */
@@ -179,10 +382,19 @@ function renderCCs(ccs) {
   if (!ccListElement) return;
 
   if (!ccs || ccs.length === 0) {
+    const emptyMessage = currentSearchTerm
+      ? `No community centers found matching "${currentSearchTerm}". Try a different search term.`
+      : "Be the first to add a community center to your area!";
+
     ccListElement.innerHTML = `
       <div class="empty-state">
         <h3>No Community Centers Found</h3>
-        <p>Be the first to add a community center to your area!</p>
+        <p>${emptyMessage}</p>
+        ${
+          currentSearchTerm
+            ? '<button class="clear-search-btn" onclick="clearSearch()">Clear Search</button>'
+            : ""
+        }
       </div>
     `;
     return;
@@ -463,3 +675,9 @@ window.openEditModal = openEditModal;
 window.closeEditModal = closeEditModal;
 window.deleteCC = deleteCC;
 window.handleSortChange = handleSortChange;
+window.handleSearchInput = handleSearchInput;
+window.clearSearch = clearSearch;
+window.handleNameAutocomplete = handleNameAutocomplete;
+window.hideAutocompleteSuggestions = hideAutocompleteSuggestions;
+window.showAutocompleteSuggestions = showAutocompleteSuggestions;
+window.selectSuggestion = selectSuggestion;

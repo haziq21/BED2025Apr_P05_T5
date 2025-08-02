@@ -57,7 +57,7 @@ async function verifyOTP() {
   if (res.ok) {
     localStorage.setItem("token", result.token);
     alert("Login successful!");
-    window.location.href = "index.html"; 
+    window.location.href = "/";
   } else {
     alert(result.error || "Invalid OTP");
   }
