@@ -43,7 +43,9 @@ export async function reviewApplication(ProposalId, Status) {
       SET Status = @Status,
       WHERE ProposalId = @ProposalId
       `);
-    return result.recordset[0];
+
+    const updatedApp = await getApplicationById(ProposalId);
+    return updatedApp.recordset[0];
   } catch (error) {
     console.error("Database error:", error);
     throw error;
