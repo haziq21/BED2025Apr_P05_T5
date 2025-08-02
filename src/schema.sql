@@ -79,7 +79,7 @@ CREATE TABLE InterestGroupProposals (
   ProposalId INT IDENTITY PRIMARY KEY,
   UserId INT NOT NULL REFERENCES Users,
   CCId INT NOT NULL REFERENCES CCs,
-  Name NVARCHAR(255) NOT NULL,
+  Title NVARCHAR(255) NOT NULL,
   Description NVARCHAR(MAX),
   Email NVARCHAR(255) NOT NULL,
   Status NVARCHAR(20) DEFAULT 'pending', -- pending, accepted, rejected

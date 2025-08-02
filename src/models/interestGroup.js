@@ -29,14 +29,14 @@ export async function fillApplication(UserId, details) {
     const result = await request.query(`
         INSERT INTO InterestGroupProposals (
           UserId, CCId, Title, Description, Email,
-          Status, SubmittedAt, UpdatedAt, Scope, MeetingFrequency,
+          Scope, MeetingFrequency,
           BudgetEstimateStart, BudgetEstimateEnd,
           AccessibilityConsideration, HealthSafetyPrecaution
         )
         OUTPUT INSERTED.*
         VALUES (
           @UserId, @CCId, @Title, @Description, @Email,
-          'pending', GETDATE(), GETDATE(), @Scope, @MeetingFrequency,
+          @Scope, @MeetingFrequency,
           @BudgetEstimateStart, @BudgetEstimateEnd,
           @AccessibilityConsideration, @HealthSafetyPrecaution
         )
