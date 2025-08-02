@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kampung Connect - Admin Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Gelasio:ital,wght@0,400..700;1,400..700&family=Libre+Franklin:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../global.css" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <nav class="topnav">
+      <a href="/">Home</a>
+      <a href="/ccs">Community Centers</a>
+      <a href="/Friends">Friends</a>
+      <a href="#Location">Location</a>
+      <a href="/medicationSchedule">Medication</a>
+      <a href="/profile">Profile</a>
+      <a href="/comment">Comments</a>
+      <a href="/calendar">Calendar</a>
+      <a href="/adminManagement" class="active">Admin Management</a>
+    </nav>
+
+    <div class="header">
+      <h1>Admin Management</h1>
+      <div class="actions">
+        <button class="refresh-btn" onclick="loadAdminCCs()">Refresh</button>
+        <button class="create-btn" onclick="openCreateModal()">+ Add CC</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="loading" id="loading">Loading your community centers...</div>
+      <div class="error" id="error" style="display: none"></div>
+      <div class="empty-state" id="emptyState" style="display: none">
+        <h3>No Community Centers Found</h3>
+        <p>You are not currently an admin of any community centers.</p>
+        <button class="create-btn" onclick="openCreateModal()">
+          Create Your First CC
+        </button>
+      </div>
+      <div class="cc-list" id="ccList"></div>
+    </div>
+
+    <!-- Create CC Modal -->
+    <div class="modal-overlay" id="createModalOverlay">
+      <div class="modal">
+        <h2>Add New Community Center</h2>
+        <form id="createCCForm">
+          <div class="form-group">
+            <label for="ccName">Name:</label>
+            <div class="autocomplete-container">
+              <input
+                type="text"
+                id="ccName"
+                name="name"
+                required
+                oninput="handleNameAutocomplete(this.value)"
+                onblur="hideAutocompleteSuggestions()"
+                onfocus="showAutocompleteSuggestions()"
+                autocomplete="off"
+              />
+              <div
+                id="autocompleteSuggestions"
+                class="autocomplete-suggestions"
+              ></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="ccLat">Latitude:</label>
+            <input type="number" id="ccLat" name="lat" step="any" required />
+          </div>
+          <div class="form-group">
+            <label for="ccLon">Longitude:</label>
+            <input type="number" id="ccLon" name="lon" step="any" required />
+          </div>
+          <div class="form-actions">
+            <button type="submit">Create</button>
+            <button type="button" onclick="closeCreateModal()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Edit CC Modal -->
+    <div class="modal-overlay" id="editModalOverlay">
+      <div class="modal">
+        <h2>Edit Community Center</h2>
+        <form id="editCCForm">
+          <input type="hidden" id="editCCId" />
+          <div class="form-group">
+            <label for="editCCName">Name:</label>
+            <input type="text" id="editCCName" name="name" required />
+          </div>
+          <div class="form-group">
+            <label for="editCCLat">Latitude:</label>
+            <input
+              type="number"
+              id="editCCLat"
+              name="lat"
+              step="any"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="editCCLon">Longitude:</label>
+            <input
+              type="number"
+              id="editCCLon"
+              name="lon"
+              step="any"
+              required
+            />
+          </div>
+          <div class="form-actions">
+            <button type="submit">Update</button>
+            <button type="button" onclick="closeEditModal()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Admins Modal -->
+    <div class="modal-overlay" id="adminsModalOverlay">
+      <div class="modal">
+        <h2>CC Administrators</h2>
+        <div id="adminsList"></div>
+        <div class="form-actions">
+          <button type="button" onclick="closeAdminsModal()">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="../global.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
