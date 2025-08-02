@@ -55,18 +55,18 @@ export async function getCCById(ccId) {
  * Retrieve all CCs.
  * - If `options.locationSort` is provided, the CCs will be sorted
  *   by distance from that point, and will include a `distance` field.
- * - If `options.adminFilter` is provided, only CCs where the specified
- *   user is an admin will be returned.
- * @param {{locationSort?: {lat: number, lon: number}?, adminFilter?: number?}} options
- * @returns {Promise<{id: number, name: string, location: {lat: number, lon:number}, distance?: number}[]>}
+ * - If `options.indicateAdmin` is provided, an `isAdmin` field will be added
+ *   indicating whether the specified user is an admin of each CC.
+ * @param {{locationSort?: {lat: number, lon: number}?, indicateAdmin?: number?}} options
+ * @returns {Promise<{id: number, name: string, location: {lat: number, lon:number}, distance?: number, isAdmin?: boolean}[]>}
  */
 export async function getAllCCs(options = {}) {
-  /** @type {sql.IResult<{CCId: number, Name: string, Lat: number, Lon: number, Distance?: number}>} */
+  /** @type {sql.IResult<{CCId: number, Name: string, Lat: number, Lon: number, Distance?: number, IsAdmin?: number}>} */
   const result = await pool
     .request()
     .input("lat", options?.locationSort?.lat)
     .input("lon", options?.locationSort?.lon)
-    .input("userId", options?.adminFilter)
+    .input("userId", options?.indicateAdmin)
     .query(
       `SELECT c.CCId, Name, Location.Lat AS Lat, Location.Long AS Lon
         ${
@@ -74,23 +74,29 @@ export async function getAllCCs(options = {}) {
             ? ", Location.STDistance(geography::Point(@lat, @lon, 4326)) AS Distance"
             : ""
         }
+        ${
+          options?.indicateAdmin
+            ? ", CASE WHEN ca.UserId IS NOT NULL THEN 1 ELSE 0 END AS IsAdmin"
+            : ""
+        }
       FROM CCs c
       ${
-        options?.adminFilter
-          ? "JOIN CCAdmins ca ON c.CCId = ca.CCId WHERE ca.UserId = @userId"
+        options?.indicateAdmin
+          ? "LEFT JOIN CCAdmins ca ON c.CCId = ca.CCId AND ca.UserId = @userId"
           : ""
       }
       ORDER BY ${options?.locationSort ? "Distance" : "Name"}`
     );
 
   return result.recordset.map((cc) => {
+    /** @type {{id: number, name: string, location: {lat: number, lon: number}, distance?: number, isAdmin?: boolean}} */
     const output = {
       id: cc.CCId,
       name: cc.Name,
       location: { lat: cc.Lat, lon: cc.Lon },
     };
-    // @ts-ignore
     if (cc.Distance) output.distance = cc.Distance;
+    if (options?.indicateAdmin !== undefined) output.isAdmin = cc.IsAdmin === 1;
     return output;
   });
 }
