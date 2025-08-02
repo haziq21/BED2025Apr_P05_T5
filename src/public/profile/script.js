@@ -61,6 +61,7 @@ async function loadProfile() {
     console.error("Error loading profile:", err);
     alert("Failed to load profile. Please login again.");
   }
+  // logout();
 }
 //  Enable Edit
 function enableEdit() {
