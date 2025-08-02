@@ -1,13 +1,24 @@
 const calendarGrid = document.querySelector(".calendar");
 const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+/**
+ * Fetches events for a specific month and year.
+ * @typedef {Object} CalendarEvent
+ * @property {string} title - The title of the event.
+ * @property {string} time - The time of the event (formatted string).
+ */
 
+/**
+ * @param {number} year The year to fetch events for.
+ * @param {number} month The month to fetch events for (0-indexed).
+ * @returns {Promise<{ [date: string]: CalendarEvent[] }>} A promise that resolves to an object where keys are date strings (YYYY-MM-DD) and values are arrays of CalendarEvent objects.
+ */
 export async function fetchEventsForMonth(year, month) {
   try {
     const token = localStorage.getItem("token");
 
     if (!token) {
       console.error("No JWT token found.");
-      window.location.href = "/login.html"; // Redirect to login if no token
+      window.location.href = "/login"; // Redirect to login if no token
       return {};
     }
 
@@ -21,12 +32,13 @@ export async function fetchEventsForMonth(year, month) {
     if (!response.ok) {
       if (response.status === 403 || response.status === 401) {
         console.error("Authentication failed. Redirecting to login.");
-        window.location.href = "/login.html";
+        window.location.href = "/login";
         return {};
       }
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
+    /** @type {any[]} */ // Assuming the initial response is an array of any type
     const events = await response.json();
 
     const currentMonthEvents = events.filter((event) => {
@@ -34,7 +46,8 @@ export async function fetchEventsForMonth(year, month) {
       return eventDate.getFullYear() === year && eventDate.getMonth() === month;
     });
 
-    const formattedEvents = {};
+    /** @type {{ [date: string]: CalendarEvent[] }} */ const formattedEvents =
+      {};
     currentMonthEvents.forEach((event) => {
       const eventDate = new Date(event.StartDateTime);
       const dateString = `${eventDate.getFullYear()}-${String(
@@ -59,6 +72,54 @@ export async function fetchEventsForMonth(year, month) {
   }
 }
 
+/**
+ * Checks the Google Calendar link status for the current user
+ * and updates the display of the link button.
+ */
+async function checkGoogleCalendarLinkStatusFrontend() {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("No JWT token found for checking Google link status.");
+      return;
+    }
+
+    const response = await fetch("/api/calendar/google/status", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      console.error(
+        "Error fetching Google link status:",
+        response.status,
+        response.statusText
+      );
+      return;
+    }
+
+    const data = await response.json();
+    const linkButton = document.getElementById("linkGoogleCalendar");
+    if (linkButton) {
+      if (data.isLinked) {
+        linkButton.style.display = "none";
+      } else {
+        linkButton.style.display = ""; // Or 'block' or your default display
+      }
+    }
+  } catch (error) {
+    console.error("Error in checkGoogleCalendarLinkStatusFrontend:", error);
+  }
+}
+
+/**
+ * Renders the calendar grid for a given month and year, displaying events.
+ * @param {number} year - The year to render the calendar for.
+ * @param {number} month - The month to render the calendar for (0-indexed).
+ * @param {Object<string, Array<{title: string, time: string}>>} events - An object containing events, where keys are date strings (YYYY-MM-DD) and values are arrays of event objects.
+ */
 export function renderCalendar(year, month, events) {
   const firstDayOfMonth = new Date(year, month, 1);
   const lastDayOfMonth = new Date(year, month + 1, 0);
@@ -71,8 +132,13 @@ export function renderCalendar(year, month, events) {
     return;
   }
 
+  // Remove existing day cells while keeping the day names
   while (calendarGrid.children.length > 7) {
-    calendarGrid.removeChild(calendarGrid.lastChild);
+    if (calendarGrid.lastChild) {
+      calendarGrid.removeChild(calendarGrid.lastChild);
+    } else {
+      break; // Should not happen if children.length > 7, but as a safeguard
+    }
   }
 
   for (let i = 0; i < startingDayOfWeek; i++) {
@@ -141,7 +207,7 @@ export async function StartGoogleAuth() {
       response.statusText
     );
     if (response.status === 401 || response.status === 403) {
-      window.location.href = "/login.html"; // Redirect if unauthorized/forbidden
+      window.location.href = "/login"; // Redirect if unauthorized/forbidden
     }
     return;
   }
@@ -172,4 +238,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (linkButton) {
     linkButton.addEventListener("click", StartGoogleAuth);
   }
+  // Check Google Calendar link status when the DOM is loaded
+  checkGoogleCalendarLinkStatusFrontend();
 });

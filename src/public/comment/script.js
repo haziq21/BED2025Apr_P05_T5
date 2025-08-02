@@ -60,6 +60,7 @@ function v(id) {
  */
 function editComment(id) {
   const postDiv = document.getElementById(`${id}`);
+
   if (!postDiv) return;
   // @ts-ignore
   //get the previous input
@@ -120,6 +121,7 @@ function editComment(id) {
  * @param {number} postId
  */
 function ViewComment(result, postId) {
+  // console.log(result.loginUser)
   const cmt = document.getElementById(`allComments-${postId}`);
   const postDiv = document.getElementById(`${postId}`);
   if (cmt) {
@@ -128,34 +130,75 @@ function ViewComment(result, postId) {
 
   if (!postDiv) return;
 
+  // postDiv.innerHTML += `
+  //   <div id="allComments-${postId}">
+  //       <div class="comments">
+  //           ${
+  //             // @ts-ignore
+  //             result
+  //               .map(
+  //                 (/** @type {{ UserName: any; Comment: any; }} */ c) =>
+  //                   `<p><strong>${c.UserName}:</strong> ${c.Comment}</p>`
+  //               )
+  //               .join("")
+  //           }
+  //       </div>
+  //       <div class="comment-box">
+  //               <textarea rows="2" placeholder="Leave a comment..." id="comment-${
+  //                 // @ts-ignore
+  //                 postId
+  //               }"></textarea>
+  //           <button onclick="addComment(${
+  //             // @ts-ignore
+  //             postId
+  //           })">Comment</button>
+  //       </div>
+  //   </div>
+  // `;
   postDiv.innerHTML += `
-    <div id="allComments-${postId}">
-        <div class="comments">
-            ${
-              // @ts-ignore
-              result
-                .map(
-                  (/** @type {{ UserName: any; Comment: any; }} */ c) =>
-                    `<p><strong>${c.UserName}:</strong> ${c.Comment}</p>`
-                )
-                .join("")
-            }
-        </div>
-        <div class="comment-box">
-                <textarea rows="2" placeholder="Leave a comment..." id="comment-${
-                  // @ts-ignore
-                  postId
-                }"></textarea>
-            <button onclick="addComment(${
-              // @ts-ignore
-              postId
-            })">Comment</button>
-        </div>
+  <div id="allComments-${postId}">
+    <div class="comments">
+      ${result
+        .map(
+          (c) =>
+            `
+    <div class="comment-row" id="${postId}">
+      <div class="comment-text" id="${c.PostId}">
+        <strong>${c.UserName}:</strong> ${c.Comment}
+      </div>
+      ${
+        c.loginUser
+          ? `<div class="comment-actions">
+              <button onclick="editComment(${c.PostId})">Edit</button>
+              <button onclick="deleteComment(${c.PostId})">Delete</button>
+            </div>`
+          : ""
+      }
     </div>
-  `;
+    `
+        )
 
-  // console.log(result.Comment);
+        .join("")}
+    </div>
+    <div class="comment-box">
+      <textarea rows="2" placeholder="Leave a comment..." id="comment-${postId}"></textarea>
+      <button onclick="addComment(${postId})">Comment</button>
+    </div>
+  </div>
+`;
 }
+
+
+/**
+ * @param {number} id
+ */
+function editReply(id){
+const commentTextDiv = document.getElementById(`commentText-${id}`);
+// @ts-ignore
+console.log(commentTextDiv.textContent); // prints the full comment text
+
+}
+
 
 //close the form
 function toggleModal() {
@@ -186,6 +229,7 @@ function submitPost() {
  * @param {number} postId
  */
 function addComment(postId) {
+  page = "all";
   const input = document.getElementById(`comment-${postId}`);
   console.log(input);
   // @ts-ignore
@@ -194,6 +238,7 @@ function addComment(postId) {
     const data = {
       Comment: text,
       ParentPostId: postId,
+      AnalysisStatus: "false",
     };
     // @ts-ignore
     input.value = "";
@@ -310,6 +355,7 @@ async function getOtherComment(postId) {
     );
     console.log("Get result:", result);
     // showToast("Reply Comments get successfully!");
+
     ViewComment(result, postId);
     // return result;
   } catch (error) {
@@ -398,19 +444,18 @@ async function commentSentiment() {
 }
 
 /**
- * @type {{ destroy: () => void; } | null}
+ * @type {{ destroy: () => void; data: { labels: any; datasets: { data: any; }[]; }; } | null}
  */
 let sentimentChartInstance = null;
+
 /**
- * @param {undefined} [sentimentCount]
+ * @param {any} sentimentCount
  */
 async function renderSentimentChart(sentimentCount) {
   // @ts-ignore
   const ctx = document.getElementById("sentimentChart").getContext("2d");
+  if (sentimentChartInstance) sentimentChartInstance.destroy();
 
-  if (sentimentChartInstance) {
-    sentimentChartInstance.destroy();
-  }
   // @ts-ignore
   sentimentChartInstance = new Chart(ctx, {
     type: "pie",
@@ -428,37 +473,50 @@ async function renderSentimentChart(sentimentCount) {
     options: {
       responsive: true,
       plugins: {
-        title: {
-          display: true,
-          text: "Sentiment Distribution",
-          font: {
-            size: 18,
-            weight: "bold",
-          },
-        },
+        title: { display: false },
         tooltip: {
           callbacks: {
-            label: function (
-              /** @type {{ label: string; parsed: number; chart: { _metasets: { [x: string]: { total: any; }; }; }; datasetIndex: string | number; }} */ context
-            ) {
-              let label = context.label || "";
-              let value = context.parsed || 0;
-              let total = context.chart._metasets[context.datasetIndex].total;
-              let percentage = ((value / total) * 100).toFixed(1);
-              return `${label}: ${value} (${percentage}%)`;
+            /**
+             * @param {{ parsed: any; chart: { _metasets: { [x: string]: { total: any; }; }; }; datasetIndex: string | number; label: any; }} context
+             */
+            label(context) {
+              const v = context.parsed;
+              const total = context.chart._metasets[context.datasetIndex].total;
+              const pct = ((v / total) * 100).toFixed(1);
+              return `${context.label}: ${v} (${pct}%)`;
             },
           },
         },
         legend: {
           position: "bottom",
-          labels: {
-            font: {
-              size: 14,
-            },
-          },
+          labels: { font: { size: 14 } },
         },
       },
     },
   });
+
+  // @ts-ignore
+  const labels = sentimentChartInstance.data.labels;
+  // @ts-ignore
+  const data = sentimentChartInstance.data.datasets[0].data;
+  const maxIdx = data.indexOf(Math.max(...data));
+  const mood = labels[maxIdx].toLowerCase();
+
+  const descriptions = {
+    positive: "happy and constructive",
+    neutral: "balanced and calm",
+    negative: "concerned and critical",
+  };
+
+  const summaryEl = document.getElementById("sentimentSummary");
+  if (summaryEl) {
+    summaryEl.textContent =
+      // @ts-ignore
+      `Overall, our KampungConnect community feels ${
+        // @ts-ignore
+        descriptions[mood] || mood
+      }.`;
+  }
 }
+
 commentSentiment();

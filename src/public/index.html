@@ -16,13 +16,14 @@
 
   <body>
     <nav class="topnav">
-      <a href="index.html">Home</a>
+      <a href="/">Home</a>
+      <a href="/ccs">Community Centers</a>
       <a href="#Events">Events</a>
       <a href="#Location">Location</a>
-      <a href="medicationSchedule/medication.html">Medication</a>
-      <a href="comment/comment.html">Comments</a>
-      <a href="calendar/calendar.html">Calendar</a>
-      <a href="profile/profile.html">Profile</a>
+      <a href="/medicationSchedule">Medication</a>
+      <a href="/profile">Profile</a>
+      <a href="/comment">Comments</a>
+      <a href="/calendar">Calendar</a>
     </nav>
     <h1 id="welcomeMsg"></h1>
 
@@ -30,9 +31,14 @@
     <div id="completeProfilePopup" class="popup-overlay">
       <div class="popup-content">
         <h2>Finish Setting Up Your Profile</h2>
-        <p>Looks like you haven’t added your bio or profile picture yet. Complete it now to get the full experience!</p>
+        <p>
+          Looks like you haven’t added your bio or profile picture yet. Complete
+          it now to get the full experience!
+        </p>
         <div class="popup-buttons">
-          <button onclick="window.location.href='profile/profile.html'">Complete Now</button>
+          <button onclick="window.location.href='/profile'">
+            Complete Now
+          </button>
           <button id="closeCompleteProfile">Maybe Later</button>
         </div>
       </div>
@@ -63,6 +69,6 @@
     <p>&copy; 2025 Kampung Connect Website. All rights reserved.</p>
   </footer>
     <script src="global.js"></script>
-    <script src="homepage.js"></script>
+    <script src="script.js"></script>
   </body>
 </html>

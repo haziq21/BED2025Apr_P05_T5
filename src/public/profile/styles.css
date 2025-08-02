@@ -1,0 +1,244 @@
+body {
+  font-family: "Gelasio", Georgia, serif;
+  background: #f9f8f5;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+.profile-heading {
+  text-align: center;
+  margin: 40px auto 20px;
+}
+
+.profile-heading h1 {
+  font-size: 42px;
+  font-weight: bold;
+  margin: 0;
+  color: #2b2b2b;
+  letter-spacing: 1px;
+}
+
+.profile-card {
+  max-width: 540px;
+  margin: 40px auto;
+  background: #ffffff;
+  border: 1px solid #e0dbc9;
+  border-radius: 12px;
+  padding: 40px 35px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  text-align: center;
+}
+
+.profile-photo-wrapper {
+  margin-bottom: 25px;
+}
+
+.profile-photo {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: #f0ebe4;
+  border: 3px solid #a89372;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 38px;
+  color: #444;
+  overflow: hidden;
+  position: relative;
+  margin: 0 auto 15px;
+}
+
+.profile-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.profile-photo span {
+  z-index: 1;
+}
+
+.btn {
+  display: inline-block;
+  margin: 6px 5px;
+  padding: 10px 28px;
+  background: #a89372;
+  color: #fff;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.btn:hover {
+  background: #937c5c;
+  transform: translateY(-2px);
+}
+
+.delete-btn {
+  background: #e14d4d;
+}
+
+.delete-btn:hover {
+  background: #c63d3d;
+}
+
+.profile-details {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 25px;
+  text-align: left;
+}
+
+.profile-details label {
+  font-weight: bold;
+  font-size: 17px;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.profile-details input {
+  padding: 12px 16px;
+  font-size: 17px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #f5f5f5;
+  transition: background 0.3s ease, border 0.3s ease;
+}
+
+.profile-details input:focus,
+.profile-details input:read-write {
+  background: #ffffff;
+  border-color: #a89372;
+  outline: none;
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 30px;
+}
+.buttons button {
+  background: #a89372;
+  border: none;
+  color: #fff;
+  padding: 10px 28px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.buttons button:hover {
+  background: #937c5c;
+  transform: translateY(-2px);
+}
+
+.buttons .delete-btn {
+  background: #e14d4d;
+}
+
+.buttons .delete-btn:hover {
+  background: #c63d3d;
+}
+#linkGoogleCalendar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  background: #a89372; /* Warm brown */
+  color: #fff;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: background 0.3s ease, transform 0.2s ease;
+  float: right; /* Align to right */
+  margin: 30px 40px 0 0; /* Top, right, bottom, left */
+}
+
+#linkGoogleCalendar:hover {
+  background: #937c5c;
+  transform: translateY(-2px);
+}
+@media (max-width: 768px) {
+  .profile-card {
+    margin: 30px 20px;
+    padding: 30px 20px;
+  }
+
+  .profile-heading h1 {
+    font-size: 32px;
+  }
+
+  .profile-photo {
+    width: 120px;
+    height: 120px;
+    font-size: 32px;
+  }
+
+  .btn, 
+  .buttons button {
+    width: 100%;
+    padding: 12px 0;
+    font-size: 15px;
+  }
+
+  .buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .profile-details input {
+    font-size: 16px;
+    padding: 10px 14px;
+  }
+
+  .profile-details label {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-heading h1 {
+    font-size: 26px;
+  }
+
+  .profile-photo {
+    width: 100px;
+    height: 100px;
+    font-size: 28px;
+  }
+
+  .profile-card {
+    margin: 20px 15px;
+    padding: 25px 15px;
+  }
+
+  .profile-details input {
+    font-size: 15px;
+    padding: 10px 12px;
+  }
+
+  .profile-details label {
+    font-size: 15px;
+  }
+
+  .btn, 
+  .buttons button {
+    font-size: 14px;
+  }
+}

@@ -1,4 +1,3 @@
-import { sentiment } from "../controllers/sentiment.js";
 import * as comment from "../models/comment.js";
 
 const twinwordApiKey = process.env.TWINWORD_API;
@@ -17,7 +16,8 @@ export async function getCommentAndAnalyze() {
       negative: 0,
     };
 
-    const result = await comment.getComment();
+    const result = await comment.getSentimentComment();
+    
     for (const post of result) {
       if (post.AnalysisStatus === "false") {
         const commentText = post.Comment;
@@ -58,6 +58,7 @@ export async function getCommentAndAnalyze() {
           AnalysisStatus: "true",
           SentimentType : sentiment.type
         };
+        //update the sentiment type and stauts
         await comment.updateComment(post.UserId, data);
       }
       // @ts-ignore

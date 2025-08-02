@@ -272,7 +272,7 @@ INSERT INTO CCEventRegistrations (EventId, UserId) VALUES
 ((SELECT EventId FROM CCEvents WHERE Name = 'Beach Cleanup & Picnic'), (SELECT UserId FROM Users WHERE Name = 'Vanessa Lee'));
 
 INSERT INTO InterestGroupProposals (
-  UserId, CCId, Name, Description, Email, Scope, MeetingFrequency,
+  UserId, CCId, Title, Description, Email, Scope, MeetingFrequency,
   BudgetEstimateStart, BudgetEstimateEnd, AccessibilityConsideration, HealthSafetyPrecaution
 )
 VALUES

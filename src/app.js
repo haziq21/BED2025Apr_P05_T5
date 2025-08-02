@@ -17,11 +17,17 @@ import { sentiment } from "./controllers/sentiment.js";
 import { getOAuthClient, getAuthUrl } from "./utils/googleAuth.js";
 import * as googleCalendar from "./controllers/googleCalendar.js";
 import * as map from "./controllers/map.js";
-import * as interestGroupController from "./controllers/interestGroupController.js";
+import * as interestGroupUserController from "./controllers/interestGroupUserController.js";
+import * as interestGroupAdminController from "./controllers/interestGroupAdminController.js";
 
 import pool from "./db.js";
 const PORT = process.env.PORT || 3000;
 const app = express();
+// Middleware to log incoming requests
+app.use((req, res, next) => {
+  console.log("Incoming Request:", req.method, req.url);
+  next();
+});
 app.use(express.json());
 
 app.use("/uploads", express.static("uploads"));
@@ -118,6 +124,7 @@ app.post("/api/friends/:friendId", verifyJWT, friends.sendFriendRequest);
 app.delete("/api/friends/:friendId", verifyJWT, friends.deleteFriend);
 
 // Events management
+app.get("/api/events/registered", verifyJWT, events.getEventsByUserId);
 app.get("/api/events/:eventId", verifyJWT, events.getEventById);
 app.put("/api/events/:eventId", verifyJWT, events.updateEvent);
 app.get(
@@ -130,7 +137,6 @@ app.get(
   verifyJWT,
   events.getMutualRegistrations
 );
-app.get("/api/events/registered", verifyJWT, events.getEventsByUserId);
 app.get("/api/events/cc/:CCId", verifyJWT, events.getEventsByCCId);
 app.post("/api/events/:eventId/register", verifyJWT, events.registerForEvent);
 app.post("/api/events/create", verifyJWT, events.createEvent);
@@ -149,6 +155,7 @@ app.get("/api/map/shared-with-me", verifyJWT, map.getSharedLocations);
 app.put("/api/map/shared-with-me/:userId", verifyJWT, map.acceptShareRequest);
 app.post("/api/map/shared-by-me/:userId", verifyJWT, map.shareLocation);
 app.delete("/api/map/shared-by-me/:userId", verifyJWT, map.revokeShare);
+app.get("/api/map/autocomplete", verifyJWT, map.getAutocompleteSuggestions);
 
 // Google Calendar Integration
 app.get(
@@ -162,15 +169,52 @@ app.post(
   verifyJWT,
   googleCalendar.addCalendarEvent
 );
+app.get(
+  "/api/calendar/google/status",
+  verifyJWT,
+  googleCalendar.checkGoogleCalendarLinkStatus
+);
 
 reminderCron.getDates();
 app.get("/api/sentiment", sentiment);
 
-// Interest Group Application
+// Interest Group Application (USER SIDE)
 app.post(
+  "/api/interestGroupUser",
+  verifyJWT,
+  interestGroupUserController.fillApplication
+);
+app.get(
   "/api/interestGroup",
   verifyJWT,
-  interestGroupController.fillApplication
+  interestGroupUserController.getApplications
+);
+app.put(
+  "/api/interestGroupUser/:ProposalId",
+  verifyJWT,
+  interestGroupUserController.updateApplication
+);
+app.delete(
+  "/api/interestGroupUser/:ProposalId",
+  verifyJWT,
+  interestGroupUserController.deleteApplication
+);
+
+// Interest Group Application (ADMIN SIDE)
+app.get(
+  "/api/interestGroupAdmin/:CCId",
+  verifyJWT,
+  interestGroupAdminController.getPendingApplicationsByCC
+);
+app.put(
+  "/api/interestGroupAdmin/:ProposalId",
+  verifyJWT,
+  interestGroupAdminController.reviewApplication
+);
+app.get(
+  "/api/interestGroupAdmin/:ProposalId",
+  verifyJWT,
+  interestGroupAdminController.getApplicationById
 );
 
 // This must come after all the routes
