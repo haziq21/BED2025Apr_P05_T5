@@ -19,7 +19,7 @@ import * as googleCalendar from "./controllers/googleCalendar.js";
 import * as map from "./controllers/map.js";
 import * as interestGroupUserController from "./controllers/interestGroupUserController.js";
 import * as interestGroupAdminController from "./controllers/interestGroupAdminController.js";
-//import { oAuth2Client } from "./utils/oauthClient.js";
+import * as gmailController from "./controllers/gmailController.js";
 
 import pool from "./db.js";
 const PORT = process.env.PORT || 3000;
@@ -33,25 +33,6 @@ app.use(express.json());
 
 app.use("/uploads", express.static("uploads"));
 app.use(express.static("src/public"));
-
-// Gmail OAuth Routes
-app.get("/auth/google/gmail", (req, res) => {
-  const authUrl = oAuth2Client.generateAuthUrl({
-    scope: ["https://www.googleapis.com/auth/gmail.send"],
-  });
-  res.redirect(authUrl);
-});
-
-app.get("/auth/gmail/callback", async (req, res) => {
-  const { code } = req.query;
-  try {
-    const { tokens } = await oAuth2Client.getToken(code);
-    oAuth2Client.setCredentials(tokens);
-    res.redirect("/");
-  } catch (error) {
-    res.status(500).send("Gmail OAuth failed");
-  }
-});
 
 // Authentication
 app.post("/api/auth/otp", auth.sendOTP);
@@ -177,27 +158,6 @@ app.post("/api/map/shared-by-me/:userId", verifyJWT, map.shareLocation);
 app.delete("/api/map/shared-by-me/:userId", verifyJWT, map.revokeShare);
 app.get("/api/map/autocomplete", verifyJWT, map.getAutocompleteSuggestions);
 
-// Google Calendar Integration
-app.get(
-  "/api/calendar/google/auth/url",
-  verifyJWT,
-  googleCalendar.redirectToGoogleOAuth
-);
-app.get("/auth/google/callback", googleCalendar.oauthCallback);
-app.post(
-  "/api/googleCalendar/events",
-  verifyJWT,
-  googleCalendar.addCalendarEvent
-);
-app.get(
-  "/api/calendar/google/status",
-  verifyJWT,
-  googleCalendar.checkGoogleCalendarLinkStatus
-);
-
-reminderCron.getDates();
-app.get("/api/sentiment", sentiment);
-
 // Interest Group Application (USER SIDE)
 app.post(
   "/api/interestGroupUser",
@@ -236,6 +196,35 @@ app.get(
   verifyJWT,
   interestGroupAdminController.getApplicationById
 );
+
+// Google Calendar Integration
+app.get(
+  "/api/calendar/google/auth/url",
+  verifyJWT,
+  googleCalendar.redirectToGoogleOAuth
+);
+app.get("/auth/google/callback", googleCalendar.oauthCallback);
+app.post(
+  "/api/googleCalendar/events",
+  verifyJWT,
+  googleCalendar.addCalendarEvent
+);
+app.get(
+  "/api/calendar/google/status",
+  verifyJWT,
+  googleCalendar.checkGoogleCalendarLinkStatus
+);
+// Gmail Routes
+app.get("/api/gmail/auth", verifyJWT, gmailController.redirectToGoogleOAuth);
+app.get("/api/gmail/callback", gmailController.oauthCallback);
+app.post(
+  "/api/gmail/send-approval",
+  verifyJWT,
+  gmailController.sendApprovalEmail
+);
+
+reminderCron.getDates();
+app.get("/api/sentiment", sentiment);
 
 // This must come after all the routes
 app.use(errorHandler);
