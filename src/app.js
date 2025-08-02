@@ -158,27 +158,6 @@ app.post("/api/map/shared-by-me/:userId", verifyJWT, map.shareLocation);
 app.delete("/api/map/shared-by-me/:userId", verifyJWT, map.revokeShare);
 app.get("/api/map/autocomplete", verifyJWT, map.getAutocompleteSuggestions);
 
-// Google Calendar Integration
-app.get(
-  "/api/calendar/google/auth/url",
-  verifyJWT,
-  googleCalendar.redirectToGoogleOAuth
-);
-app.get("/auth/google/callback", googleCalendar.oauthCallback);
-app.post(
-  "/api/googleCalendar/events",
-  verifyJWT,
-  googleCalendar.addCalendarEvent
-);
-app.get(
-  "/api/calendar/google/status",
-  verifyJWT,
-  googleCalendar.checkGoogleCalendarLinkStatus
-);
-
-reminderCron.getDates();
-app.get("/api/sentiment", sentiment);
-
 // Interest Group Application (USER SIDE)
 app.post(
   "/api/interestGroupUser",
@@ -217,6 +196,35 @@ app.get(
   verifyJWT,
   interestGroupAdminController.getApplicationById
 );
+
+// Google Calendar Integration
+app.get(
+  "/api/calendar/google/auth/url",
+  verifyJWT,
+  googleCalendar.redirectToGoogleOAuth
+);
+app.get("/auth/google/callback", googleCalendar.oauthCallback);
+app.post(
+  "/api/googleCalendar/events",
+  verifyJWT,
+  googleCalendar.addCalendarEvent
+);
+app.get(
+  "/api/calendar/google/status",
+  verifyJWT,
+  googleCalendar.checkGoogleCalendarLinkStatus
+);
+// Gmail Routes
+app.get("/api/gmail/auth", verifyJWT, gmailController.redirectToGoogleOAuth);
+app.get("/api/gmail/callback", gmailController.oauthCallback);
+app.post(
+  "/api/gmail/send-approval",
+  verifyJWT,
+  gmailController.sendApprovalEmail
+);
+
+reminderCron.getDates();
+app.get("/api/sentiment", sentiment);
 
 // This must come after all the routes
 app.use(errorHandler);

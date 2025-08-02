@@ -16,6 +16,7 @@ import { saveGoogleTokens } from "../models/googleAuth.js";
  * @returns {Promise<void>} Resolves when email is sent.
  * @throws {Error} If Gmail API fails.
  */
+
 export async function sendApprovalEmail(recipient, title, isApproved) {
   if (!recipient || !title) {
     throw new Error("Missing required fields: recipient or title");

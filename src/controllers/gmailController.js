@@ -8,7 +8,8 @@ const oauthStates = {};
 function generateUniqueId() {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);
 }
-/** Redirect user to Google OAuth
+
+/** Redirect user to Google OAuth (Koh Hau's code)
  * @typedef {import('express').Request & { userId?: any }} AuthenticatedRequest
  * @param {AuthenticatedRequest} req
  * @param {import("express").Response} res
@@ -42,7 +43,7 @@ export function redirectToGoogleOAuth(req, res) {
   res.json({ authUrl: authUrl });
 }
 
-/** Handle callback from Google OAuth
+/** Handle callback from Google OAuth (Koh Hau's code)
  * @param {AuthenticatedRequest} req
  * @param {import("express").Response} res
  * @returns {Promise<void>}
@@ -89,4 +90,35 @@ export async function oauthCallback(req, res) {
   await model.saveGoogleTokens(Number(userId), tokens);
   console.log(`Successfully saved Google tokens for userId: ${userId}`); // Log for debugging
   res.redirect(returnUrl);
+}
+
+/**
+ * Send approval email and update application status
+ * @param {AuthenticatedRequest} req
+ * @param {import("express").Response} res
+ */
+export async function sendApprovalEmail(req, res) {
+  try {
+    const { ProposalId, Status } = req.body;
+    const userId = req.userId;
+
+    // 1. Get application data
+    const application = await model.getApplicationById(ProposalId);
+    if (!application) throw new Error("Application not found");
+
+    // 2. Update status
+    await model.reviewApplication(ProposalId, Status);
+
+    // 3. Send email (using existing gmailService)
+    await gmailService.sendApprovalEmail(
+      application.recordset[0].UserEmail, // Adjust field names as needed
+      application.recordset[0].Title,
+      Status === "approved"
+    );
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Email sending failed:", error);
+    res.status(500).json({ error });
+  }
 }
