@@ -6,11 +6,7 @@ const token3 = localStorage.getItem("token");
 // Redirect if no token
 if (!token3) {
   alert("You are not logged in.");
-<<<<<<<< HEAD:src/public/profile/profile.js
-  window.location.href = "../login/login.html";
-========
   window.location.href = "/login";
->>>>>>>> 72d207a0b83cb08c6d299f97b42e707b5f6d9288:src/public/profile/script.js
 }
 // Get DOM elements
 const nameInput = document.getElementById("Name");
@@ -226,12 +222,8 @@ function logout() {
   localStorage.removeItem("token");
   localStorage.removeItem("userId");
   localStorage.setItem("profilePopupCount", "0");
-<<<<<<<< HEAD:src/public/profile/profile.js
-  window.location.href = "../login/login.html";
-========
   localStorage.setItem("profilePopupCount", "0");
   window.location.href = "/login";
->>>>>>>> 72d207a0b83cb08c6d299f97b42e707b5f6d9288:src/public/profile/script.js
 }
 
 loadProfile();
