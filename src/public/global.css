@@ -100,3 +100,74 @@ h6 {
   text-align: center;
   color: #333;
 }
+
+
+/* general -- Footer styles */
+footer {
+    background-color: #F2EFE7;
+    color: rgb(0, 0, 0);
+    padding: 20px;
+    text-align: center;
+}
+  
+footer .footer-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+  
+footer .footer-logo {
+    text-align: center;
+}
+  
+footer .footer-logo img {
+    width: 80px;
+    height: auto;
+    margin-bottom: 10px;
+    border-radius: 50%;
+}
+  
+footer .footer-logo p {
+    margin: 0;
+}
+  
+footer .social-media {
+    text-align: center;
+}
+  
+footer .social-media p {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+  
+footer .social-media a {
+    color: rgb(0, 0, 0);
+    text-decoration: none;
+    font-size: 35px;
+    margin: 0 10px;
+}
+  
+footer .social-media a:hover {
+    color: rgb(0, 0, 0, 0.635);
+} 
+  
+footer .copyright {
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+/* Responsive tweak */
+@media (max-width: 480px) {
+  .footer-links, .footer-social {
+    display: block;
+    margin: 8px 0;
+  }
+
+  .footer-links a,
+  .footer-social a {
+    display: inline-block;
+    margin: 4px 6px;
+  }
+}

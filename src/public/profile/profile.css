@@ -5,7 +5,6 @@ body {
   margin: 0;
   padding: 0;
 }
-
 .profile-heading {
   text-align: center;
   margin: 40px auto 20px;
@@ -152,4 +151,94 @@ body {
 
 .buttons .delete-btn:hover {
   background: #c63d3d;
+}
+#linkGoogleCalendar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  background: #a89372; /* Warm brown */
+  color: #fff;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: background 0.3s ease, transform 0.2s ease;
+  float: right; /* Align to right */
+  margin: 30px 40px 0 0; /* Top, right, bottom, left */
+}
+
+#linkGoogleCalendar:hover {
+  background: #937c5c;
+  transform: translateY(-2px);
+}
+@media (max-width: 768px) {
+  .profile-card {
+    margin: 30px 20px;
+    padding: 30px 20px;
+  }
+
+  .profile-heading h1 {
+    font-size: 32px;
+  }
+
+  .profile-photo {
+    width: 120px;
+    height: 120px;
+    font-size: 32px;
+  }
+
+  .btn, 
+  .buttons button {
+    width: 100%;
+    padding: 12px 0;
+    font-size: 15px;
+  }
+
+  .buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .profile-details input {
+    font-size: 16px;
+    padding: 10px 14px;
+  }
+
+  .profile-details label {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-heading h1 {
+    font-size: 26px;
+  }
+
+  .profile-photo {
+    width: 100px;
+    height: 100px;
+    font-size: 28px;
+  }
+
+  .profile-card {
+    margin: 20px 15px;
+    padding: 25px 15px;
+  }
+
+  .profile-details input {
+    font-size: 15px;
+    padding: 10px 12px;
+  }
+
+  .profile-details label {
+    font-size: 15px;
+  }
+
+  .btn, 
+  .buttons button {
+    font-size: 14px;
+  }
 }

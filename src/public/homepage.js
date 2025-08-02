@@ -3,7 +3,7 @@ const token4 = localStorage.getItem("token");
 
 if (!token4) {
   alert("You are not logged in. Please login first.");
-  window.location.href = "login.html";
+  window.location.href = "../login/login.html";
 } else {
   loadHomepageUser();
 }
@@ -30,7 +30,7 @@ async function loadHomepageUser() {
     console.error(err);
     alert("Session expired or invalid. Please login again.");
     localStorage.removeItem("token");
-    window.location.href = "login.html";
+    window.location.href = "../login/login.html";
   }
 }
 window.addEventListener("DOMContentLoaded", () => {
