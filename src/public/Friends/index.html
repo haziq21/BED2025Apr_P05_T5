@@ -20,22 +20,34 @@
       <a href="/friends" class="active">Friends</a>
       <a href="#Location">Location</a>
       <a href="../medicationSchedule/medication.html">Medication</a>
-      <a href="../profile.html">Profile</a>
+      <a href="../profile">Profile</a>
       <a href="../comment/comment.html">Comments</a>
       <a href="/calendar">Calendar</a>
     </nav>
-
-    <div class="search-container">
-      <input
-        type="text"
-        id="friend-search-input"
-        placeholder="Search for users..."
-        onkeyup="searchFriends()"
-      />
+    <div class="middle-div">
+      <div class="search-dropdown-wrapper">
+        <input
+          type="text"
+          id="friend-search-input"
+          placeholder="Search for users..."
+        />
+        <div id="user-search-results"></div>
+      </div>
+      <section class="friends-list">
+        <h1>Your Friends</h1>
+        <ul id="friends-container"></ul>
+        <div id="user-search-results"></div>
+        <div class="popup-content">
+          <h2 id="popup-username">Username</h2>
+          <div id="pfp-div">
+            <img src="../../uploads/default.jpg" alt="image" />
+          </div>
+          <p id="popup-bio">Bio</p>
+          <button id="toggle-friend-btn">Send friend request</button>
+        </div>
+      </section>
     </div>
-    <section class="friends-list">
-      <h1>Your Friends</h1>
-      <ul id="friends-container"></ul>
-    </section>
+    <script type="module" src="../global.js"></script>
+    <script type="module" src="script.js"></script>
   </body>
 </html>

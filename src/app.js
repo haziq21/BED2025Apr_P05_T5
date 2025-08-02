@@ -19,7 +19,7 @@ import * as googleCalendar from "./controllers/googleCalendar.js";
 import * as map from "./controllers/map.js";
 import * as interestGroupUserController from "./controllers/interestGroupUserController.js";
 import * as interestGroupAdminController from "./controllers/interestGroupAdminController.js";
-import { oAuth2Client } from "./utils/oauthClient.js";
+//import { oAuth2Client } from "./utils/oauthClient.js";
 
 import pool from "./db.js";
 const PORT = process.env.PORT || 3000;

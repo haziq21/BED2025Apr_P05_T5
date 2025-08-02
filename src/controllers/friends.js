@@ -94,7 +94,7 @@ export async function getPendingFriendRequests(req, res) {
  * @type {import("express").RequestHandler}
  */
 export async function searchUsers(req, res) {
-  const query = req.query.q;
+  const query = req.query.query;
   if (typeof query !== "string") {
     res.status(400).json({ error: "Invalid search query" });
     return;

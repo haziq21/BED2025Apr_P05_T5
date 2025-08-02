@@ -1,5 +1,5 @@
 import * as model from "../models/interestGroupAdmin.js";
-import { sendApprovalEmail } from "../services/gmailService.js";
+//import { sendApprovalEmail } from "../services/gmailService.js";
 
 // ADMIN FUNCTIONS
 
