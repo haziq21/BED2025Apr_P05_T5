@@ -13,9 +13,10 @@ import * as medicalRecordsController from "./controllers/medicalRecordsControlle
 import * as mediSchedule from "./controllers/medicationSchedule.js";
 import * as mediValidate from "./middleware/medicationScheduleValidation.js";
 import * as reminderCron from "./cron/reminderCron.js";
-import { sentiment } from "./controllers/sentiment.js"
+import { sentiment } from "./controllers/sentiment.js";
 import { getOAuthClient, getAuthUrl } from "./utils/googleAuth.js";
 import * as map from "./controllers/map.js";
+import * as interestGroupController from "./controllers/interestGroupController.js";
 
 import pool from "./db.js";
 import { oauthCallback } from "./controllers/googleCalendar.js";
@@ -158,9 +159,14 @@ app.get("/auth/google", (req, res) => {
 app.get("/auth/google/callback", oauthCallback);
 
 reminderCron.getDates();
-app.get('/api/sentiment', sentiment);
+app.get("/api/sentiment", sentiment);
 
-
+// Interest Group Application
+app.post(
+  "/api/interestGroup",
+  verifyJWT,
+  interestGroupController.fillApplication
+);
 
 // This must come after all the routes
 app.use(errorHandler);
