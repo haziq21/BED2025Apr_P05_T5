@@ -19,7 +19,7 @@ import * as googleCalendar from "./controllers/googleCalendar.js";
 import * as map from "./controllers/map.js";
 import * as interestGroupUserController from "./controllers/interestGroupUserController.js";
 import * as interestGroupAdminController from "./controllers/interestGroupAdminController.js";
-import { oAuth2Client } from "./utils/oauthClient.js";
+import * as gmailController from "./controllers/gmailController.js";
 
 import pool from "./db.js";
 const PORT = process.env.PORT || 3000;
@@ -33,25 +33,6 @@ app.use(express.json());
 
 app.use("/uploads", express.static("uploads"));
 app.use(express.static("src/public"));
-
-// Gmail OAuth Routes
-app.get("/auth/google/gmail", (req, res) => {
-  const authUrl = oAuth2Client.generateAuthUrl({
-    scope: ["https://www.googleapis.com/auth/gmail.send"],
-  });
-  res.redirect(authUrl);
-});
-
-app.get("/auth/gmail/callback", async (req, res) => {
-  const { code } = req.query;
-  try {
-    const { tokens } = await oAuth2Client.getToken(code);
-    oAuth2Client.setCredentials(tokens);
-    res.redirect("/");
-  } catch (error) {
-    res.status(500).send("Gmail OAuth failed");
-  }
-});
 
 // Authentication
 app.post("/api/auth/otp", auth.sendOTP);

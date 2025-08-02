@@ -1,13 +1,12 @@
+import { google } from "googleapis";
+import { getOAuthClient } from "../utils/googleAuth.js";
+import { saveGoogleTokens } from "../models/googleAuth.js";
+
 /**
  * Service for sending emails via Gmail API.
  * @module services/gmailService
  * @requires googleapis
- * @requires ../utils/oauthClient
  */
-
-const { google } = require("googleapis");
-import { oAuth2Client } from "../utils/oauthClient.js";
-import { OAuth2Client } from "google-auth-library";
 
 /**
  * Sends an approval/rejection email via Gmail API.
@@ -24,7 +23,8 @@ export async function sendApprovalEmail(recipient, title, isApproved) {
 
   try {
     // Initialize Gmail API client
-    const gmail = google.gmail({ version: "v1", auth: oAuth2Client });
+    // @ts-ignore
+    const gmail = google.gmail({ version: "v1", auth: getOAuthClient });
 
     // Email content
     const subject = isApproved
@@ -58,5 +58,3 @@ export async function sendApprovalEmail(recipient, title, isApproved) {
     throw new Error(`Email failed`);
   }
 }
-
-module.exports = { sendApprovalEmail };
