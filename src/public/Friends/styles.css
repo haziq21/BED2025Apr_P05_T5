@@ -1,0 +1,46 @@
+/* Ensure consistent body padding and background as global.css */
+body {
+  padding-top: 60px; /* Adjust based on your topnav height */
+  background-color: #f4f4f4; /* Example background, consistent with global */
+  font-family: "Libre Franklin", sans-serif; /* Consistent font */
+  color: #333; /* Consistent text color */
+}
+
+.friends-list {
+  max-width: 800px; /* Limit width for readability */
+  margin: 20px auto; /* Center the section and add vertical spacing */
+  padding: 20px;
+  background-color: #fff; /* White background for the section */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.friends-list h1 {
+  font-family: "Gelasio", serif; /* Consistent heading font */
+  color: #0056b3; /* Consistent heading color */
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+#friends-container {
+  list-style: none; /* Remove default list bullets */
+  padding: 0;
+  margin: 0;
+}
+
+#friends-container li {
+  background-color: #e9ecef; /* Light background for list items */
+  border: 1px solid #ccc; /* Border around list items */
+  margin-bottom: 10px; /* Space between list items */
+  padding: 10px 15px; /* Padding inside list items */
+  border-radius: 4px; /* Rounded corners for list items */
+  font-size: 1rem; /* Standard font size */
+  line-height: 1.5; /* Good line spacing */
+  color: #555; /* Slightly darker text for items */
+}
+
+/* Optional: Hover effect for list items */
+#friends-container li:hover {
+  background-color: #dee2e6;
+  cursor: pointer; /* Indicate clickable items if applicable */
+}
