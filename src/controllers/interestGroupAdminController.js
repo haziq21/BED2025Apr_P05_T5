@@ -1,5 +1,5 @@
 import * as model from "../models/interestGroupAdmin.js";
-// import { sendEmail } from "../service/gmailService.js";
+import { sendApprovalEmail } from "../services/gmailService.js";
 
 // ADMIN FUNCTIONS
 
@@ -46,21 +46,28 @@ export async function getPendingApplicationsByCC(req, res, next) {
 export async function reviewApplication(req, res, next) {
   try {
     const proposalId = parseInt(req.params.ProposalId);
-    const Status = req.body; // will either be 'accepted' or 'rejected'
+    const status = req.body.Status; // will either be "accepted" or "rejected"
 
     if (isNaN(proposalId)) {
       res.status(400).json({ error: "Invalid Proposal ID" });
       return;
     }
 
-    const application = await model.reviewApplication(proposalId, Status);
-
+    // 1. Update status + fetch application data
+    const application = await model.reviewApplication(proposalId, status);
     if (!application) {
-      res.status(500).json({ error: "Failed to retrieve applications." });
+      res.status(500).json({ error: "Failed to update application." });
       return;
     }
+
+    await sendApprovalEmail(
+      application.Email,
+      application.Title,
+      status === "accepted" // boolean
+    );
+
+    res.status(200).json({ success: true });
   } catch (error) {
-    console.log(error);
     next(error);
   }
 }
