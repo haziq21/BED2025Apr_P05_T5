@@ -219,7 +219,11 @@ export async function getRegistrationsByEventId(req, res) {
  * @param {import("express").Response} res */
 export async function getEventsByUserId(req, res) {
   const userId = +req.userId;
-
+  console.log(
+    "Inside getEventsByUserId - req.userId:",
+    req.userId,
+    typeof req.userId
+  );
   if (isNaN(userId)) {
     res.status(400).json({ error: "Invalid User ID" });
     return;

@@ -1,6 +1,17 @@
 const calendarGrid = document.querySelector(".calendar");
 const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+/**
+ * Fetches events for a specific month and year.
+ * @typedef {Object} CalendarEvent
+ * @property {string} title - The title of the event.
+ * @property {string} time - The time of the event (formatted string).
+ */
 
+/**
+ * @param {number} year The year to fetch events for.
+ * @param {number} month The month to fetch events for (0-indexed).
+ * @returns {Promise<{ [date: string]: CalendarEvent[] }>} A promise that resolves to an object where keys are date strings (YYYY-MM-DD) and values are arrays of CalendarEvent objects.
+ */
 export async function fetchEventsForMonth(year, month) {
   try {
     const token = localStorage.getItem("token");
@@ -27,6 +38,7 @@ export async function fetchEventsForMonth(year, month) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
+    /** @type {any[]} */ // Assuming the initial response is an array of any type
     const events = await response.json();
 
     const currentMonthEvents = events.filter((event) => {
@@ -34,7 +46,8 @@ export async function fetchEventsForMonth(year, month) {
       return eventDate.getFullYear() === year && eventDate.getMonth() === month;
     });
 
-    const formattedEvents = {};
+    /** @type {{ [date: string]: CalendarEvent[] }} */ const formattedEvents =
+      {};
     currentMonthEvents.forEach((event) => {
       const eventDate = new Date(event.StartDateTime);
       const dateString = `${eventDate.getFullYear()}-${String(
@@ -58,7 +71,12 @@ export async function fetchEventsForMonth(year, month) {
     return {};
   }
 }
-
+/**
+ * Renders the calendar grid for a given month and year, displaying events.
+ * @param {number} year - The year to render the calendar for.
+ * @param {number} month - The month to render the calendar for (0-indexed).
+ * @param {Object<string, Array<{title: string, time: string}>>} events - An object containing events, where keys are date strings (YYYY-MM-DD) and values are arrays of event objects.
+ */
 export function renderCalendar(year, month, events) {
   const firstDayOfMonth = new Date(year, month, 1);
   const lastDayOfMonth = new Date(year, month + 1, 0);
@@ -71,8 +89,13 @@ export function renderCalendar(year, month, events) {
     return;
   }
 
+  // Remove existing day cells while keeping the day names
   while (calendarGrid.children.length > 7) {
-    calendarGrid.removeChild(calendarGrid.lastChild);
+    if (calendarGrid.lastChild) {
+      calendarGrid.removeChild(calendarGrid.lastChild);
+    } else {
+      break; // Should not happen if children.length > 7, but as a safeguard
+    }
   }
 
   for (let i = 0; i < startingDayOfWeek; i++) {
