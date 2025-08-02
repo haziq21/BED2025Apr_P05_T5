@@ -58,7 +58,7 @@ export async function getApplications(req, res, next) {
 
     res.status(200).json(application);
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 }
 
