@@ -34,7 +34,7 @@ export async function getCCById(req, res) {
  * - If both `lat` and `lon` query parameters are provided,
  *   the CCs will be sorted by distance from that point.
  * - If the `admin` query parameter is provided, only CCs
- *   where the specified user is an admin will be returned.
+ *   where the authenticated user is an admin will be returned.
  * @type {AuthenticatedRequestHandler}
  */
 export async function getAllCCs(req, res) {
@@ -45,15 +45,11 @@ export async function getAllCCs(req, res) {
     return;
   }
 
-  const admin = req.query.admin ? +req.query.admin : null;
-  if (admin !== null && isNaN(admin)) {
-    res.status(400).json({ error: "Invalid admin parameter" });
-    return;
-  }
+  const indicateAdmin = req.query.indicateAdmin === "true";
 
   const ccs = await model.getAllCCs({
     locationSort: lat !== null && lon !== null ? { lat, lon } : null,
-    adminFilter: admin,
+    indicateAdmin: indicateAdmin ? req.userId : undefined,
   });
 
   res.status(200).json(ccs);
