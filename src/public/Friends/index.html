@@ -17,12 +17,25 @@
     <nav class="topnav">
       <a href="../index.html">Home</a>
       <a href="/ccs">Community Centers</a>
-      <a href="/events" class="active">Events</a>
+      <a href="/friends" class="active">Friends</a>
       <a href="#Location">Location</a>
       <a href="../medicationSchedule/medication.html">Medication</a>
       <a href="../profile.html">Profile</a>
       <a href="../comment/comment.html">Comments</a>
       <a href="/calendar">Calendar</a>
     </nav>
+
+    <div class="search-container">
+      <input
+        type="text"
+        id="friend-search-input"
+        placeholder="Search for users..."
+        onkeyup="searchFriends()"
+      />
+    </div>
+    <section class="friends-list">
+      <h1>Your Friends</h1>
+      <ul id="friends-container"></ul>
+    </section>
   </body>
 </html>
