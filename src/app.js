@@ -23,6 +23,11 @@ import * as interestGroupAdminController from "./controllers/interestGroupAdminC
 import pool from "./db.js";
 const PORT = process.env.PORT || 3000;
 const app = express();
+// Middleware to log incoming requests
+app.use((req, res, next) => {
+  console.log("Incoming Request:", req.method, req.url);
+  next();
+});
 app.use(express.json());
 
 app.use("/uploads", express.static("uploads"));
@@ -119,6 +124,7 @@ app.post("/api/friends/:friendId", verifyJWT, friends.sendFriendRequest);
 app.delete("/api/friends/:friendId", verifyJWT, friends.deleteFriend);
 
 // Events management
+app.get("/api/events/registered", verifyJWT, events.getEventsByUserId);
 app.get("/api/events/:eventId", verifyJWT, events.getEventById);
 app.put("/api/events/:eventId", verifyJWT, events.updateEvent);
 app.get(
@@ -131,7 +137,6 @@ app.get(
   verifyJWT,
   events.getMutualRegistrations
 );
-app.get("/api/events/registered", verifyJWT, events.getEventsByUserId);
 app.get("/api/events/cc/:CCId", verifyJWT, events.getEventsByCCId);
 app.post("/api/events/:eventId/register", verifyJWT, events.registerForEvent);
 app.post("/api/events/create", verifyJWT, events.createEvent);
@@ -163,6 +168,11 @@ app.post(
   "/api/googleCalendar/events",
   verifyJWT,
   googleCalendar.addCalendarEvent
+);
+app.get(
+  "/api/calendar/google/status",
+  verifyJWT,
+  googleCalendar.checkGoogleCalendarLinkStatus
 );
 
 reminderCron.getDates();

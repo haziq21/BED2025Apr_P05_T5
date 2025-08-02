@@ -71,6 +71,49 @@ export async function fetchEventsForMonth(year, month) {
     return {};
   }
 }
+
+/**
+ * Checks the Google Calendar link status for the current user
+ * and updates the display of the link button.
+ */
+async function checkGoogleCalendarLinkStatusFrontend() {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("No JWT token found for checking Google link status.");
+      return;
+    }
+
+    const response = await fetch("/api/calendar/google/status", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      console.error(
+        "Error fetching Google link status:",
+        response.status,
+        response.statusText
+      );
+      return;
+    }
+
+    const data = await response.json();
+    const linkButton = document.getElementById("linkGoogleCalendar");
+    if (linkButton) {
+      if (data.isLinked) {
+        linkButton.style.display = "none";
+      } else {
+        linkButton.style.display = ""; // Or 'block' or your default display
+      }
+    }
+  } catch (error) {
+    console.error("Error in checkGoogleCalendarLinkStatusFrontend:", error);
+  }
+}
+
 /**
  * Renders the calendar grid for a given month and year, displaying events.
  * @param {number} year - The year to render the calendar for.
@@ -195,4 +238,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (linkButton) {
     linkButton.addEventListener("click", StartGoogleAuth);
   }
+  // Check Google Calendar link status when the DOM is loaded
+  checkGoogleCalendarLinkStatusFrontend();
 });
