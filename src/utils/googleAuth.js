@@ -3,7 +3,8 @@ import path from "path";
 import { google } from "googleapis";
 import { OAuth2Client } from "google-auth-library";
 
-const CREDENTIALS_PATH = path.join(process.cwd(), "google-credentials.json");
+const CREDENTIALS_PATH =
+  process.env.GOOGLE_OAUTH2_KEYFILE || "./keyfiles/google-oauth2.json";
 const SCOPES = ["https://www.googleapis.com/auth/calendar"];
 
 /**
