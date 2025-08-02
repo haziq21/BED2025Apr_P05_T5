@@ -21,6 +21,9 @@ IF OBJECT_ID('CCEvents', 'U') IS NOT NULL DROP TABLE CCEvents;
 IF OBJECT_ID('CCs', 'U') IS NOT NULL DROP TABLE CCs;
 IF OBJECT_ID('Users', 'U') IS NOT NULL DROP TABLE Users;
 IF OBJECT_ID('Comment', 'U') IS NOT NULL DROP TABLE Comment;
+IF OBJECT_ID('GoogleCredentials', 'U') IS NOT NULL DROP TABLE GoogleCredentials;
+IF OBJECT_ID('GoogleEventLinks', 'U') IS NOT NULL DROP TABLE GoogleEventLinks;
+IF OBJECT_ID('UserOTPs', 'U') IS NOT NULL DROP TABLE UserOTPs;
 
 ALTER TABLE Users ADD CONSTRAINT UQ_PhoneNumber UNIQUE (PhoneNumber);
 
