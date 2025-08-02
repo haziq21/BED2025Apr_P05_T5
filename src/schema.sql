@@ -25,23 +25,20 @@ IF OBJECT_ID('GoogleCredentials', 'U') IS NOT NULL DROP TABLE GoogleCredentials;
 IF OBJECT_ID('GoogleEventLinks', 'U') IS NOT NULL DROP TABLE GoogleEventLinks;
 IF OBJECT_ID('UserOTPs', 'U') IS NOT NULL DROP TABLE UserOTPs;
 
-ALTER TABLE Users ADD CONSTRAINT UQ_PhoneNumber UNIQUE (PhoneNumber);
-
 CREATE TABLE Users (
   UserId INT IDENTITY PRIMARY KEY,
   Name NVARCHAR(255) NOT NULL,
-  PhoneNumber VARCHAR(20) NOT NULL,
+  PhoneNumber VARCHAR(20) UNIQUE NOT NULL,
   Bio NVARCHAR(MAX),
   ProfilePhotoURL NVARCHAR(MAX)
 );
+
 CREATE TABLE UserOTPs (
   Id INT IDENTITY PRIMARY KEY,
-  UserId INT NOT NULL,
+  UserId INT NOT NULL REFERENCES Users,
   OTP VARCHAR(10) NOT NULL,
-  ExpiresAt DATETIME NOT NULL,
-  CONSTRAINT fk_user FOREIGN KEY (UserId) REFERENCES Users(UserId)
+  ExpiresAt DATETIME NOT NULL
 );
-
 
 CREATE TABLE Friends (
   UserId1 INT NOT NULL REFERENCES Users,
@@ -89,45 +86,35 @@ CREATE TABLE InterestGroupProposals (
   SubmittedAt DATETIME DEFAULT GETDATE(),
   UpdatedAt DATETIME DEFAULT GETDATE(),
   Scope NVARCHAR(500),
-  MeetingFrequency NVARCHAR(20),
+  MeetingFrequency NVARCHAR(20) CHECK (MeetingFrequency IN ('As needed', 'Daily', 'Weekly', 'Biweekly', 'Monthly', 'Quarterly')),
   BudgetEstimateStart INT,
   BudgetEstimateEnd INT,
   AccessibilityConsideration NVARCHAR(MAX),
-  HealthSafetyPrecaution NVARCHAR(MAX),
-
-  CONSTRAINT CK_MeetingFrequency_AllowedValues CHECK (
-    MeetingFrequency IN (
-      'As needed', 'Daily', 'Weekly', 'Biweekly', 'Monthly', 'Quarterly'
-    )
-  )
+  HealthSafetyPrecaution NVARCHAR(MAX)
 );
 
-
 CREATE TABLE MedicalRecord (
-    MedicalRecordId INT PRIMARY KEY IDENTITY(1,1),
-    UserId INT NOT NULL,
+    MedicalRecordId INT IDENTITY PRIMARY KEY,
+    UserId INT NOT NULL REFERENCES Users,
     originalName NVARCHAR(255) NOT NULL,
     fileName NVARCHAR(255) NULL,
     mimeType NVARCHAR(100),
     filePath NVARCHAR(255),
-    uploadedAt DATETIME DEFAULT GETDATE(),
-    FOREIGN KEY (UserId) REFERENCES Users(UserId)
+    uploadedAt DATETIME DEFAULT GETDATE()
 );
 
 CREATE TABLE MedicationSchedules (
   MedicationScheduleId INT IDENTITY PRIMARY KEY,
   DrugName NVARCHAR(255) NOT NULL,
-  UserId INT NOT NULL,
+  UserId INT NOT NULL REFERENCES Users,
   StartDateXTime DATETIME NOT NULL,
   EndDate DATE,
   RepeatRequest INT NOT NULL CHECK (RepeatRequest IN (0, 1, 2)), -- 0:no repeat, 1:repeat by day, 2: repeat by week
   RepeatEveryXDays INT,
   RepeatEveryXWeeks INT,
-  RepeatWeekDate CHAR(7), -- 0000011 meaning Occurs on SAT&SUN, repeats every () weeks
-  FOREIGN KEY (UserId) REFERENCES Users(UserId)
+  RepeatWeekDate CHAR(7) -- 0000011 meaning Occurs on SAT&SUN, repeats every () weeks
 );
   
-
 CREATE TABLE LocalServices (
   LocalServiceId INT IDENTITY PRIMARY KEY,
   Name NVARCHAR(255) NOT NULL,
@@ -149,24 +136,21 @@ CREATE TABLE SharedLocations (
   PRIMARY KEY (ViewingUserId, LocatedUserId)
 );
 
-
 CREATE TABLE Comment (
-  UserId INT NOT NULL,
+  UserId INT NOT NULL REFERENCES Users,
   PostId INT IDENTITY PRIMARY KEY,
   Comment VARCHAR(500) NOT NULL,
   TimeStamp DATETIME DEFAULT GETDATE(),
   AnalysisStatus VARCHAR(5) NOT NULL,
   SentimentType VARCHAR(20), -- postive,negetive,neutral
-  ParentPostId INT DEFAULT -1,  -- -1 means by default its post not comment 
-  FOREIGN KEY (UserId) REFERENCES Users(UserId)
+  ParentPostId INT DEFAULT -1  -- -1 means by default its post not comment 
 );
 
 CREATE TABLE GoogleCredentials (
-  UserId INT PRIMARY KEY,
+  UserId INT PRIMARY KEY REFERENCES Users ON DELETE CASCADE,
   AccessToken NVARCHAR(MAX),
   RefreshToken NVARCHAR(MAX),
-  ExpiryDate BIGINT, -- Store as Unix timestamp (milliseconds)
-  FOREIGN KEY (UserId) REFERENCES Users(UserId) ON DELETE CASCADE
+  ExpiryDate BIGINT -- Store as Unix timestamp (milliseconds)
 );
 
 CREATE TABLE GoogleEventLinks (
@@ -176,8 +160,7 @@ CREATE TABLE GoogleEventLinks (
   PRIMARY KEY (UserId, EventId)
 );
 
-
-
+----    Dummy data below    ----
 
 INSERT INTO Users (Name, PhoneNumber, Bio, ProfilePhotoURL) VALUES
 ('Lim Wei Leong', '91234567', 'Loves hawker food and playing badminton.', 'https://example.com/weileong.jpg'),
@@ -196,38 +179,27 @@ INSERT INTO Users (Name, PhoneNumber, Bio, ProfilePhotoURL) VALUES
 ('Shawn Tan', '55432109', 'Loves futsal and volunteering for beach cleanups.', 'https://example.com/shawn.jpg'),
 ('Vanessa Lee', '44321098', 'Foodie who enjoys trying out new hawker stalls.', 'https://example.com/vanessa.jpg');
 
-
 INSERT INTO Friends (UserId1, UserId2, Accepted) VALUES
 ((SELECT UserId FROM Users WHERE Name = 'Lim Wei Leong'), (SELECT UserId FROM Users WHERE Name = 'Tan Mei Ling'), 1),
 ((SELECT UserId FROM Users WHERE Name = 'Tan Mei Ling'), (SELECT UserId FROM Users WHERE Name = 'Lim Wei Leong'), 1),
-
 ((SELECT UserId FROM Users WHERE Name = 'Lim Wei Leong'), (SELECT UserId FROM Users WHERE Name = 'Goh Eng Chuan'), 1),
 ((SELECT UserId FROM Users WHERE Name = 'Goh Eng Chuan'), (SELECT UserId FROM Users WHERE Name = 'Lim Wei Leong'), 1),
-
 ((SELECT UserId FROM Users WHERE Name = 'Goh Eng Chuan'), (SELECT UserId FROM Users WHERE Name = 'Deepak Kumar'), 0),
 ((SELECT UserId FROM Users WHERE Name = 'Deepak Kumar'), (SELECT UserId FROM Users WHERE Name = 'Goh Eng Chuan'), 0),
-
 ((SELECT UserId FROM Users WHERE Name = 'Fiona Tan'), (SELECT UserId FROM Users WHERE Name = 'Nurul Aishah'), 1),
 ((SELECT UserId FROM Users WHERE Name = 'Nurul Aishah'), (SELECT UserId FROM Users WHERE Name = 'Fiona Tan'), 1),
-
 ((SELECT UserId FROM Users WHERE Name = 'Marcus Lim'), (SELECT UserId FROM Users WHERE Name = 'Rajesh Suppiah'), 1),
 ((SELECT UserId FROM Users WHERE Name = 'Rajesh Suppiah'), (SELECT UserId FROM Users WHERE Name = 'Marcus Lim'), 1),
-
 ((SELECT UserId FROM Users WHERE Name = 'Nurul Aishah'), (SELECT UserId FROM Users WHERE Name = 'Kelly Ong'), 1),
 ((SELECT UserId FROM Users WHERE Name = 'Kelly Ong'), (SELECT UserId FROM Users WHERE Name = 'Nurul Aishah'), 1),
-
 ((SELECT UserId FROM Users WHERE Name = 'Rajesh Suppiah'), (SELECT UserId FROM Users WHERE Name = 'Zainal Bin Ahmad'), 1),
 ((SELECT UserId FROM Users WHERE Name = 'Zainal Bin Ahmad'), (SELECT UserId FROM Users WHERE Name = 'Rajesh Suppiah'), 1),
-
 ((SELECT UserId FROM Users WHERE Name = 'Kelly Ong'), (SELECT UserId FROM Users WHERE Name = 'Priya Sharma'), 1),
 ((SELECT UserId FROM Users WHERE Name = 'Priya Sharma'), (SELECT UserId FROM Users WHERE Name = 'Kelly Ong'), 1),
-
 ((SELECT UserId FROM Users WHERE Name = 'Zainal Bin Ahmad'), (SELECT UserId FROM Users WHERE Name = 'Shawn Tan'), 1),
 ((SELECT UserId FROM Users WHERE Name = 'Shawn Tan'), (SELECT UserId FROM Users WHERE Name = 'Zainal Bin Ahmad'), 1),
-
 ((SELECT UserId FROM Users WHERE Name = 'Priya Sharma'), (SELECT UserId FROM Users WHERE Name = 'Vanessa Lee'), 1),
 ((SELECT UserId FROM Users WHERE Name = 'Vanessa Lee'), (SELECT UserId FROM Users WHERE Name = 'Priya Sharma'), 1),
-
 ((SELECT UserId FROM Users WHERE Name = 'Shawn Tan'), (SELECT UserId FROM Users WHERE Name = 'Lim Wei Leong'), 1),
 ((SELECT UserId FROM Users WHERE Name = 'Lim Wei Leong'), (SELECT UserId FROM Users WHERE Name = 'Shawn Tan'), 1);
 
@@ -248,7 +220,6 @@ INSERT INTO CCs (Name, Location) VALUES
 ('Choa Chu Kang Community Club', geography::Point(1.3813378586731735, 103.75187195248142, 4326)),
 ('Joo Chiat Community Club', geography::Point(1.3083585394999246, 103.90394133804972, 4326));
 
-
 INSERT INTO CCAdmins (CCId, UserId) VALUES
 ((SELECT CCId FROM CCs WHERE Name = 'Bishan Community Club'), (SELECT UserId FROM Users WHERE Name = 'Lim Wei Leong')),
 ((SELECT CCId FROM CCs WHERE Name = 'Tampines West Community Club'), (SELECT UserId FROM Users WHERE Name = 'Tan Mei Ling')),
@@ -266,7 +237,6 @@ INSERT INTO CCAdmins (CCId, UserId) VALUES
 ((SELECT CCId FROM CCs WHERE Name = 'Choa Chu Kang Community Club'), (SELECT UserId FROM Users WHERE Name = 'Shawn Tan')),
 ((SELECT CCId FROM CCs WHERE Name = 'Joo Chiat Community Club'), (SELECT UserId FROM Users WHERE Name = 'Vanessa Lee'));
 
-
 INSERT INTO CCEvents (CCId, Name, Description, Location, StartDateTime, EndDateTime) VALUES
 ((SELECT CCId FROM CCs WHERE Name = 'Bishan Community Club'), 'Kampung Connect Bazaar', 'A lively bazaar featuring local crafts and food stalls.', 'Bishan ActiveSG Centre', '2025-08-01 10:00:00', '2025-08-01 20:00:00'),
 ((SELECT CCId FROM CCs WHERE Name = 'Tampines West Community Club'), 'Kopi & Teh Appreciation Workshop', 'Learn about local coffee and tea brewing techniques.', 'Tampines Hub Library', '2025-08-05 14:00:00', '2025-08-05 16:00:00'),
@@ -283,7 +253,6 @@ INSERT INTO CCEvents (CCId, Name, Description, Location, StartDateTime, EndDateT
 ((SELECT CCId FROM CCs WHERE Name = 'Punggol Community Club'), 'Kayaking in Punggol Waterway', 'Guided kayaking tour for beginners.', 'Punggol Waterway Park', '2025-10-01 08:00:00', '2025-10-01 10:00:00'),
 ((SELECT CCId FROM CCs WHERE Name = 'Choa Chu Kang Community Club'), 'Sustainable Living Fair', 'Showcasing eco-friendly products and practices.', 'CCK Green Hub', '2025-10-05 09:00:00', '2025-10-05 17:00:00'),
 ((SELECT CCId FROM CCs WHERE Name = 'Joo Chiat Community Club'), 'Beach Cleanup & Picnic', 'Contribute to a cleaner beach and enjoy a picnic.', 'East Coast Park (Area D)', '2025-10-10 08:30:00', '2025-10-10 12:30:00');
-
 
 INSERT INTO CCEventRegistrations (EventId, UserId) VALUES
 ((SELECT EventId FROM CCEvents WHERE Name = 'Kampung Connect Bazaar'), (SELECT UserId FROM Users WHERE Name = 'Lim Wei Leong')),
@@ -348,7 +317,6 @@ VALUES
  'Open to all residents with a phone or camera.', 'Monthly', 60, 200,
  'Rest stops planned in each outing.', 'Mosquito repellent and hydration breaks.');
 
-
 INSERT INTO MedicalRecord (UserId, originalName, fileName, mimeType, filePath) VALUES
 ((SELECT UserId FROM Users WHERE Name = 'Lim Wei Leong'), 'Wei_Leong_Health_Checkup_2024.pdf', 'weileong_hc_2024.pdf', 'application/pdf', '/medical_records/weileong_hc_2024.pdf'),
 ((SELECT UserId FROM Users WHERE Name = 'Tan Mei Ling'), 'Mei_Ling_Blood_Test_2023.jpg', 'meiling_bt_2023.jpg', 'image/jpeg', '/medical_records/meiling_bt_2023.jpg'),
@@ -365,7 +333,6 @@ INSERT INTO MedicalRecord (UserId, originalName, fileName, mimeType, filePath) V
 ((SELECT UserId FROM Users WHERE Name = 'Priya Sharma'), 'Priya_Yoga_Injury_Report.png', 'priya_yi_report.png', 'image/png', '/medical_records/priya_yi_report.png'),
 ((SELECT UserId FROM Users WHERE Name = 'Shawn Tan'), 'Shawn_Flu_Vacc_Record.pdf', 'shawn_flu_vacc.pdf', 'application/pdf', '/medical_records/shawn_flu_vacc.pdf'),
 ((SELECT UserId FROM Users WHERE Name = 'Vanessa Lee'), 'Vanessa_Dietitian_Notes.pdf', 'vanessa_diet_notes.pdf', 'application/pdf', '/medical_records/vanessa_diet_notes.pdf');
-
 
 INSERT INTO MedicationSchedules (DrugName, UserId, StartDateXTime, EndDate, RepeatRequest, RepeatEveryXDays, RepeatEveryXWeeks, RepeatWeekDate) VALUES
 ('Panadol', (SELECT UserId FROM Users WHERE Name = 'Lim Wei Leong'), '2025-07-11T11:30:00.000', '2025-11-22', 1, 1, NULL, NULL),
@@ -384,7 +351,6 @@ INSERT INTO MedicationSchedules (DrugName, UserId, StartDateXTime, EndDate, Repe
 ('Steroids', (SELECT UserId FROM Users WHERE Name = 'Shawn Tan'), '2025-07-28T08:00:00.000', '2025-08-11', 1, 1, NULL, NULL),
 ('Sleeping Pills', (SELECT UserId FROM Users WHERE Name = 'Vanessa Lee'), '2025-07-29T19:00:00.000', NULL, 1, 1, NULL, NULL);
 
-
 INSERT INTO LocalServices (Name, Type, Location) VALUES
 ('SingHealth Polyclinics @ Punggol', 'Healthcare', geography::Point(1.4029876928229805, 103.91279285248129, 4326)),
 ('Our Tampines Hub', 'Community Hub', geography::Point(1.3531379739861755, 103.93958795063145, 4326)),
@@ -401,7 +367,6 @@ INSERT INTO LocalServices (Name, Type, Location) VALUES
 ('Punggol Oasis Terraces', 'Shopping Centre', geography::Point(1.4028231597674234, 103.91286032179556, 4326)),
 ('Lot One Shoppers', 'Shopping Centre', geography::Point(1.3853957668198382, 103.74500002549564, 4326)),
 ('Parkway Parade', 'Shopping Centre', geography::Point(1.3015243061946873, 103.90527621519816, 4326));
-
 
 INSERT INTO UserLocations (UserId,Location) VALUES
 ((SELECT UserId FROM Users WHERE Name = 'Lim Wei Leong'), geography::Point(1.3507, 103.8488, 4326)),
@@ -420,7 +385,6 @@ INSERT INTO UserLocations (UserId,Location) VALUES
 ((SELECT UserId FROM Users WHERE Name = 'Shawn Tan'), geography::Point(1.3831, 103.7441, 4326)),
 ((SELECT UserId FROM Users WHERE Name = 'Vanessa Lee'), geography::Point(1.2942, 103.9056, 4326));
 
-
 INSERT INTO SharedLocations (ViewingUserId, LocatedUserId, RequestAccepted) VALUES
 ((SELECT UserId FROM Users WHERE Name = 'Lim Wei Leong'), (SELECT UserId FROM Users WHERE Name = 'Tan Mei Ling'), 1),
 ((SELECT UserId FROM Users WHERE Name = 'Vanessa Lee'), (SELECT UserId FROM Users WHERE Name = 'Goh Eng Chuan'), 0),
@@ -438,7 +402,6 @@ INSERT INTO SharedLocations (ViewingUserId, LocatedUserId, RequestAccepted) VALU
 ((SELECT UserId FROM Users WHERE Name = 'Priya Sharma'), (SELECT UserId FROM Users WHERE Name = 'Vanessa Lee'), 0),
 ((SELECT UserId FROM Users WHERE Name = 'Shawn Tan'), (SELECT UserId FROM Users WHERE Name = 'Lim Wei Leong'), 1);
 
-
 INSERT INTO Comment (UserId, Comment, AnalysisStatus) VALUES
 ((SELECT UserId FROM Users WHERE Name = 'Lim Wei Leong'), 'Shiok! The Kampung Connect Bazaar was awesome!', 'false'),
 ((SELECT UserId FROM Users WHERE Name = 'Tan Mei Ling'), 'The Kopi & Teh workshop was okay, but a bit too crowded for me.', 'false'),
@@ -455,4 +418,3 @@ INSERT INTO Comment (UserId, Comment, AnalysisStatus) VALUES
 ((SELECT UserId FROM Users WHERE Name = 'Priya Sharma'), 'Kayaking was peaceful, but the weather was too hot.', 'false'),
 ((SELECT UserId FROM Users WHERE Name = 'Shawn Tan'), 'Sustainable Living Fair gave me lots of ideas. Well done!', 'false'),
 ((SELECT UserId FROM Users WHERE Name = 'Vanessa Lee'), 'Beach cleanup was tiring but worth it. Let’s keep it up!', 'false');
-
