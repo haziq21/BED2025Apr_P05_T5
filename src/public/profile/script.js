@@ -6,7 +6,7 @@ const token3 = localStorage.getItem("token");
 // Redirect if no token
 if (!token3) {
   alert("You are not logged in.");
-  window.location.href = "login.html";
+  window.location.href = "/login";
 }
 // Get DOM elements
 const nameInput = document.getElementById("Name");
@@ -61,6 +61,7 @@ async function loadProfile() {
     console.error("Error loading profile:", err);
     alert("Failed to load profile. Please login again.");
   }
+  // logout();
 }
 //  Enable Edit
 function enableEdit() {
@@ -221,8 +222,8 @@ function logout() {
   localStorage.removeItem("token");
   localStorage.removeItem("userId");
   localStorage.setItem("profilePopupCount", "0");
-  localStorage.setItem("profilePopupCount","0");
-  window.location.href = "login.html";
+  localStorage.setItem("profilePopupCount", "0");
+  window.location.href = "/login";
 }
 
 loadProfile();
