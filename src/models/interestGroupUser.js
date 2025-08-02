@@ -81,6 +81,7 @@ export async function updateApplication(ProposalId, details) {
     const request = pool
       .request()
       .input("ProposalId", ProposalId)
+      .input("CCId", details.CCId ?? null)
       .input("Title", details.Title ?? null)
       .input("Description", details.Description ?? null)
       .input("Email", details.Email ?? null)
@@ -129,75 +130,6 @@ export async function deleteApplication(ProposalId) {
     const result = await request.query(`
       DELETE FROM InterestGroupProposals 
       WHERE ProposalId = @ProposalId
-      `);
-    return result;
-  } catch (error) {
-    console.error("Database error:", error);
-    throw error;
-  }
-}
-
-// ADMIN FUNCTIONS
-
-/**
- * View applications of a specific CC (by default all 'pending' status)
- * @param {number} CCId
- */
-
-export async function getPendingApplicationsByCC(CCId) {
-  try {
-    const request = pool.request().input("CCId", CCId);
-
-    const result = await request.query(`
-      SELECT * FROM InterestGroupProposals 
-      WHERE CCId = @CCId AND Status = 'pending'
-      `);
-
-    return result.recordset;
-  } catch (error) {
-    console.error("Database error:", error);
-    throw error;
-  }
-}
-
-/**
- * Accept or reject an application
- * @param {number} ProposalId
- * @param {string} Status
- */
-
-export async function reviewApplication(ProposalId, Status) {
-  try {
-    const request = pool
-      .request()
-      .input("ProposalId", ProposalId)
-      .input("Status", Status);
-
-    const result = await request.query(`
-      UPDATE InterestGroupProposals
-      SET Status = @Status,
-      WHERE ProposalId = @ProposalId
-      `);
-    return result.recordset[0];
-  } catch (error) {
-    console.error("Database error:", error);
-    throw error;
-  }
-}
-
-/**
- * Get a application by ProposalId
- * @param {number} ProposalId
- */
-
-export async function getApplicationById(ProposalId) {
-  try {
-    const request = pool.request().input("ProposalId", ProposalId);
-
-    const result = await request.query(`
-      SELECT * FROM InterestGroupProposals 
-      WHERE 
-      ProposalId = @ProposalId
       `);
     return result;
   } catch (error) {
