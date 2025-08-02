@@ -57,8 +57,6 @@ export async function updateComment(req, res) {
     res.status(404).json({ error: "Comment not found" });
     return;
   }
-  // check the sentiment of updated comment
-  // getCommentAndAnalyze();
   res.status(200).json(comment);
 }
 
@@ -94,23 +92,23 @@ export async function deleteComment(req, res) {
     res.status(404).json({ error: "Comment not found" });
     return;
   }
-  //
-  // getCommentAndAnalyze();
   res.json(comment);
 }
 
 /**
  * retrieve all comments from the user
- * @type {import("express").RequestHandler}
+ * @param {AuthenticatedRequest} req
+ * @param {import("express").Response} res
  */
 export async function getCommentByOthers(req, res) {
   const postId = parseInt(req.params.postId);
+  const userId = req.userId;
   if (isNaN(postId)) {
     res.status(400).json({ error: "Invalid post ID" });
     return;
   }
 
-  const comments = await model.getCommentByOthers(postId);
+  const comments = await model.getCommentByOthers(userId,postId);
 
   if (!comments) {
     res.status(404).json({ error: "Comment not found" });

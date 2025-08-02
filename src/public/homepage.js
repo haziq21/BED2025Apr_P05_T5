@@ -56,14 +56,9 @@ async function checkProfileCompletion() {
     const data = await res.json();
     const count = parseInt(localStorage.getItem("profilePopupCount") || "0");
 
-    const createdAt = new Date(data.CreatedAt || Date.now());
-    const today = new Date();
-    const isNewUser =
-      createdAt.toDateString() === today.toDateString();
-
     const profileIncomplete = !data.Bio || !data.ProfilePhotoURL;
 
-    if (profileIncomplete && (isNewUser || count < 2)) {
+    if (profileIncomplete && (count < 2)) {
       
       localStorage.setItem("profilePopupCount", String(count + 1));
 

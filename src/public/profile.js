@@ -204,6 +204,7 @@ async function deleteUser() {
 function logout() {
   localStorage.removeItem("token");
   localStorage.removeItem("userId");
+  localStorage.setItem("profilePopupCount","0");
   window.location.href = "login.html";
 }
 

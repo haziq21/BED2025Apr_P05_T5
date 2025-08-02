@@ -1,8 +1,7 @@
-import sql from "mssql";
 import pool from "../db.js";
 
 /**
- * get the comment by userId
+ * get the comment by userId(show my own comment)
  * @param {number} userId
  */
 export async function getCommentById(userId) {
@@ -29,35 +28,6 @@ export async function getCommentById(userId) {
 }
 
 /**
- * get all the comments on comment page
- * @param {number} [uid]
- */
-export async function getComment(uid) {
-  try {
-    const result = await pool.request().query(`
-            SELECT c.Comment,c.PostId,u.UserId,c.TimeStamp,c.ParentPostId,c.AnalysisStatus,c.SentimentType,u.Name AS UserName 
-            FROM Comment c 
-            JOIN Users u ON c.UserId = u.UserId 
-            WHERE c.ParentPostId = -1
-            ORDER BY c.TimeStamp DESC;
-         `);
-
-    result.recordset.forEach((comment) => {
-      if (comment.UserId === uid) {
-        comment.loginUser = true;
-      } else {
-        comment.loginUser = false;
-      }
-    });
-    // console.log(uid);
-    return result.recordset;
-  } catch (error) {
-    console.error("Database error:", error);
-    throw error;
-  }
-}
-
-/**
  * update the comment by userId
  * @param {number} userId
  * @param {{PostId: number, Comment: string, AnalysisStatus:string,SentimentType:string}} postData
@@ -70,7 +40,7 @@ export async function updateComment(userId, postData) {
       .input("userId", userId)
       .input("Comment", postData.Comment)
       .input("AnalysisStatus", postData.AnalysisStatus)
-      .input("SentimentType",postData.SentimentType)
+      .input("SentimentType", postData.SentimentType);
 
     const result = await request.query(`
         UPDATE Comment
@@ -91,7 +61,6 @@ export async function updateComment(userId, postData) {
     throw error;
   }
 }
-
 
 /**
  * create comment by userId and PostId
@@ -149,9 +118,11 @@ export async function deleteComment(userId, PostId) {
 }
 
 /**
+ * get replys from each post comment
  * @param {number} PostID
+ * @param {number} uid
  */
-export async function getCommentByOthers(PostID) {
+export async function getCommentByOthers(uid, PostID) {
   try {
     const request = pool.request().input("PostId", PostID);
 
@@ -160,10 +131,62 @@ export async function getCommentByOthers(PostID) {
             FROM Comment c 
             JOIN Users u ON c.UserId = u.UserId 
             WHERE c.ParentPostId = @PostId
-            ORDER BY c.TimeStamp DESC;
+            ORDER BY c.TimeStamp ASC;
          `);
+    result.recordset.forEach((comment) => {
+      if (comment.UserId === uid) {
+        comment.loginUser = true;
+      } else {
+        comment.loginUser = false;
+      }
+    });
     return result.recordset;
   } catch (err) {
     console.error("Database error:", err);
+  }
+}
+
+/**
+ * get all the comments on comment page(show all comments)
+ * @param {number} [uid]
+ */
+export async function getComment(uid) {
+  try {
+    const result = await pool.request().query(`
+            SELECT c.Comment,c.PostId,u.UserId,c.TimeStamp,c.ParentPostId,c.AnalysisStatus,c.SentimentType,u.Name AS UserName 
+            FROM Comment c 
+            JOIN Users u ON c.UserId = u.UserId 
+            WHERE c.ParentPostId = -1
+            ORDER BY c.TimeStamp DESC;
+         `);
+
+    result.recordset.forEach((comment) => {
+      if (comment.UserId === uid) {
+        comment.loginUser = true;
+      } else {
+        comment.loginUser = false;
+      }
+    });
+
+    return result.recordset;
+  } catch (error) {
+    console.error("Database error:", error);
+    throw error;
+  }
+}
+
+/**
+ * get all the comments (both comments & replys)
+ */
+export async function getSentimentComment() {
+  try {
+    const result = await pool.request().query(`
+            SELECT * 
+            FROM Comment;
+         `);
+    return result.recordset;
+  } catch (error) {
+    console.error("Database error:", error);
+    throw error;
   }
 }

@@ -103,6 +103,12 @@ app.post("/api/comment", verifyJWT, comment.createComment);
 app.put("/api/comment", verifyJWT, comment.updateComment);
 app.delete("/api/comment/:postId", verifyJWT, comment.deleteComment);
 
+//create the cron job once program starts
+reminderCron.getDates();
+//analysis the sentiment of each comment
+app.get('/api/sentiment', sentiment);
+
+
 //Friends management
 app.get("/api/friends", verifyJWT, friends.getAllFriends);
 app.get("/api/friends/search", verifyJWT, friends.searchUsers);
@@ -157,8 +163,7 @@ app.get("/auth/google", (req, res) => {
 
 app.get("/auth/google/callback", oauthCallback);
 
-reminderCron.getDates();
-app.get('/api/sentiment', sentiment);
+
 
 
 
