@@ -2,7 +2,7 @@
   "name": "kampung-connect",
   "version": "1.0.0",
   "type": "module",
-  "test": "node --experimental-vm-modules node_modules/.bin/jest",
+  "test": "mocha",
   "dependencies": {
     "@googlemaps/google-maps-services-js": "^3.4.2",
     "@googlemaps/places": "^2.1.0",
@@ -20,8 +20,7 @@
     "twilio": "^5.8.0"
   },
   "devDependencies": {
-    "@types/jest": "^30.0.0",
-    "jest": "^30.0.5",
+    "mocha": "^11.7.1",
     "supertest": "^7.1.4"
   }
 }
