@@ -1,5 +1,4 @@
 import fs from "fs";
-import path from "path";
 import { google } from "googleapis";
 import { OAuth2Client } from "google-auth-library";
 
