@@ -166,11 +166,43 @@ app.post(
 reminderCron.getDates();
 app.get("/api/sentiment", sentiment);
 
-// Interest Group Application
+// Interest Group Application (USER SIDE)
 app.post(
   "/api/interestGroup",
   verifyJWT,
   interestGroupController.fillApplication
+);
+app.get(
+  "/api/interestGroup",
+  verifyJWT,
+  interestGroupController.getApplications
+);
+app.put(
+  "/api/interestGroup/:ProposalId",
+  verifyJWT,
+  interestGroupController.updateApplication
+);
+app.delete(
+  "/api/interestGroup/:ProposalId",
+  verifyJWT,
+  interestGroupController.deleteApplication
+);
+
+// Interest Group Application (ADMIN SIDE)
+app.get(
+  "/api/interestGroup/:CCId",
+  verifyJWT,
+  interestGroupController.getPendingApplicationsByCC
+);
+app.put(
+  "/api/interestGroup/:ProposalId",
+  verifyJWT,
+  interestGroupController.reviewApplication
+);
+app.get(
+  "/api/interestGroup/:ProposalId",
+  verifyJWT,
+  interestGroupController.getApplicationById
 );
 
 // This must come after all the routes
