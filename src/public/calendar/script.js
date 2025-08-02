@@ -18,7 +18,7 @@ export async function fetchEventsForMonth(year, month) {
 
     if (!token) {
       console.error("No JWT token found.");
-      window.location.href = "/login.html"; // Redirect to login if no token
+      window.location.href = "/login"; // Redirect to login if no token
       return {};
     }
 
@@ -32,7 +32,7 @@ export async function fetchEventsForMonth(year, month) {
     if (!response.ok) {
       if (response.status === 403 || response.status === 401) {
         console.error("Authentication failed. Redirecting to login.");
-        window.location.href = "/login.html";
+        window.location.href = "/login";
         return {};
       }
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -164,7 +164,7 @@ export async function StartGoogleAuth() {
       response.statusText
     );
     if (response.status === 401 || response.status === 403) {
-      window.location.href = "/login.html"; // Redirect if unauthorized/forbidden
+      window.location.href = "/login"; // Redirect if unauthorized/forbidden
     }
     return;
   }
