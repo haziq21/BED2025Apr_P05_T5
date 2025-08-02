@@ -1,4 +1,3 @@
-
 const apiBaseUrl = "http://localhost:3000";
 const token = localStorage.getItem("token");
 console.log(token);
@@ -508,7 +507,7 @@ async function createMedication(data) {
       options
     );
     console.log("Create result:", result);
-     console.log(result);
+    console.log(result);
     showToast("Medication create successfully!");
     fetchMedications();
   } catch (error) {
@@ -744,5 +743,3 @@ function displayMedicationResult(data) {
     </div>
   `;
 }
-
-

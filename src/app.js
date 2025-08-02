@@ -15,10 +15,11 @@ import * as mediValidate from "./middleware/medicationScheduleValidation.js";
 import * as reminderCron from "./cron/reminderCron.js";
 import { sentiment } from "./controllers/sentiment.js"
 import { getOAuthClient, getAuthUrl } from "./utils/googleAuth.js";
+import * as googleCalendar from "./controllers/googleCalendar.js";
 import * as map from "./controllers/map.js";
+import * as interestGroupController from "./controllers/interestGroupController.js";
 
 import pool from "./db.js";
-import { oauthCallback } from "./controllers/googleCalendar.js";
 const PORT = process.env.PORT || 3000;
 const app = express();
 app.use(express.json());
@@ -155,17 +156,61 @@ app.put("/api/map/shared-with-me/:userId", verifyJWT, map.acceptShareRequest);
 app.post("/api/map/shared-by-me/:userId", verifyJWT, map.shareLocation);
 app.delete("/api/map/shared-by-me/:userId", verifyJWT, map.revokeShare);
 
-app.get("/auth/google", (req, res) => {
-  const oAuth2Client = getOAuthClient();
-  const url = getAuthUrl(oAuth2Client);
-  res.json({ authUrl: url });
-});
+// Google Calendar Integration
+app.get(
+  "/api/calendar/google/auth/url",
+  verifyJWT,
+  googleCalendar.redirectToGoogleOAuth
+);
+app.get("/auth/google/callback", googleCalendar.oauthCallback);
+app.post(
+  "/api/googleCalendar/events",
+  verifyJWT,
+  googleCalendar.addCalendarEvent
+);
 
-app.get("/auth/google/callback", oauthCallback);
 
+reminderCron.getDates();
+app.get("/api/sentiment", sentiment);
 
+// Interest Group Application (USER SIDE)
+app.post(
+  "/api/interestGroup",
+  verifyJWT,
+  interestGroupController.fillApplication
+);
+app.get(
+  "/api/interestGroup",
+  verifyJWT,
+  interestGroupController.getApplications
+);
+app.put(
+  "/api/interestGroup/:ProposalId",
+  verifyJWT,
+  interestGroupController.updateApplication
+);
+app.delete(
+  "/api/interestGroup/:ProposalId",
+  verifyJWT,
+  interestGroupController.deleteApplication
+);
 
-
+// Interest Group Application (ADMIN SIDE)
+app.get(
+  "/api/interestGroup/:CCId",
+  verifyJWT,
+  interestGroupController.getPendingApplicationsByCC
+);
+app.put(
+  "/api/interestGroup/:ProposalId",
+  verifyJWT,
+  interestGroupController.reviewApplication
+);
+app.get(
+  "/api/interestGroup/:ProposalId",
+  verifyJWT,
+  interestGroupController.getApplicationById
+);
 
 // This must come after all the routes
 app.use(errorHandler);

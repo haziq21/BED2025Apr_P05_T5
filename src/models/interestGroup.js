@@ -29,14 +29,14 @@ export async function fillApplication(UserId, details) {
     const result = await request.query(`
         INSERT INTO InterestGroupProposals (
           UserId, CCId, Title, Description, Email,
-          Status, SubmittedAt, UpdatedAt, Scope, MeetingFrequency,
+          Scope, MeetingFrequency,
           BudgetEstimateStart, BudgetEstimateEnd,
           AccessibilityConsideration, HealthSafetyPrecaution
         )
         OUTPUT INSERTED.*
         VALUES (
           @UserId, @CCId, @Title, @Description, @Email,
-          'pending', GETDATE(), GETDATE(), @Scope, @MeetingFrequency,
+          @Scope, @MeetingFrequency,
           @BudgetEstimateStart, @BudgetEstimateEnd,
           @AccessibilityConsideration, @HealthSafetyPrecaution
         )
@@ -119,12 +119,18 @@ export async function updateApplication(ProposalId, details) {
 
 /**
  * Delete an application
- * @param {}
- * @param {{}}
+ * @param {number} ProposalId
  */
 
-export async function deleteApplication() {
+export async function deleteApplication(ProposalId) {
   try {
+    const request = pool.request().input("ProposalId", ProposalId);
+
+    const result = await request.query(`
+      DELETE FROM InterestGroupProposals 
+      WHERE ProposalId = @ProposalId
+      `);
+    return result;
   } catch (error) {
     console.error("Database error:", error);
     throw error;
@@ -134,13 +140,20 @@ export async function deleteApplication() {
 // ADMIN FUNCTIONS
 
 /**
- * View applications of a specific CC
- * @param {}
- * @param {{}}
+ * View applications of a specific CC (by default all 'pending' status)
+ * @param {number} CCId
  */
 
-export async function getPendingApplicationsByCC() {
+export async function getPendingApplicationsByCC(CCId) {
   try {
+    const request = pool.request().input("CCId", CCId);
+
+    const result = await request.query(`
+      SELECT * FROM InterestGroupProposals 
+      WHERE CCId = @CCId AND Status = 'pending'
+      `);
+
+    return result.recordset;
   } catch (error) {
     console.error("Database error:", error);
     throw error;
@@ -149,12 +162,44 @@ export async function getPendingApplicationsByCC() {
 
 /**
  * Accept or reject an application
- * @param {}
- * @param {{}}
+ * @param {number} ProposalId
+ * @param {string} Status
  */
 
-export async function reviewApplication() {
+export async function reviewApplication(ProposalId, Status) {
   try {
+    const request = pool
+      .request()
+      .input("ProposalId", ProposalId)
+      .input("Status", Status);
+
+    const result = await request.query(`
+      UPDATE InterestGroupProposals
+      SET Status = @Status,
+      WHERE ProposalId = @ProposalId
+      `);
+    return result.recordset[0];
+  } catch (error) {
+    console.error("Database error:", error);
+    throw error;
+  }
+}
+
+/**
+ * Get a application by ProposalId
+ * @param {number} ProposalId
+ */
+
+export async function getApplicationById(ProposalId) {
+  try {
+    const request = pool.request().input("ProposalId", ProposalId);
+
+    const result = await request.query(`
+      SELECT * FROM InterestGroupProposals 
+      WHERE 
+      ProposalId = @ProposalId
+      `);
+    return result;
   } catch (error) {
     console.error("Database error:", error);
     throw error;

@@ -4,8 +4,7 @@ const token4 = localStorage.getItem("token");
 if (!token4) {
   alert("You are not logged in. Please login first.");
   window.location.href = "login.html";
-  } else {
-  // Try to load
+} else {
   loadHomepageUser();
 }
 async function loadHomepageUser() {
@@ -15,7 +14,7 @@ async function loadHomepageUser() {
         Authorization: `Bearer ${token4}`,
       },
     });
- if (!res.ok) {
+    if (!res.ok) {
       if (res.status === 401) {
         throw new Error("Unauthorized");
       }
@@ -24,9 +23,9 @@ async function loadHomepageUser() {
 
     const data = await res.json();
     // @ts-ignore
-    document.getElementById("welcomeMsg").textContent = `Welcome, ${data.Name}!`;
-    
-
+    document.getElementById(
+      "welcomeMsg"
+    ).textContent = `Welcome, ${data.Name}!`;
   } catch (err) {
     console.error(err);
     alert("Session expired or invalid. Please login again.");
@@ -58,8 +57,7 @@ async function checkProfileCompletion() {
 
     const profileIncomplete = !data.Bio || !data.ProfilePhotoURL;
 
-    if (profileIncomplete && (count < 2)) {
-      
+    if (profileIncomplete && count < 2) {
       localStorage.setItem("profilePopupCount", String(count + 1));
 
       // Show popup

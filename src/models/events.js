@@ -254,7 +254,7 @@ export async function saveGoogleCalendarEventId(
       ON target.UserId = source.UserId AND target.EventId = source.EventId
       WHEN MATCHED THEN UPDATE SET GoogleEventId = @googleEventId
       WHEN NOT MATCHED THEN INSERT (UserId, EventId, GoogleEventId)
-      VALUES (@userId, @eventId, @googleEventId)
+      VALUES (@userId, @eventId, @googleEventId);
     `);
 }
 /** Get Google Calendar event ID for a user and event
