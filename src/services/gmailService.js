@@ -6,7 +6,8 @@
  */
 
 const { google } = require("googleapis");
-const oAuth2Client = require("../utils/oauthClient");
+import { oAuth2Client } from "../utils/oauthClient.js";
+import { OAuth2Client } from "google-auth-library";
 
 /**
  * Sends an approval/rejection email via Gmail API.
@@ -16,7 +17,7 @@ const oAuth2Client = require("../utils/oauthClient");
  * @returns {Promise<void>} Resolves when email is sent.
  * @throws {Error} If Gmail API fails.
  */
-async function sendApprovalEmail(recipient, title, isApproved) {
+export async function sendApprovalEmail(recipient, title, isApproved) {
   if (!recipient || !title) {
     throw new Error("Missing required fields: recipient or title");
   }
