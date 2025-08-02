@@ -132,7 +132,7 @@ export async function deleteApplication(req, res, next) {
 export async function getPendingApplicationsByCC(req, res, next) {
   try {
     const userId = req.userId;
-    
+
     if (isNaN(userId)) {
       res.status(400).json({ error: "Invalid user ID" });
       return;

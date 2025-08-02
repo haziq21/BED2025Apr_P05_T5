@@ -13,7 +13,7 @@ import * as medicalRecordsController from "./controllers/medicalRecordsControlle
 import * as mediSchedule from "./controllers/medicationSchedule.js";
 import * as mediValidate from "./middleware/medicationScheduleValidation.js";
 import * as reminderCron from "./cron/reminderCron.js";
-import { sentiment } from "./controllers/sentiment.js"
+import { sentiment } from "./controllers/sentiment.js";
 import { getOAuthClient, getAuthUrl } from "./utils/googleAuth.js";
 import * as googleCalendar from "./controllers/googleCalendar.js";
 import * as map from "./controllers/map.js";
@@ -104,12 +104,6 @@ app.post("/api/comment", verifyJWT, comment.createComment);
 app.put("/api/comment", verifyJWT, comment.updateComment);
 app.delete("/api/comment/:postId", verifyJWT, comment.deleteComment);
 
-//create the cron job once program starts
-reminderCron.getDates();
-//analysis the sentiment of each comment
-app.get('/api/sentiment', sentiment);
-
-
 //Friends management
 app.get("/api/friends", verifyJWT, friends.getAllFriends);
 app.get("/api/friends/search", verifyJWT, friends.searchUsers);
@@ -169,6 +163,8 @@ app.post(
   googleCalendar.addCalendarEvent
 );
 
+reminderCron.getDates();
+app.get("/api/sentiment", sentiment);
 
 // Interest Group Application (USER SIDE)
 app.post(
