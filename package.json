@@ -2,7 +2,9 @@
   "name": "kampung-connect",
   "version": "1.0.0",
   "type": "module",
-  "test": "mocha",
+  "scripts": {
+    "test": "mocha"
+  },
   "dependencies": {
     "@googlemaps/google-maps-services-js": "^3.4.2",
     "@googlemaps/places": "^2.1.0",
