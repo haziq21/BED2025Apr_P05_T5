@@ -69,6 +69,7 @@ export async function getCommentAndAnalyze() {
       sentimentCounts.neutral,
       sentimentCounts.negative,
     ];
+    
   } catch (err) {
     // @ts-ignore
     console.error("Error:", err.message);
