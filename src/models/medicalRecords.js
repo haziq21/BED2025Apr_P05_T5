@@ -94,7 +94,7 @@ export async function deleteFile(MedicalRecordId, UserId) {
 }
 
 /**
- * Update the nanme of a file by its ID
+ * Update the name of a file by its ID
  * @param {number} MedicalRecordId
  * @param {{UserId: number, originalName: string, fileName: string}} file
  */

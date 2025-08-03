@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "swagger": "node ./swagger.js"
   },
   "dependencies": {
     "@googlemaps/google-maps-services-js": "^3.4.2",
@@ -20,10 +21,12 @@
     "multer": "^2.0.1",
     "node-cron": "^4.2.1",
     "nodemon": "^3.1.10",
+    "swagger-ui-express": "^5.0.1",
     "twilio": "^5.8.0"
   },
   "devDependencies": {
     "mocha": "^11.7.1",
-    "supertest": "^7.1.4"
+    "supertest": "^7.1.4",
+    "swagger-autogen": "^2.23.7"
   }
 }

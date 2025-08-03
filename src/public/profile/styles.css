@@ -152,28 +152,25 @@ body {
 .buttons .delete-btn:hover {
   background: #c63d3d;
 }
-#linkGoogleCalendar {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 24px;
-  background: #a89372; /* Warm brown */
-  color: #fff;
-  border: none;
-  border-radius: 30px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 600;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: background 0.3s ease, transform 0.2s ease;
-  float: right; /* Align to right */
-  margin: 30px 40px 0 0; /* Top, right, bottom, left */
+.google-calendar-section {
+  text-align: right;
+  margin: 40px 0;
 }
 
-#linkGoogleCalendar:hover {
-  background: #937c5c;
-  transform: translateY(-2px);
+.google-calendar-section button {
+  padding: 12px 24px;
+  background: #a89372;
+  border: none;
+  color: white;
+  font-size: 16px;
+  border-radius: 30px;
+  cursor: pointer;
 }
+
+.google-calendar-section button:hover {
+  background: #937c5c;
+}
+
 @media (max-width: 768px) {
   .profile-card {
     margin: 30px 20px;

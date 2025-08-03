@@ -1,4 +1,4 @@
-const apiBaseUrl = "http://localhost:3000";
+
 const token = localStorage.getItem("token");
 console.log(token);
 
@@ -442,7 +442,7 @@ async function fetchMedications() {
       method: "GET",
     };
     const result = await fetchWithToken(
-      `${apiBaseUrl}/api/medicationSchedule`,
+      `/api/medicationSchedule`,
       options
     );
     console.log("Get result:", result);
@@ -463,7 +463,7 @@ async function deleteMedications(id) {
       method: "DELETE",
     };
     const result = await fetchWithToken(
-      `${apiBaseUrl}/api/medicationSchedule/${id}`,
+      `/api/medicationSchedule/${id}`,
       options
     );
     console.log("Delete result:", result);
@@ -482,7 +482,7 @@ async function updateMedications(data) {
       body: JSON.stringify(data),
     };
     const result = await fetchWithToken(
-      `${apiBaseUrl}/api/medicationSchedule`,
+      `/api/medicationSchedule`,
       options
     );
     console.log("Update result:", result);
@@ -503,7 +503,7 @@ async function createMedication(data) {
       body: JSON.stringify(data),
     };
     const result = await fetchWithToken(
-      `${apiBaseUrl}/api/medicationSchedule`,
+      `/api/medicationSchedule`,
       options
     );
     console.log("Create result:", result);

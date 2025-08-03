@@ -1,4 +1,4 @@
-const BASE_API_URL = "http://localhost:3000";
+
 
 // Get token from localStorage
 const token3 = localStorage.getItem("token");
@@ -25,7 +25,7 @@ window.addEventListener("DOMContentLoaded", loadProfile);
 async function loadProfile() {
   console.log("check check");
   try {
-    const res = await fetch(`${BASE_API_URL}/api/profile/`, {
+    const res = await fetch(`/api/profile/`, {
       headers: {
         Authorization: `Bearer ${token3}`,
       },
@@ -165,7 +165,7 @@ uploadInput.addEventListener("change", async () => {
 //  Delete profile picture
 async function deleteProfilePicture() {
   try {
-    const res = await fetch(`${BASE_API_URL}/api/profile/picture`, {
+    const res = await fetch(`/api/profile/picture`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token3}`,
@@ -197,7 +197,7 @@ async function deleteUser() {
     return;
 
   try {
-    const res = await fetch(`${BASE_API_URL}/api/profile/`, {
+    const res = await fetch(`/api/profile/`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token3}`,

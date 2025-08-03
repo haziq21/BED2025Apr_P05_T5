@@ -15,18 +15,23 @@
       src="https://kit.fontawesome.com/c3f87a633e.js"
       crossorigin="anonymous"
     ></script>
+    <script
+      src="https://kit.fontawesome.com/c3f87a633e.js"
+      crossorigin="anonymous"
+    ></script>
   </head>
 
   <body>
     <nav class="topnav">
       <a href="/">Home</a>
-      <a href="/ccs">Community Centers</a>
+      <a href="/ccEvents">CC Events</a>
       <a href="/Friends">Friends</a>
       <a href="#Location">Location</a>
-      <a href="/medicationSchedule">Medication</a>
-      <a href="/profile">Profile</a>
+      <a href="/medicationSchedule">Medical</a>
       <a href="/comment">Comments</a>
       <a href="/calendar">Calendar</a>
+      <a href="/profile">Profile</a>
+      <a href="/adminManagement">Admin Management</a>
     </nav>
     <h1 id="welcomeMsg"></h1>
 
@@ -46,6 +51,63 @@
         </div>
       </div>
     </div>
+    <!-- slide show -->
+    <div class="slideshow-container">
+      <div class="mySlides fade">
+        <div class="numbertext">1 / 3</div>
+        <img src="./images/senior.png" style="width: 100%" />
+      </div>
+
+      <div class="mySlides fade">
+        <div class="numbertext">2 / 3</div>
+        <img src="./images/senior2.png" style="width: 100%" />
+      </div>
+
+      <div class="mySlides fade">
+        <div class="numbertext">3 / 3</div>
+        <img src="./images/senior3.png" style="width: 100%" />
+      </div>
+
+      <a class="prev" onclick="plusSlides(-1)">❮</a>
+      <a class="next" onclick="plusSlides(1)">❯</a>
+    </div>
+    <br />
+
+    <div style="text-align: center">
+      <span class="dot" onclick="currentSlide(1)"></span>
+      <span class="dot" onclick="currentSlide(2)"></span>
+      <span class="dot" onclick="currentSlide(3)"></span>
+    </div>
+    <!-- footer -->
+    <footer>
+      <hr />
+      <div class="footer-container">
+        <!-- Left Section: Logo and Privacy Policy -->
+        <div class="footer-logo">
+          <img src="./images/logo.png" alt="Kampung Connect icon" />
+          <p>Privacy policy</p>
+        </div>
+
+        <!-- Right Section: Social Media Links -->
+        <div class="social-media">
+          <p>Follow us on</p>
+          <div>
+            <a href="#">&#9993;</a>
+            <a href="https://www.instagram.com/accounts/login/?hl=en"
+              ><i class="fa-brands fa-instagram"></i
+            ></a>
+            <a href="https://x.com/"><i class="fa-brands fa-twitter"></i></a>
+            <a href="https://www.facebook.com/"
+              ><i class="fa-brands fa-facebook"></i
+            ></a>
+          </div>
+          <p class="copyright">&copy; Kampung Connect 2025</p>
+        </div>
+      </div>
+      <hr />
+      <p>&copy; 2025 Kampung Connect Website. All rights reserved.</p>
+    </footer>
+    <script src="global.js"></script>
     <!-- footer -->
     <footer>
       <hr />
