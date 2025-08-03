@@ -71,6 +71,58 @@
       </div>
     </div>
 
+    <!-- Create Event Modal -->
+    <div id="createEventModal" class="modal-overlay">
+      <div class="modal">
+        <span class="close">&times;</span>
+        <h2>Create New Event</h2>
+        <form id="createEventForm">
+          <div class="form-group">
+            <label for="eventName">Event Name:</label>
+            <input type="text" id="eventName" name="name" required />
+          </div>
+
+          <div class="form-group">
+            <label for="eventDescription">Description:</label>
+            <textarea
+              id="eventDescription"
+              name="description"
+              required
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="eventLocation">Location:</label>
+            <input type="text" id="eventLocation" name="location" required />
+          </div>
+
+          <div class="form-group">
+            <label for="eventStartDateTime">Start Date and Time:</label>
+            <input
+              type="datetime-local"
+              id="eventStartDateTime"
+              name="StartDateTime"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="eventEndDateTime">End Date and Time:</label>
+            <input
+              type="datetime-local"
+              id="eventEndDateTime"
+              name="EndDateTime"
+              required
+            />
+          </div>
+
+          <div class="form-actions">
+            <button type="submit">Create</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <div class="content">
       <div class="events-controls" id="eventsControls" style="display: none">
         <div class="search-section">

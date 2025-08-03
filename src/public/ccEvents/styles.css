@@ -255,6 +255,23 @@
   background-color: #218838;
 }
 
+.admin-event-actions {
+  width: 100%;
+  display: flex;
+  justify-content: space-around; /* Or space-between */
+  align-items: center;
+}
+.register-toggle-btn {
+  padding: 8px 16px;
+  background-color: #5ce460;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+  justify-self: center;
+}
 /* Content Area */
 .content {
   max-width: 1200px;
@@ -387,6 +404,48 @@
 
 .delete-btn:hover {
   background-color: #c82333;
+}
+
+/* Create Event Modal Styles */
+#createEventModal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgba(0, 0, 0, 0.4); /* Black with opacity */
+  justify-content: center; /* Center content horizontally */
+  align-items: center; /* Center content vertically */
+}
+
+#createEventModal .modal-content {
+  background-color: #fefefe;
+  margin: auto; /* Auto margins for centering */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%; /* Could be more specific width */
+  max-width: 500px; /* Max width for larger screens */
+  border-radius: 8px;
+  position: relative; /* Needed for positioning the close button */
+}
+
+#createEventModal .modal-content .close {
+  color: #aaa;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#createEventModal .modal-content .close:hover,
+#createEventModal .modal-content .close:focus {
+  color: black;
+  text-decoration: none;
 }
 
 /* Modal Styles */
@@ -683,13 +742,4 @@
     width: 100%;
     max-width: 200px;
   }
-}
-
-.register-toggle-btn {
-  display: inline-block;
-  padding: 5px 10px;
-  margin-top: 1rem;
-  color: #6f8071;
-  cursor: pointer;
-  font-size: 20px;
 }
