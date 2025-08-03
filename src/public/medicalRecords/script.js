@@ -1,171 +1,186 @@
-const BASE_API_URL2 = "/api";
+const BASE_API_URL = "http://localhost:3000";
 const token6 = localStorage.getItem("token");
 
-// /** @type {HTMLElement|null} */
-// const uploadTrigger = document.getElementById("uploadTrigger");
-// /** @type {HTMLInputElement|null} */
-// // @ts-ignore
-// const fileInput = document.getElementById("fileInput");
-// /** @type {HTMLElement|null} */
-// const fileList = document.getElementById("fileList");
+if (!token) {
+  console.error("No token found in localStorage");
+}
 
-// if (!uploadTrigger || !fileInput || !fileList) {
-//   console.error("Missing DOM elements for upload UI.");
-// }
+/** @typedef {Object} MedicalRecord
+ * @property {number} MedicalRecordId
+ * @property {string} originalName
+ * @property {string} fileName
+ * @property {string} mimeType
+ * @property {string} filePath
+ * @property {string} uploadedAt
+ */
 
-// const userId = parseJwt(token)?.userId;
+/**
+ * @type {MedicalRecord[]}
+ */
+let medicalRecords = [];
 
-// /**
-//  * Decode JWT token to extract payload (for userId)
-//  * @param {string|null} token
-//  * @returns {any}
-//  */
-// function parseJwt(token) {
-//   if (!token) return null;
-//   const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
-//   return JSON.parse(atob(base64));
-// }
+const uploadTrigger = document.getElementById("uploadTrigger");
+const fileInput = document.getElementById("fileInput");
+const fileList = document.getElementById("fileList");
 
-// // Event Listener to open file dialog
-// uploadTrigger?.addEventListener("click", () => {
-//   fileInput?.click();
-// });
+/**
+ * Helper to calculate "X days ago" from an ISO date
+ * @param {string} isoDate
+ * @returns {string}
+ */
+function getDaysAgo(isoDate) {
+  const uploaded = new Date(isoDate);
+  const now = new Date();
+  const diffTime = now.getTime() - uploaded.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  return `${diffDays === 0 ? "Today" : `${diffDays} day(s) ago`}`;
+}
 
-// // When a file is chosen
-// fileInput?.addEventListener("change", async (e) => {
-//   const file = e.target?.files?.[0];
-//   if (!file || !userId) return;
+/**
+ * Fetch and render all uploaded files
+ */
+async function fetchMedicalRecords() {
+  try {
+    const res = await fetch(`${BASE_API_URL}/api/medicalRecords`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await res.json();
+    medicalRecords = data;
+    renderFileList(medicalRecords);
+  } catch (err) {
+    console.error("Error fetching medical records:", err);
+  }
+}
 
-//   const formData = new FormData();
-//   formData.append("file", file);
+/**
+ * Renders the uploaded files as vertical list
+ * @param {MedicalRecord[]} files
+ */
+function renderFileList(files) {
+  if (!fileList) return;
+  fileList.innerHTML = "";
 
-//   try {
-//     await fetch(`${apiBaseUrl}/api/medicalRecords/${userId}`, {
-//       method: "POST",
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//       },
-//       body: formData,
-//     });
-//     await fetchFiles(); // Refresh list
-//   } catch (error) {
-//     console.error("Upload failed:", error);
-//   }
-// });
+  files.forEach((file) => {
+    const item = document.createElement("div");
+    item.classList.add("file-item");
 
-// /**
-//  * Fetch uploaded medical files for user
-//  */
-// async function fetchFiles() {
-//   if (!userId || !fileList) return;
-//   try {
-//     const res = await fetch(`${apiBaseUrl}/api/medicalRecords/${userId}`, {
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//       },
-//     });
-//     const data = await res.json();
-//     renderFiles(data);
-//   } catch (err) {
-//     console.error("Error fetching files:", err);
-//   }
-// }
+    const nameSpan = document.createElement("span");
+    nameSpan.textContent = file.fileName;
 
-// /**
-//  * Render file list in carousel
-//  * @param {Array<Object>} files
-//  */
-// function renderFiles(files) {
-//   if (!fileList) return;
-//   fileList.innerHTML = "";
+    const daysSpan = document.createElement("span");
+    daysSpan.textContent = getDaysAgo(file.uploadedAt);
 
-//   files.forEach((file) => {
-//     const container = document.createElement("div");
-//     container.className = "file-item";
+    const iconContainer = document.createElement("div");
 
-//     const daysAgo = calcDaysAgo(file.uploadedAt);
-//     const fileNameDisplay = document.createElement("span");
-//     fileNameDisplay.textContent = `${file.fileName} (${daysAgo} day${
-//       daysAgo !== 1 ? "s" : ""
-//     } ago)`;
+    const renameBtn = document.createElement("button");
+    renameBtn.textContent = "✏️";
+    renameBtn.classList.add("rename-btn");
+    renameBtn.title = "Rename";
+    renameBtn.onclick = () => handleRename(file);
 
-//     const actions = document.createElement("div");
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "🗑️";
+    deleteBtn.classList.add("delete-btn");
+    deleteBtn.title = "Delete";
+    deleteBtn.onclick = () => handleDelete(file);
 
-//     const renameBtn = document.createElement("button");
-//     renameBtn.innerHTML = "✏️";
-//     renameBtn.className = "rename-btn";
-//     renameBtn.addEventListener("click", () =>
-//       handleRename(file.MedicalRecordId, file.fileName)
-//     );
+    iconContainer.appendChild(renameBtn);
+    iconContainer.appendChild(deleteBtn);
 
-//     const deleteBtn = document.createElement("button");
-//     deleteBtn.innerHTML = "🗑️";
-//     deleteBtn.className = "delete-btn";
-//     deleteBtn.addEventListener("click", () =>
-//       handleDelete(file.MedicalRecordId)
-//     );
+    item.appendChild(nameSpan);
+    item.appendChild(daysSpan);
+    item.appendChild(iconContainer);
 
-//     actions.append(renameBtn, deleteBtn);
-//     container.append(fileNameDisplay, actions);
-//     fileList.appendChild(container);
-//   });
-// }
+    fileList.appendChild(item);
+  });
+}
 
-// /**
-//  * Calculate how many days ago a file was uploaded
-//  * @param {string} dateStr
-//  * @returns {number}
-//  */
-// function calcDaysAgo(dateStr) {
-//   const uploadedDate = new Date(dateStr);
-//   const now = new Date();
-//   const diffTime = Math.abs(now - uploadedDate);
-//   return Math.floor(diffTime / (1000 * 60 * 60 * 24));
-// }
+/**
+ * Prompts user to select file for upload
+ */
+uploadTrigger?.addEventListener("click", () => {
+  fileInput?.click();
+});
 
-// /**
-//  * Handle deleting a file by ID
-//  * @param {number} recordId
-//  */
-// async function handleDelete(recordId) {
-//   if (!userId || !confirm("Are you sure you want to delete this file?")) return;
+/**
+ * On file selected, upload it
+ * @param {Event} e
+ */
+fileInput?.addEventListener("change", async (e) => {
+  const target = /** @type {HTMLInputElement} */ (e.target);
+  const file = target.files?.[0];
+  if (!file) return;
 
-//   try {
-//     await fetch(`${apiBaseUrl}/api/medicalRecords/${userId}/${recordId}`, {
-//       method: "DELETE",
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//       },
-//     });
-//     await fetchFiles(); // Refresh
-//   } catch (err) {
-//     console.error("Delete failed:", err);
-//   }
-// }
+  const formData = new FormData();
+  formData.append("file", file);
 
-// /**
-//  * Handle renaming a file
-//  * @param {number} recordId
-//  * @param {string} currentName
-//  */
-// async function handleRename(recordId, currentName) {
-//   const newName = prompt("Enter new name:", currentName);
-//   if (!newName || newName === currentName || !userId) return;
+  try {
+    const res = await fetch(`${BASE_API_URL}/api/medicalRecords/0`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
 
-//   try {
-//     await fetch(`${apiBaseUrl}/api/medicalRecords/${userId}/${recordId}`, {
-//       method: "PUT",
-//       headers: {
-//         "Content-Type": "application/json",
-//         Authorization: `Bearer ${token}`,
-//       },
-//       body: JSON.stringify({ fileName: newName }),
-//     });
-//     await fetchFiles(); // Refresh
-//   } catch (err) {
-//     console.error("Rename failed:", err);
-//   }
-// }
+    if (!res.ok) throw new Error("Upload failed");
+    await fetchMedicalRecords(); // Refresh list
+    fileInput.value = ""; // Reset input
+  } catch (err) {
+    console.error("Upload error:", err);
+  }
+});
 
-// // Auto-run on load
-// fetchFiles();
+/**
+ * Deletes a file by ID
+ * @param {MedicalRecord} file
+ */
+async function handleDelete(file) {
+  try {
+    const res = await fetch(
+      `${BASE_API_URL}/api/medicalRecords/0/${file.MedicalRecordId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (!res.ok) throw new Error("Delete failed");
+    fetchMedicalRecords();
+  } catch (err) {
+    console.error("Delete error:", err);
+  }
+}
+
+/**
+ * Prompts user to rename a file and sends PUT request
+ * @param {MedicalRecord} file
+ */
+async function handleRename(file) {
+  const newName = prompt("Enter new name for this file:", file.fileName);
+  if (!newName || newName === file.fileName) return;
+
+  try {
+    const res = await fetch(
+      `${BASE_API_URL}/api/medicalRecords/0/${file.MedicalRecordId}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ fileName: newName }),
+      }
+    );
+    if (!res.ok) throw new Error("Rename failed");
+    fetchMedicalRecords();
+  } catch (err) {
+    console.error("Rename error:", err);
+  }
+}
+
+// On page load
+fetchMedicalRecords();
