@@ -130,8 +130,6 @@ async function searchUsers() {
     // If search is empty, clear and hide search results, then return early.
     searchResultsContainer.innerHTML = "";
     searchResultsContainer.style.display = "none";
-    // Optionally re-fetch and display the full friend list if needed elsewhere
-    // renderFriends(await fetchAllFriends());
     return;
   }
 
@@ -224,22 +222,123 @@ function renderSearchResults(users) {
     // Append the button to the search results container
     searchResultsContainer.appendChild(userButton);
   });
+}
 
-  // After rendering the buttons, add event listeners
-  addPopupToggleListeners();
+const popupContent = document.querySelector(".popup-content");
+
+// Function to handle clicks outside the popup
+function handleOutsideClick(event) {
+  if (popupContent && !popupContent.contains(event.target)) {
+    popupContent.style.display = "none"; // Hide the popup
+    removeHidePopupOnClickOutside(); // Remove the event listener
+  }
+}
+
+// Function to add the event listener
+function hidePopupOnClickOutside() {
+  document.addEventListener("click", handleOutsideClick);
+}
+
+// Function to remove the event listener
+function removeHidePopupOnClickOutside() {
+  document.removeEventListener("click", handleOutsideClick);
+}
+
+/**
+ * @type {string | null} currentPopupUserId - Stores the user ID of the currently displayed popup user.
+ */
+let currentPopupUserId = null;
+
+// Function to update the toggle friend button based on friendship status
+async function updateToggleFriendButton(friendshipStatus, otherUserId) {
+  const toggleFriendButton = document.getElementById("toggle-friend-btn");
+  if (!toggleFriendButton) {
+    console.error("Toggle friend button not found.");
+    return;
+  }
+
+  // Remove any existing click listeners from the toggle friend button
+  const oldToggleFriendButton = toggleFriendButton;
+  const newToggleFriendButton = oldToggleFriendButton.cloneNode(true);
+  oldToggleFriendButton.parentNode.replaceChild(
+    newToggleFriendButton,
+    oldToggleFriendButton
+  );
+  const updatedToggleFriendButton = newToggleFriendButton;
+
+  if (friendshipStatus.status === "friends") {
+    updatedToggleFriendButton.textContent = "Remove friend";
+    updatedToggleFriendButton.addEventListener("click", async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No JWT token found.");
+        window.location.href = "/login";
+        return;
+      }
+      const removeResponse = await fetch(
+        `/api/friends/${currentPopupUserId}`, // Use the stored user ID
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!removeResponse.ok) {
+        console.error(
+          `Error removing friend: ${removeResponse.status} ${removeResponse.statusText}`
+        );
+      } else {
+        document.querySelector(".popup-content").style.display = "none"; // Hide popup after removing friend
+        // Optionally update the UI to reflect the change (e.g., re-fetch friend list)
+      }
+    });
+  } else if (friendshipStatus.status === "pending") {
+    updatedToggleFriendButton.textContent = "Request Pending";
+    // No click listener needed for pending state
+  } else {
+    // Not friends
+    updatedToggleFriendButton.textContent = "Send friend request";
+    updatedToggleFriendButton.addEventListener("click", async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No JWT token found.");
+        window.location.href = "/login";
+        return;
+      }
+      const sendResponse = await fetch(
+        `/api/friends/${currentPopupUserId}`, // Use the stored user ID
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!sendResponse.ok) {
+        console.error(
+          `Error sending friend request: ${sendResponse.status} ${sendResponse.statusText}`
+        );
+      } else {
+        updatedToggleFriendButton.textContent = "Request Sent";
+        document.querySelector(".popup-content").style.display = "none"; // Hide popup after sending request
+        // Optionally update the UI to reflect the change
+      }
+    });
+  }
 }
 
 /**
  * Adds click event listeners to user search result buttons to toggle popup content.
+ * This function should be called ONCE after the initial rendering and whenever the search results are updated.
  */
-
 function addPopupToggleListeners() {
-  // Get all the user search result buttons
+  // Get all the user search result buttons that are currently in the DOM
   const userButtons = document.querySelectorAll(".user-search-result-button");
   // Get the existing popup content element
   const popupContent = document.querySelector(".popup-content");
   const popupUsername = document.getElementById("popup-username");
-  const popupBio = document.getElementById("popup-bio"); // Assuming you have a bio element
+  const popupBio = document.getElementById("popup-bio");
   const popupProfilePicture = document.querySelector("#pfp-div img"); // Select the image using querySelector
 
   if (!popupContent || !popupUsername) {
@@ -248,10 +347,16 @@ function addPopupToggleListeners() {
   }
 
   userButtons.forEach((button) => {
-    button.addEventListener("click", async () => {
-      const userId = button.dataset.userId;
+    // Remove any existing listeners before adding new ones to prevent duplicates
+    const clonedButton = button.cloneNode(true);
+    button.parentNode.replaceChild(clonedButton, button);
+    const newButton = clonedButton;
 
-      if (!userId) {
+    newButton.addEventListener("click", async () => {
+      const otherUserId = newButton.dataset.userId;
+      currentPopupUserId = otherUserId; // Store the user ID
+
+      if (!otherUserId) {
         console.error("User ID not found on the button.");
         return;
       }
@@ -265,7 +370,7 @@ function addPopupToggleListeners() {
       }
 
       try {
-        const response = await fetch(`/api/friends/${userId}/public`, {
+        const response = await fetch(`/api/friends/${otherUserId}/public`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -281,6 +386,18 @@ function addPopupToggleListeners() {
         const userDataArray = await response.json();
 
         console.log("Fetched user data array for popup:", userDataArray);
+        const statusResponse = await fetch(
+          `/api/friends/status/${otherUserId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const friendshipStatus = await statusResponse.json();
+
+        // Update the toggle friend button based on the fetched status
+        updateToggleFriendButton(friendshipStatus, otherUserId);
 
         if (Array.isArray(userDataArray) && userDataArray.length > 0) {
           const userData = userDataArray[0];
@@ -309,9 +426,15 @@ function addPopupToggleListeners() {
           const currentDisplay = popupContent.style.display;
           popupContent.style.display =
             currentDisplay === "none" ? "flex" : "none"; // Toggle between 'flex' and 'none'
+          if (popupContent.style.display === "flex") {
+            // Only add listener when showing
+            hidePopupOnClickOutside();
+          } else {
+            // Remove listener when hiding
+            removeHidePopupOnClickOutside();
+          }
         } else {
-          console.error("No user data received for ID:", userId);
-          // Optionally hide the popup or show a "user not found" message
+          console.error("No user data received for ID:", otherUserId); // Changed userId to otherUserId
           popupContent.style.display = "none";
         }
       } catch (error) {
@@ -330,7 +453,7 @@ function hideSearchResults() {
   }
 }
 
-// Add event listener after the DOM is loaded
+// Add event listeners after the DOM is loaded
 document.addEventListener("DOMContentLoaded", async () => {
   // Show a loading indicator (optional)
   const friendsContainer = document.getElementById("friends-container");
@@ -340,12 +463,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Fetch and render the initial list of friends
   const friends = await fetchAllFriends();
-  // Assuming fetchAllFriends returns objects with a 'name' property based on previous discussions
   renderFriends(friends.map((friend) => friend.name)); // Map to names for renderFriends
 
   // Attach the debounced searchUsers function to the input's keyup event
   if (searchInput && searchResultsContainer) {
-    searchInput.addEventListener("keyup", debounce(searchUsers, 400));
+    searchInput.addEventListener(
+      "keyup",
+      debounce(async () => {
+        await searchUsers(); // Perform the search
+        addPopupToggleListeners(); // Add listeners after search results are rendered
+      }, 400)
+    );
 
     // Show dropdown on focus
     searchInput.addEventListener("focus", () => {
@@ -366,6 +494,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       : null;
     if (
       searchDropdownWrapper &&
+      event.target instanceof Node && // Add this line
       !searchDropdownWrapper.contains(event.target)
     ) {
       hideSearchResults();

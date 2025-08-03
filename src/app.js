@@ -115,6 +115,7 @@ app.delete("/api/comment/:postId", verifyJWT, comment.deleteComment);
 app.get("/api/friends", verifyJWT, friends.getAllFriends);
 app.get("/api/friends/search", verifyJWT, friends.searchUsers);
 app.get("/api/friends/requests", verifyJWT, friends.getPendingFriendRequests);
+app.get("/api/friends/status/:friendId", verifyJWT, friends.getFriendStatus);
 app.get("/api/friends/:friendId/public", verifyJWT, friends.getPublicProfile);
 app.post(
   "/api/friends/requests/:friendId",

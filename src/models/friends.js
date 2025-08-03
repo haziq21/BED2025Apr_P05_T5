@@ -153,3 +153,27 @@ export async function getPublicProfile(id) {
     profilePhotoURL: user.ProfilePhotoURL,
   }));
 }
+
+/** * Get the friendship status between two users.
+ * @param {number} userId
+ * @param {number} friendId
+ * @returns {Promise<"friends" | "pending" | "not_friends" | null>} Returns the friendship status or null if no friendship exists.
+ */
+export async function getFriendStatus(userId, friendId) {
+  const result = await pool
+    .request()
+    .input("userId", userId)
+    .input("friendId", friendId)
+    .query(
+      `SELECT Accepted
+      FROM Friends
+      WHERE (UserId1 = @userId AND UserId2 = @friendId)
+         OR (UserId1 = @friendId AND UserId2 = @userId)`
+    );
+
+  if (result.recordset.length === 0) {
+    return null; // No friendship found
+  }
+
+  return result.recordset[0].Accepted ? "friends" : "pending";
+}

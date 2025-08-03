@@ -37,7 +37,6 @@ export function redirectToGoogleOAuth(req, res) {
   console.log("Current oauthStates:", oauthStates); // Log for debugging
 
   // Get the auth URL including the state parameter
-  // ASSUMPTION: getAuthUrl supports a state parameter. If not, you'll need to construct the URL manually.
   const authUrl = getAuthUrl(oAuth2Client, state); // Pass state to getAuthUrl
 
   res.json({ authUrl: authUrl });

@@ -119,3 +119,22 @@ export async function getPublicProfile(req, res) {
   }
   res.status(200).json(profile);
 }
+
+/** * Get the friendship status between two users.
+ * @type {import("express").RequestHandler}
+ * @param {AuthenticatedRequest} req
+ */
+export async function getFriendStatus(req, res) {
+  const userId = +req.userId;
+  const friendId = +req.params.friendId;
+  if (isNaN(userId) || isNaN(friendId)) {
+    res.status(400).json({ error: "Invalid user or friend ID" });
+    return;
+  }
+  const status = await model.getFriendStatus(userId, friendId);
+  if (status === null) {
+    res.status(200).json({ status: "not_friends" });
+    return;
+  }
+  res.status(200).json({ status });
+}

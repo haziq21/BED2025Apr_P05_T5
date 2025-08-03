@@ -18,7 +18,6 @@ export function redirectToGoogleOAuth(req, res) {
   const userId = req.userId;
 
   if (!userId) {
-    // This case should ideally be handled by verifyJWT, but added for safety
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
@@ -28,7 +27,6 @@ export function redirectToGoogleOAuth(req, res) {
   const returnUrl = req.headers.referer || "/"; // Get the referring URL or default to homepage
 
   // Store the state and associate it with the userId temporarily
-  // *** Replace this with persistent storage in production ***
   oauthStates[state] = { userId: userId, returnUrl: returnUrl };
   console.log(
     `Generated state: ${state} for userId: ${userId}, returnUrl: ${returnUrl}`
@@ -36,7 +34,6 @@ export function redirectToGoogleOAuth(req, res) {
   console.log("Current oauthStates:", oauthStates); // Log for debugging
 
   // Get the auth URL including the state parameter
-  // ASSUMPTION: getAuthUrl supports a state parameter. If not, you'll need to construct the URL manually.
   const authUrl = getAuthUrl(oAuth2Client, state); // Pass state to getAuthUrl
 
   res.json({ authUrl: authUrl });
