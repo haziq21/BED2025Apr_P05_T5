@@ -287,7 +287,23 @@ async function loadEventsForCC(ccId) {
     const data = await apiCall(`/api/events/cc/${ccId}`);
     currentEvents = data || [];
 
-    renderEvents(currentEvents);
+    // Fetch events the user is registered for
+    const registeredEvents = await fetchUserRegisteredEvents();
+
+    // Add a flag to each event indicating if the user is registered
+    const eventsWithRegistrationStatus = currentEvents.map((event) => ({
+      eventId: event.eventId,
+      name: event.name,
+      description: event.description,
+      location: event.location,
+      StartDateTime: event.StartDateTime,
+      EndDateTime: event.EndDateTime,
+      isRegistered: registeredEvents.some(
+        (regEvent) => regEvent.eventId === event.eventId
+      ), // Check against event.eventId
+    }));
+
+    renderEvents(eventsWithRegistrationStatus);
     hideLoading();
   } catch (error) {
     console.error("Error loading events:", error);
@@ -302,6 +318,16 @@ async function loadEventsForCC(ccId) {
  * @param {HTMLElement} mutualSignupsElement - The element to display the mutual signups in
  */
 async function fetchAndDisplayMutualSignups(eventId, mutualSignupsElement) {
+  if (!mutualSignupsElement) {
+    console.error("Mutual signups element not found.");
+    return;
+  }
+
+  // Initial text while loading
+  mutualSignupsElement.textContent = "Loading mutual signups...";
+  // Set data attribute for the event ID
+  mutualSignupsElement.dataset.eventId = eventId;
+
   try {
     const mutualSignups = await apiCall(`/api/events/${eventId}/mutual`);
     if (mutualSignups && mutualSignups.length > 0) {
@@ -316,8 +342,17 @@ async function fetchAndDisplayMutualSignups(eventId, mutualSignupsElement) {
 }
 
 /**
+ * Fetch events the current user is registered for.
+ * @returns {Promise<Array<{eventId: number}>>} An array of registered event objects with eventId.
+ */
+async function fetchUserRegisteredEvents() {
+  return apiCall("/api/events/registered");
+}
+
+/**
  * Render events list
- * @param {Array<any>} events - Array of events
+ * @param {Array<{eventId: number, name: string, description: string, location: string, StartDateTime: Date, EndDateTime: Date, isRegistered: boolean}>} events - Array of events with registration status
+
  */
 function renderEvents(events) {
   if (!eventsListElement) return;
@@ -376,14 +411,20 @@ function renderEvents(events) {
     // Create a div for mutual signups
     const mutualSignupsElement = document.createElement("div");
     mutualSignupsElement.classList.add("mutual-signups");
-    mutualSignupsElement.textContent = "Loading mutual signups...";
     mutualSignupsElement.dataset.eventId = event.eventId; // Set data attribute for fetching
 
     // Create the register/unregister button
     const registerButton = document.createElement("button");
     registerButton.classList.add("register-toggle-btn");
-    registerButton.textContent = "Register"; // Initial state
     registerButton.dataset.eventId = event.eventId; // Set data attribute for event ID
+
+    // Set initial state based on isRegistered flag
+    if (event.isRegistered) {
+      registerButton.textContent = "Unregister";
+      registerButton.classList.add("registered");
+    } else {
+      registerButton.textContent = "Register";
+    }
 
     // Append the elements to the main event div
     eventElement.appendChild(eventDetailsElement);
@@ -450,11 +491,6 @@ function setupRegistrationButtons() {
   buttons.forEach((button) => {
     const eventId = button.dataset.eventId;
     if (!eventId) return;
-
-    // Determine initial state (requires backend to indicate registration status)
-    // For now, assume not registered initially. If your API provides this, update here.
-    // Example: button.textContent = event.isRegistered ? 'Unregister' : 'Register';
-    // button.classList.toggle('registered', event.isRegistered);
 
     button.addEventListener("click", () => {
       if (button.textContent === "Register") {
