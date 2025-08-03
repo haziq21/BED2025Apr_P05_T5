@@ -61,7 +61,6 @@ let currentEvents = [];
 let ccSearchTerm = "";
 let ccSortMode = "alphabetical";
 let eventSearchTerm = "";
-let eventSortMode = "alphabetical";
 /** @type {number | null} */
 let selectedCCId = null;
 /** @type {{lat: number, lon: number} | null} */
@@ -313,19 +312,6 @@ function handleEventSearch() {
 }
 
 /**
- * Handle event sort change
- */
-function handleEventSort() {
-  const sortSelect = /** @type {HTMLSelectElement} */ (
-    document.getElementById("eventSortSelect")
-  );
-  if (!sortSelect) return;
-
-  eventSortMode = sortSelect.value;
-  applyFiltersAndRenderEvents();
-}
-
-/**
  * Apply search and sort filters to events and render them
  */
 function applyFiltersAndRenderEvents() {
@@ -345,12 +331,6 @@ function applyFiltersAndRenderEvents() {
         event.description?.toLowerCase().includes(eventSearchTerm)
     );
   }
-
-  // Apply sorting
-  if (eventSortMode === "alphabetical") {
-    filteredEvents.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-  }
-  // Distance sorting would be implemented when events have location data
 
   renderEvents(filteredEvents);
 }
@@ -520,5 +500,4 @@ window.selectCC = selectCC;
 window.handleCCSearch = handleCCSearch;
 window.handleCCSort = handleCCSort;
 window.handleEventSearch = handleEventSearch;
-window.handleEventSort = handleEventSort;
 window.clearEventSearch = clearEventSearch;
