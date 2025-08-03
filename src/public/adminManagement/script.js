@@ -242,6 +242,8 @@ function closeEditModal() {
  */
 async function openAdminsModal(ccId) {
   try {
+    // Fetch current user profile to get their user ID
+    const currentUser = await apiCall("/api/profile");
     const admins = await apiCall(`/api/cc/${ccId}/admins`);
     const adminsList = document.getElementById("adminsList");
 
@@ -273,14 +275,18 @@ async function openAdminsModal(ccId) {
             </div>
           </div>
           <div class="admin-actions">
-            <button class="remove-admin-btn" onclick="removeAdmin(${ccId}, ${
-            admin.id
-          }, '${escapeHtml(admin.name).replace(
-            /'/g,
-            "\\'"
-          )}')" title="Remove as admin">
-              Remove
-            </button>
+            ${
+              admin.id !== currentUser.UserId
+                ? `<button class="remove-admin-btn" onclick="removeAdmin(${ccId}, ${
+                    admin.id
+                  }, '${escapeHtml(admin.name).replace(
+                    /'/g,
+                    "\\'"
+                  )}')" title="Remove as admin">
+                    Remove
+                  </button>`
+                : `<span class="current-user-label">You</span>`
+            }
           </div>
         </div>
       `
@@ -352,7 +358,6 @@ async function removeAdmin(ccId, userId, userName) {
 
     // Refresh the admins list
     await openAdminsModal(ccId);
-    alert(`"${userName}" has been removed as an admin successfully!`);
   } catch (error) {
     console.error("Error removing admin:", error);
     const errorMessage =
@@ -521,7 +526,6 @@ if (createCCFormElement) {
 
       closeCreateModal();
       await loadAdminCCs();
-      alert("Community center created successfully!");
     } catch (error) {
       console.error("Error creating CC:", error);
       const errorMessage =
@@ -566,7 +570,6 @@ if (editCCFormElement) {
 
       closeEditModal();
       await loadAdminCCs();
-      alert("Community center updated successfully!");
     } catch (error) {
       console.error("Error updating CC:", error);
       const errorMessage =
@@ -611,7 +614,6 @@ if (addAdminFormElement) {
 
       // Refresh the admins list
       await openAdminsModal(parseInt(ccId));
-      alert("Administrator added successfully!");
     } catch (error) {
       console.error("Error adding admin:", error);
       const errorMessage =
@@ -644,7 +646,6 @@ async function deleteCC(ccId) {
     });
 
     await loadAdminCCs();
-    alert("Community center deleted successfully!");
   } catch (error) {
     console.error("Error deleting CC:", error);
     const errorMessage =

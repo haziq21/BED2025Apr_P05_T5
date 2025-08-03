@@ -132,7 +132,7 @@ export async function makeAdmin(req, res) {
     return;
   }
 
-  if (!req.userId || !(await model.isAdmin(ccId, req.userId))) {
+  if (req.userId && !(await model.isAdmin(req.userId, ccId))) {
     res.status(403).send();
     return;
   }
@@ -161,6 +161,11 @@ export async function removeAdmin(req, res) {
   const userId = +req.params.userId;
   if (isNaN(ccId) || isNaN(userId)) {
     res.status(400).json({ error: "Invalid CC ID or User ID" });
+    return;
+  }
+
+  if (req.userId && !(await model.isAdmin(req.userId, ccId))) {
+    res.status(401).send();
     return;
   }
 
