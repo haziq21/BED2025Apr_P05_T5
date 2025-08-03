@@ -19,15 +19,18 @@
       href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css"
       rel="stylesheet"
     />
-    <script src="https://kit.fontawesome.com/c3f87a633e.js" crossorigin="anonymous"></script>
+    <script
+      src="https://kit.fontawesome.com/c3f87a633e.js"
+      crossorigin="anonymous"
+    ></script>
   </head>
   <body>
     <nav class="topnav">
       <a href="/">Home</a>
       <a href="/ccs">Community Centers</a>
-      <a href="#Events">Events</a>
+      <a href="/Friends">Friends</a>
       <a href="#Location">Location</a>
-      <a href="/medicationSchedule">Medication</a>
+      <a href="/medicationSchedule">Medical</a>
       <a href="/profile">Profile</a>
       <a href="/comment">Comments</a>
       <a href="/calendar"> Calendar</a>
@@ -35,7 +38,10 @@
 
     <main class="content">
       <section class="medication-section">
-        <h1>My Medication Plan | My Medical Records</h1>
+        <h1>
+          <span class="highlight-text">My Medication Plan</span> | My Medical
+          Records
+        </h1>
 
         <ul class="medication-list" id="medicationList"></ul>
 
@@ -164,31 +170,39 @@
         z-index: 9999;
       "
     ></div>
-       <!-- footer -->
-  <footer>
-    <hr>
-    <div class="footer-container">
-      <!-- Left Section: Logo and Privacy Policy -->
-      <div class="footer-logo">
-        <img src="../images/logo.png" alt="Kampung Connect icon">
-        <p>Privacy policy</p>
-      </div>
-
-      <!-- Right Section: Social Media Links -->
-      <div class="social-media">
-        <p>Follow us on</p>
-        <div>
-          <a href="#">&#9993;</a>                                   <!-- Email Icon -->
-          <a href="https://www.instagram.com/accounts/login/?hl=en"><i class="fa-brands fa-instagram"></i></a>    <!-- Instagram Icon -->
-          <a href="https://x.com/"><i class="fa-brands fa-twitter"></i></a>      <!-- Twitter Icon -->
-          <a href="https://www.facebook.com/"><i class="fa-brands fa-facebook"></i></a>     <!-- Facebook Icon -->
+    <!-- footer -->
+    <footer>
+      <hr />
+      <div class="footer-container">
+        <!-- Left Section: Logo and Privacy Policy -->
+        <div class="footer-logo">
+          <img src="../images/logo.png" alt="Kampung Connect icon" />
+          <p>Privacy policy</p>
         </div>
-        <p class="copyright">&copy; Kampung Connect 2025</p>
+
+        <!-- Right Section: Social Media Links -->
+        <div class="social-media">
+          <p>Follow us on</p>
+          <div>
+            <a href="#">&#9993;</a>
+            <!-- Email Icon -->
+            <a href="https://www.instagram.com/accounts/login/?hl=en"
+              ><i class="fa-brands fa-instagram"></i
+            ></a>
+            <!-- Instagram Icon -->
+            <a href="https://x.com/"><i class="fa-brands fa-twitter"></i></a>
+            <!-- Twitter Icon -->
+            <a href="https://www.facebook.com/"
+              ><i class="fa-brands fa-facebook"></i
+            ></a>
+            <!-- Facebook Icon -->
+          </div>
+          <p class="copyright">&copy; Kampung Connect 2025</p>
+        </div>
       </div>
-    </div>
-    <hr>
-    <p>&copy; 2025 Kampung Connect Website. All rights reserved.</p>
-  </footer>
+      <hr />
+      <p>&copy; 2025 Kampung Connect Website. All rights reserved.</p>
+    </footer>
     <script src="../global.js"></script>
     <script type="module" src="script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>

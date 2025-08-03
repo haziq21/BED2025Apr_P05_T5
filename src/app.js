@@ -19,6 +19,7 @@ import * as googleCalendar from "./controllers/googleCalendar.js";
 import * as map from "./controllers/map.js";
 import * as interestGroupUserController from "./controllers/interestGroupUserController.js";
 import * as interestGroupAdminController from "./controllers/interestGroupAdminController.js";
+import * as gmailController from "./controllers/gmailController.js";
 
 import pool from "./db.js";
 const PORT = process.env.PORT || 3000;
@@ -114,6 +115,7 @@ app.delete("/api/comment/:postId", verifyJWT, comment.deleteComment);
 app.get("/api/friends", verifyJWT, friends.getAllFriends);
 app.get("/api/friends/search", verifyJWT, friends.searchUsers);
 app.get("/api/friends/requests", verifyJWT, friends.getPendingFriendRequests);
+app.get("/api/friends/status/:friendId", verifyJWT, friends.getFriendStatus);
 app.get("/api/friends/:friendId/public", verifyJWT, friends.getPublicProfile);
 app.post(
   "/api/friends/requests/:friendId",
@@ -157,27 +159,6 @@ app.post("/api/map/shared-by-me/:userId", verifyJWT, map.shareLocation);
 app.delete("/api/map/shared-by-me/:userId", verifyJWT, map.revokeShare);
 app.get("/api/map/autocomplete", verifyJWT, map.getAutocompleteSuggestions);
 
-// Google Calendar Integration
-app.get(
-  "/api/calendar/google/auth/url",
-  verifyJWT,
-  googleCalendar.redirectToGoogleOAuth
-);
-app.get("/auth/google/callback", googleCalendar.oauthCallback);
-app.post(
-  "/api/googleCalendar/events",
-  verifyJWT,
-  googleCalendar.addCalendarEvent
-);
-app.get(
-  "/api/calendar/google/status",
-  verifyJWT,
-  googleCalendar.checkGoogleCalendarLinkStatus
-);
-
-reminderCron.getDates();
-app.get("/api/sentiment", sentiment);
-
 // Interest Group Application (USER SIDE)
 app.post(
   "/api/interestGroupUser",
@@ -216,6 +197,35 @@ app.get(
   verifyJWT,
   interestGroupAdminController.getApplicationById
 );
+
+// Google Calendar Integration
+app.get(
+  "/api/calendar/google/auth/url",
+  verifyJWT,
+  googleCalendar.redirectToGoogleOAuth
+);
+app.get("/auth/google/callback", googleCalendar.oauthCallback);
+app.post(
+  "/api/googleCalendar/events",
+  verifyJWT,
+  googleCalendar.addCalendarEvent
+);
+app.get(
+  "/api/calendar/google/status",
+  verifyJWT,
+  googleCalendar.checkGoogleCalendarLinkStatus
+);
+// Gmail Routes
+app.get("/api/gmail/auth", verifyJWT, gmailController.redirectToGoogleOAuth);
+app.get("/api/gmail/callback", gmailController.oauthCallback);
+app.post(
+  "/api/gmail/send-approval",
+  verifyJWT,
+  gmailController.sendApprovalEmail
+);
+
+reminderCron.getDates();
+app.get("/api/sentiment", sentiment);
 
 // This must come after all the routes
 app.use(errorHandler);

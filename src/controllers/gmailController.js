@@ -1,14 +1,15 @@
 import { google } from "googleapis";
 import { getOAuthClient, getAuthUrl } from "../utils/googleAuth.js";
-import * as model from "../models/googleAuth.js";
-import * as calendarService from "../services/googleCalendarService.js";
+import * as model from "../models/interestGroupAdmin.js";
+import * as gmailService from "../services/gmailService.js";
 /** @type {{ [key: string]: any }} */
 /** @type {{ [key: string]: { userId: string, returnUrl: string } }} */
 const oauthStates = {};
 function generateUniqueId() {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);
 }
-/** Redirect user to Google OAuth
+
+/** Redirect user to Google OAuth (Koh Hau's code)
  * @typedef {import('express').Request & { userId?: any }} AuthenticatedRequest
  * @param {AuthenticatedRequest} req
  * @param {import("express").Response} res
@@ -18,6 +19,7 @@ export function redirectToGoogleOAuth(req, res) {
   const userId = req.userId;
 
   if (!userId) {
+    // This case should ideally be handled by verifyJWT, but added for safety
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
@@ -27,6 +29,7 @@ export function redirectToGoogleOAuth(req, res) {
   const returnUrl = req.headers.referer || "/"; // Get the referring URL or default to homepage
 
   // Store the state and associate it with the userId temporarily
+  // *** Replace this with persistent storage in production ***
   oauthStates[state] = { userId: userId, returnUrl: returnUrl };
   console.log(
     `Generated state: ${state} for userId: ${userId}, returnUrl: ${returnUrl}`
@@ -39,7 +42,7 @@ export function redirectToGoogleOAuth(req, res) {
   res.json({ authUrl: authUrl });
 }
 
-/** Handle callback from Google OAuth
+/** Handle callback from Google OAuth (Koh Hau's code)
  * @param {AuthenticatedRequest} req
  * @param {import("express").Response} res
  * @returns {Promise<void>}
@@ -89,86 +92,32 @@ export async function oauthCallback(req, res) {
 }
 
 /**
- * Add a calendar event using user input.
+ * Send approval email and update application status
  * @param {AuthenticatedRequest} req
  * @param {import("express").Response} res
- * @return {Promise<void>}
  */
-export async function addCalendarEvent(req, res) {
-  const userId = req.userId;
-  if (!userId) {
-    res.status(401).json({ error: "Unauthorized" });
-    return;
-  }
-
-  const tokens = await model.getGoogleTokens(userId);
-  if (!tokens) {
-    res.status(401).json({ error: "Google not linked" });
-    return;
-  }
-
+export async function sendApprovalEmail(req, res) {
   try {
-    await calendarService.addEventToGoogleCalendar(
-      tokens,
-      req.body,
-      req.userId
-    );
-    res.status(201).json({ message: "Event added to Google Calendar!" });
-  } catch (err) {
-    console.error(err);
-    res.status(400).json({
-      error: err instanceof Error ? err.message : "An unknown error occurred",
-    });
-  }
-}
-
-/**
- * Check if a user has linked their Google Calendar.
- * @param {AuthenticatedRequest} req
- * @param {import("express").Response} res
- * @return {Promise<void>}
- */
-export async function checkGoogleCalendarLinkStatus(req, res) {
-  try {
+    const { ProposalId, Status } = req.body;
     const userId = req.userId;
-    if (!userId) {
-      res.status(401).json({ error: "Unauthorized" });
-      return;
-    }
 
-    const tokens = await model.getGoogleTokens(userId);
+    // 1. Get application data
+    const application = await model.getApplicationById(ProposalId);
+    if (!application) throw new Error("Application not found");
 
-    const isLinked = tokens && tokens.refresh_token;
-    res.status(200).json({ isLinked });
-  } catch (error) {
-    console.error("Error checking Google Calendar link status:", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-}
+    // 2. Update status
+    await model.reviewApplication(ProposalId, Status);
 
-/**
- * remove a calendar event
- * @param {AuthenticatedRequest} req
- * @param {import("express").Response} res
- */
-export async function removeCalendarEvent(req, res) {
-  const userId = req.userId;
-  if (!userId) return res.status(401).json({ error: "Unauthorized" });
-
-  const tokens = await model.getGoogleTokens(userId);
-  if (!tokens) return res.status(401).json({ error: "Google not linked" });
-
-  try {
-    await calendarService.removeEventFromGoogleCalendar(
-      tokens,
-      req.body,
-      req.userId
+    // 3. Send email (using existing gmailService)
+    await gmailService.sendApprovalEmail(
+      application.recordset[0].UserEmail, // Adjust field names as needed
+      application.recordset[0].Title,
+      Status === "approved"
     );
-    res.status(201).json({ message: "Event removed from Google Calendar!" });
-  } catch (err) {
-    console.error(err);
-    res.status(400).json({
-      error: err instanceof Error ? err.message : "An unknown error occurred",
-    });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Email sending failed:", error);
+    res.status(500).json({ error });
   }
 }
