@@ -20,10 +20,13 @@ import * as map from "./controllers/map.js";
 import * as interestGroupUserController from "./controllers/interestGroupUserController.js";
 import * as interestGroupAdminController from "./controllers/interestGroupAdminController.js";
 import * as gmailController from "./controllers/gmailController.js";
-
+import swaggerUi from "swagger-ui-express";
 import pool from "./db.js";
+import fs from "fs";
+
 const PORT = process.env.PORT || 3000;
 const app = express();
+
 // Middleware to log incoming requests
 app.use((req, res, next) => {
   console.log("Incoming Request:", req.method, req.url);
@@ -31,8 +34,13 @@ app.use((req, res, next) => {
 });
 app.use(express.json());
 
-app.use("/uploads", express.static("uploads"));
+// Serve HTML/CSS/JS from src/public/ and user content from uploads/
 app.use(express.static("src/public"));
+app.use("/uploads", express.static("uploads"));
+
+// Auto-generated swagger docs
+const swaggerDoc = JSON.parse(fs.readFileSync("./swagger.json", "utf8"));
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
 // Authentication
 app.post("/api/auth/otp", auth.sendOTP);
