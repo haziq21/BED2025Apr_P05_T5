@@ -61,23 +61,15 @@ app.post("/api/cc/:id/admins/:userId", verifyJWT, cc.makeAdmin);
 app.delete("/api/cc/:id/admins/:userId", verifyJWT, cc.removeAdmin);
 
 // Medical Record Management
-app.post(
-  "/api/medicalRecords/:UserId",
-  verifyJWT,
-  medicalRecordsController.uploadFile
-);
-app.get(
-  "/api/medicalRecords/:UserId",
-  verifyJWT,
-  medicalRecordsController.getFiles
-);
+app.post("/api/medicalRecords", verifyJWT, medicalRecordsController.uploadFile);
+app.get("/api/medicalRecords", verifyJWT, medicalRecordsController.getFiles);
 app.delete(
-  "/api/medicalRecords/:UserId/:MedicalRecordId",
+  "/api/medicalRecords:MedicalRecordId",
   verifyJWT,
   medicalRecordsController.deleteFile
 );
 app.put(
-  "/api/medicalRecords/:UserId/:MedicalRecordId",
+  "/api/medicalRecords/:MedicalRecordId",
   verifyJWT,
   medicalRecordsController.updateFileName
 );
