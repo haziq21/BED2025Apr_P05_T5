@@ -1,4 +1,5 @@
-import * as comment from "../models/comment.js";
+// import * as comment from "../models/comment.js";
+import comment from "../models/comment.js";
 
 const twinwordApiKey = process.env.TWINWORD_API;
 if (!twinwordApiKey) {
