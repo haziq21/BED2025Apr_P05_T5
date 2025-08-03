@@ -57,7 +57,7 @@ app.post("/api/cc", verifyJWT, cc.createCC);
 app.patch("/api/cc/:id", verifyJWT, cc.updateCC);
 app.delete("/api/cc/:id", verifyJWT, cc.deleteCC);
 app.get("/api/cc/:id/admins", verifyJWT, cc.getAdmins);
-app.post("/api/cc/:id/admins/:userId", verifyJWT, cc.makeAdmin);
+app.post("/api/cc/:id/admins/:phoneNumber", verifyJWT, cc.makeAdmin);
 app.delete("/api/cc/:id/admins/:userId", verifyJWT, cc.removeAdmin);
 
 // Medical Record Management

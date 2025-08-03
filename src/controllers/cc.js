@@ -1,12 +1,19 @@
 /** @import { AuthenticatedRequestHandler } from "../types.js" */
 import * as model from "../models/cc.js";
+import * as userModel from "../models/user.js";
 
 /**
- * Create a CC from the JSON body.
+ * Create a CC from the JSON body, making the authenticated user an admin.
  * @type {AuthenticatedRequestHandler}
  */
 export async function createCC(req, res) {
+  if (!req.userId) {
+    res.status(401).send();
+    return;
+  }
+
   const createdCC = await model.createCC(req.body);
+  const adminSuccessful = await model.makeAdmin(createdCC.id, req.userId);
   res.status(201).json(createdCC);
 }
 
@@ -33,7 +40,9 @@ export async function getCCById(req, res) {
  * Retrieve all CCs.
  * - If both `lat` and `lon` query parameters are provided,
  *   the CCs will be sorted by distance from that point.
- * - If the `admin` query parameter is provided, only CCs
+ * - If the `indicateAdmin` query parameter is "true", an `isAdmin` field
+ *   will be added to each CC indicating if the authenticated user is an admin.
+ * - If the `filterAdmin` query parameter is "true", only CCs
  *   where the authenticated user is an admin will be returned.
  * @type {AuthenticatedRequestHandler}
  */
@@ -46,10 +55,12 @@ export async function getAllCCs(req, res) {
   }
 
   const indicateAdmin = req.query.indicateAdmin === "true";
+  const filterAdmin = req.query.filterAdmin === "true";
 
   const ccs = await model.getAllCCs({
     locationSort: lat !== null && lon !== null ? { lat, lon } : null,
     indicateAdmin: indicateAdmin ? req.userId : undefined,
+    filterAdmin: filterAdmin ? req.userId : undefined,
   });
 
   res.status(200).json(ccs);
@@ -111,19 +122,34 @@ export async function getAdmins(req, res) {
 }
 
 /**
- * Make the specified user (`userId` path parameter) an admin of the CC (`id` path parameter).
+ * Make the specified user (`phoneNumber` path parameter) an admin of the CC (`id` path parameter).
  * @type {AuthenticatedRequestHandler}
  */
 export async function makeAdmin(req, res) {
   const ccId = +req.params.id;
-  const userId = +req.params.userId;
-  if (isNaN(ccId) || isNaN(userId)) {
-    res.status(400).json({ error: "Invalid CC ID or User ID" });
+  if (isNaN(ccId)) {
+    res.status(400).json({ error: "Invalid CC ID" });
     return;
   }
 
-  await model.makeAdmin(ccId, userId);
-  res.status(204).send();
+  if (req.userId && !(await model.isAdmin(req.userId, ccId))) {
+    res.status(403).send();
+    return;
+  }
+
+  const phoneNumber = req.params.phoneNumber;
+  const user = await userModel.getUserByPhoneNumber(phoneNumber);
+  if (!user) {
+    res.status(404).json({ error: "User not found" });
+    return;
+  }
+
+  const adminUpdated = await model.makeAdmin(ccId, user.UserId);
+  if (!adminUpdated) {
+    res.status(409).json({ error: "User is already an admin" });
+    return;
+  }
+  res.status(200).json(user);
 }
 
 /**
@@ -135,6 +161,11 @@ export async function removeAdmin(req, res) {
   const userId = +req.params.userId;
   if (isNaN(ccId) || isNaN(userId)) {
     res.status(400).json({ error: "Invalid CC ID or User ID" });
+    return;
+  }
+
+  if (req.userId && !(await model.isAdmin(req.userId, ccId))) {
+    res.status(401).send();
     return;
   }
 
