@@ -103,7 +103,7 @@ async function loadCCs() {
 
     let endpoint = "/api/cc";
     if (userLocation && ccSortMode === "distance") {
-      endpoint += `?lat=${userLocation.lat}&lon=${userLocation.lon}`;
+      endpoint += `?lat=${userLocation.lat}&lon=${userLocation.lon}&indicateAdmin=true`;
     }
 
     const data = await apiCall(endpoint);
@@ -163,7 +163,8 @@ function renderCCOptions() {
       (cc) => `
       <div class="dropdown-option" onclick="selectCC(${cc.id}, '${escapeHtml(
         cc.name
-      )}')">
+      )}', ${cc.isAdmin})">
+
         <div class="cc-name">${escapeHtml(cc.name)}</div>
         <div class="cc-location">📍 ${cc.location.lat.toFixed(
           4
@@ -217,10 +218,10 @@ function closeDropdown() {
  * Select a community center
  * @param {number} ccId - The ID of the community center
  * @param {string} ccName - The name of the community center
+ * @param {boolean} isAdmin - Whether the user is an admin of this CC
  */
-function selectCC(ccId, ccName) {
+function selectCC(ccId, ccName, isAdmin) {
   selectedCCId = ccId;
-
   if (selectedCCTextElement) {
     selectedCCTextElement.textContent = ccName;
   }
@@ -231,6 +232,12 @@ function selectCC(ccId, ccName) {
   // Show events controls
   if (eventsControlsElement) {
     eventsControlsElement.style.display = "flex";
+  }
+
+  // Show or hide admin controls
+  const adminControlsElement = document.getElementById("adminControls");
+  if (adminControlsElement) {
+    adminControlsElement.style.display = isAdmin ? "block" : "none";
   }
 }
 
@@ -295,7 +302,7 @@ async function loadEventsForCC(ccId) {
       eventId: event.eventId,
       name: event.name,
       description: event.description,
-      location: event.location,
+      location: event.location, // Ensure location is included
       StartDateTime: event.StartDateTime,
       EndDateTime: event.EndDateTime,
       isRegistered: registeredEvents.some(
@@ -325,7 +332,7 @@ async function fetchAndDisplayMutualSignups(eventId, mutualSignupsElement) {
 
   // Initial text while loading
   mutualSignupsElement.textContent = "Loading mutual signups...";
-  // Set data attribute for the event ID
+  // Set data attribute for the event ID - Ensure this is correct
   mutualSignupsElement.dataset.eventId = eventId;
 
   try {
@@ -598,6 +605,41 @@ function escapeHtml(text) {
   const div = document.createElement("div");
   div.textContent = text;
   return div.innerHTML;
+}
+
+// Add event listeners to admin buttons
+document.addEventListener("DOMContentLoaded", () => {
+  const createButton = document.getElementById("createEventButton");
+  const updateButton = document.getElementById("updateEventButton");
+  const deleteButton = document.getElementById("deleteEventButton");
+
+  if (createButton) {
+    createButton.addEventListener("click", createEvent);
+  }
+  // Note: Update and Delete buttons will likely require selecting an event first
+  // Their event listeners might be added dynamically when events are rendered,
+  // or the placeholder functions might handle event selection logic.
+});
+
+// Placeholder functions for admin actions
+async function createEvent() {
+  console.log("Create Event clicked");
+  // Implement event creation logic here
+  // This will involve getting input from the user (e.g., through a modal or form)
+  // and calling the API endpoint to create the event.
+}
+
+async function updateEvent() {
+  console.log("Update Event clicked");
+  // Implement event update logic here
+  // This will involve selecting an event to update, getting new details,
+  // and calling the API endpoint to update the event.
+}
+
+async function deleteEvent() {
+  console.log("Delete Event clicked");
+  // Implement event deletion logic here
+  // This will involve selecting an event to delete and calling the API endpoint.
 }
 
 // Export functions for global access
