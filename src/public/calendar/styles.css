@@ -2,7 +2,8 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 5px;
-  width: 50%; /* Make calendar 50% of its container width */
+  min-width: 50%;
+  max-width: 50%; /* Make calendar 50% of its container width */
   border: 1px solid #ccc;
   padding: 10px;
   border-radius: 8px;
@@ -26,18 +27,21 @@
   background-color: #c1a77b;
   color: #282521;
   border-radius: 4px;
+  min-width: 14.28%; /* Ensure headers take full width */
 }
 
 .calendar-cell {
   border: 1px solid #eee;
-  padding: 10px;
   min-height: 100px;
   position: relative;
   border-radius: 4px;
+  max-width: 100%;
+  min-width: 100%; /* Ensure cells have a minimum width */
 }
 .date-number {
   font-size: 1.2em;
   font-weight: bold;
+  padding: 5px;
   margin-bottom: 5px;
 }
 .event {
@@ -45,12 +49,11 @@
   border: 1px solid #e8cb90;
   border-left: 4px solid #e8cb90;
   padding: 5px;
-  margin-bottom: 3px;
+  margin: 4px;
   border-radius: 3px;
   font-size: 0.9em;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
 }
 #linkGoogleCalendar {
   background-color: #4caf50;

@@ -325,14 +325,15 @@
   margin-top: 2rem;
 }
 
-/* Event Card */
-.event-card {
+/* Event Styling */
+.event {
   background: white;
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
   border: 1px solid #e9ecef;
+  margin-bottom: 1.5rem; /* Add space between event divs */
 }
 
 .event-card:hover {
@@ -682,4 +683,13 @@
     width: 100%;
     max-width: 200px;
   }
+}
+
+.register-toggle-btn {
+  display: inline-block;
+  padding: 5px 10px;
+  margin-top: 1rem;
+  color: #6f8071;
+  cursor: pointer;
+  font-size: 20px;
 }

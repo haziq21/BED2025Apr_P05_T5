@@ -1,6 +1,7 @@
 import { jest, it, expect, beforeAll } from "@jest/globals";
 import controller from "./cc.js";
 import model from "../models/cc.js";
+import * as userModel from "../models/user.js";
 
 it("should create a new CC", async () => {
   /** @type {any} */
@@ -32,4 +33,180 @@ it("should create a new CC", async () => {
     name: "Test CC",
     location: { lat: 12.34, lon: 56.78 },
   });
+});
+
+it("should get a CC by id", async () => {
+  const req = { params: { id: "1" } };
+  const res = {
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn(),
+  };
+
+  const cc = { id: 1, name: "Test CC" };
+  model.getCCById = jest.fn(async () => cc);
+
+  await controller.getCCById(req, res);
+
+  expect(model.getCCById).toHaveBeenCalledWith(1);
+  expect(res.status).toHaveBeenCalledWith(200);
+  expect(res.json).toHaveBeenCalledWith(cc);
+});
+
+it("should return 404 when getting a non-existent CC by id", async () => {
+    const req = { params: { id: "99" } };
+    const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+    };
+
+    model.getCCById = jest.fn(async () => null);
+
+    await controller.getCCById(req, res);
+
+    expect(model.getCCById).toHaveBeenCalledWith(99);
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ error: "CC not found" });
+});
+
+
+it("should get all CCs", async () => {
+  const req = { query: {} };
+  const res = {
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn(),
+  };
+
+  const ccs = [{ id: 1, name: "Test CC" }];
+  model.getAllCCs = jest.fn(async () => ccs);
+
+  await controller.getAllCCs(req, res);
+
+  expect(model.getAllCCs).toHaveBeenCalled();
+  expect(res.status).toHaveBeenCalledWith(200);
+  expect(res.json).toHaveBeenCalledWith(ccs);
+});
+
+it("should update a CC", async () => {
+  const req = { params: { id: "1" }, body: { name: "Updated CC" } };
+  const res = {
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn(),
+  };
+
+  const updatedCC = { id: 1, name: "Updated CC" };
+  model.updateCC = jest.fn(async () => updatedCC);
+
+  await controller.updateCC(req, res);
+
+  expect(model.updateCC).toHaveBeenCalledWith(1, { name: "Updated CC" });
+  expect(res.status).toHaveBeenCalledWith(200);
+  expect(res.json).toHaveBeenCalledWith(updatedCC);
+});
+
+it("should return 404 when updating a non-existent CC", async () => {
+    const req = { params: { id: "99" }, body: { name: "Updated CC" } };
+    const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+    };
+
+    model.updateCC = jest.fn(async () => null);
+
+    await controller.updateCC(req, res);
+
+    expect(model.updateCC).toHaveBeenCalledWith(99, { name: "Updated CC" });
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ error: "CC not found" });
+});
+
+it("should delete a CC", async () => {
+  const req = { params: { id: "1" } };
+  const res = {
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn(),
+  };
+
+  const deletedCC = { id: 1, name: "Test CC" };
+  model.deleteCC = jest.fn(async () => deletedCC);
+
+  await controller.deleteCC(req, res);
+
+  expect(model.deleteCC).toHaveBeenCalledWith(1);
+  expect(res.status).toHaveBeenCalledWith(200);
+  expect(res.json).toHaveBeenCalledWith(deletedCC);
+});
+
+it("should return 404 when deleting a non-existent CC", async () => {
+    const req = { params: { id: "99" } };
+    const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+    };
+
+    model.deleteCC = jest.fn(async () => null);
+
+    await controller.deleteCC(req, res);
+
+    expect(model.deleteCC).toHaveBeenCalledWith(99);
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ error: "CC not found" });
+});
+
+it("should get admins of a CC", async () => {
+  const req = { params: { id: "1" } };
+  const res = {
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn(),
+  };
+
+  const admins = [{ id: 1, name: "Admin" }];
+  model.getAdmins = jest.fn(async () => admins);
+
+  await controller.getAdmins(req, res);
+
+  expect(model.getAdmins).toHaveBeenCalledWith(1);
+  expect(res.status).toHaveBeenCalledWith(200);
+  expect(res.json).toHaveBeenCalledWith(admins);
+});
+
+it("should make a user an admin", async () => {
+  const req = {
+    params: { id: "1", phoneNumber: "12345678" },
+    userId: 1,
+  };
+  const res = {
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn(),
+  };
+
+  const user = { UserId: 2, phoneNumber: "12345678" };
+  model.isAdmin = jest.fn(async () => true);
+  userModel.getUserByPhoneNumber = jest.fn(async () => user);
+  model.makeAdmin = jest.fn(async () => true);
+
+  await controller.makeAdmin(req, res);
+
+  expect(model.isAdmin).toHaveBeenCalledWith(1, 1);
+  expect(userModel.getUserByPhoneNumber).toHaveBeenCalledWith("12345678");
+  expect(model.makeAdmin).toHaveBeenCalledWith(1, 2);
+  expect(res.status).toHaveBeenCalledWith(200);
+  expect(res.json).toHaveBeenCalledWith(user);
+});
+
+it("should remove an admin", async () => {
+  const req = { params: { id: "1", userId: "2" }, userId: 1 };
+  const res = {
+    status: jest.fn().mockReturnThis(),
+    send: jest.fn(),
+  };
+
+  model.isAdmin = jest.fn(async () => true);
+  model.removeAdmin = jest.fn(async () => true);
+
+  await controller.removeAdmin(req, res);
+
+  expect(model.isAdmin).toHaveBeenCalledWith(1, 1);
+  expect(model.removeAdmin).toHaveBeenCalledWith(1, 2);
+  expect(res.status).toHaveBeenCalledWith(204);
+  expect(res.send).toHaveBeenCalled();
 });

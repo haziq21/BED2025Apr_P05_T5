@@ -164,8 +164,8 @@ app.get("/api/map/services", verifyJWT, map.getLocalServices);
 app.post("/api/map/services", verifyJWT, map.addLocalService);
 app.put("/api/map/my-location", verifyJWT, map.updateUserLocation);
 app.get("/api/map/shared-with-me", verifyJWT, map.getSharedLocations);
-app.put("/api/map/shared-with-me/:userId", verifyJWT, map.acceptShareRequest);
-app.post("/api/map/shared-by-me/:userId", verifyJWT, map.shareLocation);
+app.get("/api/map/shared-by-me", verifyJWT, map.getViewers);
+app.post("/api/map/shared-by-me/:phoneNumber", verifyJWT, map.shareLocation);
 app.delete("/api/map/shared-by-me/:userId", verifyJWT, map.revokeShare);
 app.get("/api/map/autocomplete", verifyJWT, map.getAutocompleteSuggestions);
 

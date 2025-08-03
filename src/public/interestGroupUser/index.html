@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interest Group Application</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Gelasio:ital,wght@0,400..700;1,400..700&family=Libre+Franklin:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../global.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <nav class="topnav">
+      <a href="/">Home</a>
+      <a href="/ccEvents">CC Events</a>
+      <a href="/Friends">Friends</a>
+      <a href="/map">Map</a>
+      <a href="/medicalRecords">Medical</a>
+      <a href="../profile/index.html">Profile</a>
+      <a href="/comment">Comments</a>
+      <a href="/calendar">Calendar</a>
+      <a href="/adminManagement">Admin Management</a>
+    </nav>
+
+    <main>
+      <h1>Interest Group Application</h1>
+      <p>
+        Have an idea for an engaging activity with like-minded people? Start one
+        here!
+      </p>
+
+      <form id="interestGroupForm">
+        <div class="form-row">
+          <input
+            type="text"
+            name="Title"
+            placeholder="Put in your Interest Group name ..."
+            required
+          />
+          <input
+            type="text"
+            name="Scope"
+            placeholder="Your IG’s scope or purpose ..."
+            required
+          />
+        </div>
+
+        <textarea
+          name="Description"
+          placeholder="Enter a description of your IG ..."
+          required
+        ></textarea>
+
+        <div class="form-row">
+          <select name="MeetingFrequency" required>
+            <option value="">How often do you plan to meet?</option>
+            <option value="Weekly">Weekly</option>
+            <option value="Bi-weekly">Bi-weekly</option>
+            <option value="Monthly">Monthly</option>
+          </select>
+
+          <div class="budget-row">
+            <input
+              type="number"
+              name="BudgetEstimateStart"
+              placeholder="$"
+              required
+            />
+            <span>–</span>
+            <input
+              type="number"
+              name="BudgetEstimateEnd"
+              placeholder="$"
+              required
+            />
+          </div>
+        </div>
+
+        <input
+          type="text"
+          name="Equipment"
+          placeholder="What specialised equipment do your activities/IG need?"
+        />
+
+        <div class="form-row">
+          <textarea
+            name="AccessibilityConsideration"
+            placeholder="Any special accommodations or facilities needed?"
+            required
+          ></textarea>
+          <textarea
+            name="HealthSafetyPrecaution"
+            placeholder="Considerations for your well-being that your activities require!"
+            required
+          ></textarea>
+        </div>
+
+        <input
+          type="email"
+          name="Email"
+          placeholder="Your email address ..."
+          required
+        />
+
+        <button type="submit">Submit</button>
+      </form>
+    </main>
+
+    <script src="script.js" defer></script>
+  </body>
+</html>
