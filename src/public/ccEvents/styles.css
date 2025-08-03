@@ -325,14 +325,15 @@
   margin-top: 2rem;
 }
 
-/* Event Card */
-.event-card {
+/* Event Styling */
+.event {
   background: white;
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
   border: 1px solid #e9ecef;
+  margin-bottom: 1.5rem; /* Add space between event divs */
 }
 
 .event-card:hover {

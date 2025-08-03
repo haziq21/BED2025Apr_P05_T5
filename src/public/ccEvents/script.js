@@ -15,6 +15,9 @@ function getAuthToken() {
 async function apiCall(endpoint, options = {}) {
   const token = getAuthToken();
   if (!token) {
+    console.error("No JWT token found.");
+    // Redirect to login if no token
+    window.location.href = "/login";
     throw new Error("Authentication required. Please log in.");
   }
 
@@ -60,7 +63,6 @@ let filteredCCs = [];
 let currentEvents = [];
 let ccSearchTerm = "";
 let ccSortMode = "alphabetical";
-let eventSearchTerm = "";
 /** @type {number | null} */
 let selectedCCId = null;
 /** @type {{lat: number, lon: number} | null} */
@@ -282,14 +284,10 @@ async function loadEventsForCC(ccId) {
     showLoading();
     hideError();
 
-    // TODO: Replace with actual events API call when available
-    // const data = await apiCall(`/api/cc/${ccId}/events`);
-    // currentEvents = data.events || [];
+    const data = await apiCall(`/api/events/cc/${ccId}`);
+    currentEvents = data || [];
 
-    // For now, show placeholder
-    currentEvents = [];
-
-    applyFiltersAndRenderEvents();
+    renderEvents(currentEvents);
     hideLoading();
   } catch (error) {
     console.error("Error loading events:", error);
@@ -299,40 +297,22 @@ async function loadEventsForCC(ccId) {
 }
 
 /**
- * Handle event search input
+ * Fetch and display mutual signups for an event
+ * @param {number} eventId - The ID of the event
+ * @param {HTMLElement} mutualSignupsElement - The element to display the mutual signups in
  */
-function handleEventSearch() {
-  const searchInput = /** @type {HTMLInputElement} */ (
-    document.getElementById("eventSearchInput")
-  );
-  if (!searchInput) return;
-
-  eventSearchTerm = searchInput.value.toLowerCase().trim();
-  applyFiltersAndRenderEvents();
-}
-
-/**
- * Apply search and sort filters to events and render them
- */
-function applyFiltersAndRenderEvents() {
-  if (!selectedCCId) {
-    hideLoading();
-    renderPlaceholder();
-    return;
+async function fetchAndDisplayMutualSignups(eventId, mutualSignupsElement) {
+  try {
+    const mutualSignups = await apiCall(`/api/events/${eventId}/mutual`);
+    if (mutualSignups && mutualSignups.length > 0) {
+      mutualSignupsElement.innerHTML = `<strong>Mutual friends attending:</strong> ${mutualSignups.length}`; // You can customize this message
+    } else {
+      mutualSignupsElement.innerHTML = "No mutual friends attending.";
+    }
+  } catch (error) {
+    console.error(`Error fetching mutual signups for event ${eventId}:`, error);
+    mutualSignupsElement.innerHTML = "Error loading mutual signups.";
   }
-
-  let filteredEvents = [...currentEvents];
-
-  // Apply search filter
-  if (eventSearchTerm) {
-    filteredEvents = filteredEvents.filter(
-      (event) =>
-        event.name?.toLowerCase().includes(eventSearchTerm) ||
-        event.description?.toLowerCase().includes(eventSearchTerm)
-    );
-  }
-
-  renderEvents(filteredEvents);
 }
 
 /**
@@ -346,35 +326,176 @@ function renderEvents(events) {
     const selectedCC = allCCs.find((cc) => cc.id === selectedCCId);
     const ccName = selectedCC ? selectedCC.name : "this community center";
 
-    const emptyMessage = eventSearchTerm
-      ? `No events found matching "${eventSearchTerm}". Try a different search term.`
-      : `No events are currently available for ${ccName}.`;
+    const emptyMessage = `No events are currently available for ${ccName}.`;
 
     eventsListElement.innerHTML = `
       <div class="empty-state">
         <h3>No Events Found</h3>
         <p>${emptyMessage}</p>
-        ${
-          eventSearchTerm
-            ? '<button class="clear-search-btn" onclick="clearEventSearch()">Clear Search</button>'
-            : ""
-        }
       </div>
     `;
     return;
   }
 
-  // TODO: Render actual events when available
-  // For now, just show empty state
-  const selectedCC = allCCs.find((cc) => cc.id === selectedCCId);
-  const ccName = selectedCC ? selectedCC.name : "this community center";
+  // Clear previous events
+  eventsListElement.innerHTML = "";
 
-  eventsListElement.innerHTML = `
-    <div class="empty-state">
-      <h3>No Events Found</h3>
-      <p>No events are currently available for ${ccName}.</p>
-    </div>
-  `;
+  // Render actual events
+  events.forEach((event) => {
+    // Create the main event div
+    const eventElement = document.createElement("div");
+    eventElement.classList.add("event"); // Use the 'event' class for styling as requested earlier
+
+    // Create a div for event details
+    const eventDetailsElement = document.createElement("div");
+    eventDetailsElement.classList.add("event-details"); // Optional: for specific styling of details
+    eventDetailsElement.innerHTML = `
+      <h3>${escapeHtml(event.name)}</h3>
+      <p><strong>Date:</strong> ${
+        event.StartDateTime
+          ? new Date(event.StartDateTime).toLocaleDateString()
+          : "N/A"
+      }</p>
+      <p><strong>Time:</strong> ${
+        event.StartDateTime && event.EndDateTime
+          ? `${new Date(event.StartDateTime).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })} - ${new Date(event.EndDateTime).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}`
+          : "N/A"
+      }</p>
+      <p><strong>Location:</strong> ${escapeHtml(event.location || "N/A")}</p>
+      <p><strong>Description:</strong> ${escapeHtml(
+        event.description || "No description provided."
+      )}</p>
+    `;
+
+    // Create a div for mutual signups
+    const mutualSignupsElement = document.createElement("div");
+    mutualSignupsElement.classList.add("mutual-signups");
+    mutualSignupsElement.textContent = "Loading mutual signups...";
+    mutualSignupsElement.dataset.eventId = event.eventId; // Set data attribute for fetching
+
+    // Create the register/unregister button
+    const registerButton = document.createElement("button");
+    registerButton.classList.add("register-toggle-btn");
+    registerButton.textContent = "Register"; // Initial state
+    registerButton.dataset.eventId = event.eventId; // Set data attribute for event ID
+
+    // Append the elements to the main event div
+    eventElement.appendChild(eventDetailsElement);
+    eventElement.appendChild(mutualSignupsElement);
+    eventElement.appendChild(registerButton);
+
+    // Append the main event div to the events list
+    eventsListElement.appendChild(eventElement);
+
+    // Call the function to fetch and display mutual signups
+    if (event.eventId) {
+      fetchAndDisplayMutualSignups(event.eventId, mutualSignupsElement);
+    }
+  });
+
+  // After all events are rendered, set up button listeners
+  setupRegistrationButtons();
+}
+
+/**
+ * Show loading state
+ */
+function showLoading() {
+  // Only show loading if a CC is selected
+  if (selectedCCId && loadingElement) {
+    loadingElement.style.display = "block";
+  }
+  if (eventsListElement) eventsListElement.style.display = "none";
+}
+
+/**
+ * Hide loading state
+ */
+function hideLoading() {
+  if (loadingElement) loadingElement.style.display = "none";
+  if (eventsListElement) eventsListElement.style.display = "block";
+}
+
+/**
+ * Show error message
+ * @param {string} message - Error message to display
+ */
+function showError(message) {
+  if (errorElement) {
+    errorElement.textContent = `Error: ${message}`;
+    errorElement.style.display = "block";
+  }
+}
+
+/**
+ * Hide error message
+ */
+function hideError() {
+  if (errorElement) errorElement.style.display = "none";
+}
+
+/**
+ * Setup event listeners for registration buttons
+ */
+function setupRegistrationButtons() {
+  const buttons = eventsListElement?.querySelectorAll(".register-toggle-btn");
+  if (!buttons) return;
+
+  buttons.forEach((button) => {
+    const eventId = button.dataset.eventId;
+    if (!eventId) return;
+
+    // Determine initial state (requires backend to indicate registration status)
+    // For now, assume not registered initially. If your API provides this, update here.
+    // Example: button.textContent = event.isRegistered ? 'Unregister' : 'Register';
+    // button.classList.toggle('registered', event.isRegistered);
+
+    button.addEventListener("click", () => {
+      if (button.textContent === "Register") {
+        registerForEvent(eventId, button);
+      } else {
+        unregisterFromEvent(eventId, button);
+      }
+    });
+  });
+}
+
+/**
+ * Register for an event
+ * @param {string} eventId - The ID of the event
+ * @param {HTMLButtonElement} buttonElement - The button element
+ */
+async function registerForEvent(eventId, buttonElement) {
+  try {
+    await apiCall(`/api/events/${eventId}/register`, { method: "POST" });
+    buttonElement.textContent = "Unregister";
+    buttonElement.classList.add("registered"); // Add a class for styling
+  } catch (error) {
+    console.error(`Error registering for event ${eventId}:`, error);
+    alert("Failed to register for event."); // Provide user feedback
+  }
+}
+
+/**
+ * Unregister from an event
+ * @param {string} eventId - The ID of the event
+ * @param {HTMLButtonElement} buttonElement - The button element
+ */
+async function unregisterFromEvent(eventId, buttonElement) {
+  try {
+    await apiCall(`/api/events/${eventId}/unregister`, { method: "DELETE" });
+    buttonElement.textContent = "Register";
+    buttonElement.classList.remove("registered"); // Remove the class
+  } catch (error) {
+    console.error(`Error unregistering from event ${eventId}:`, error);
+    alert("Failed to unregister from event."); // Provide user feedback
+  }
 }
 
 /**
@@ -389,20 +510,6 @@ function renderPlaceholder() {
       <p>Choose a community center from the dropdown above to view its events.</p>
     </div>
   `;
-}
-
-/**
- * Clear event search
- */
-function clearEventSearch() {
-  const searchInput = /** @type {HTMLInputElement} */ (
-    document.getElementById("eventSearchInput")
-  );
-  if (searchInput) {
-    searchInput.value = "";
-  }
-  eventSearchTerm = "";
-  applyFiltersAndRenderEvents();
 }
 
 /**
@@ -447,43 +554,6 @@ function getUserLocation() {
 }
 
 /**
- * Show loading state
- */
-function showLoading() {
-  // Only show loading if a CC is selected
-  if (selectedCCId && loadingElement) {
-    loadingElement.style.display = "block";
-  }
-  if (eventsListElement) eventsListElement.style.display = "none";
-}
-
-/**
- * Hide loading state
- */
-function hideLoading() {
-  if (loadingElement) loadingElement.style.display = "none";
-  if (eventsListElement) eventsListElement.style.display = "block";
-}
-
-/**
- * Show error message
- * @param {string} message - Error message to display
- */
-function showError(message) {
-  if (errorElement) {
-    errorElement.textContent = `Error: ${message}`;
-    errorElement.style.display = "block";
-  }
-}
-
-/**
- * Hide error message
- */
-function hideError() {
-  if (errorElement) errorElement.style.display = "none";
-}
-
-/**
  * Escape HTML to prevent XSS
  * @param {string} text - Text to escape
  * @returns {string} Escaped HTML
@@ -499,5 +569,3 @@ window.toggleDropdown = toggleDropdown;
 window.selectCC = selectCC;
 window.handleCCSearch = handleCCSearch;
 window.handleCCSort = handleCCSort;
-window.handleEventSearch = handleEventSearch;
-window.clearEventSearch = clearEventSearch;
