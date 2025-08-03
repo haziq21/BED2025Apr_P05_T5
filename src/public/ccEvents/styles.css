@@ -684,3 +684,12 @@
     max-width: 200px;
   }
 }
+
+.register-toggle-btn {
+  display: inline-block;
+  padding: 5px 10px;
+  margin-top: 1rem;
+  color: #6f8071;
+  cursor: pointer;
+  font-size: 20px;
+}
