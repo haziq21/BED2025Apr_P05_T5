@@ -3,7 +3,7 @@ import moment from "moment-timezone";
 import { getAllMediSchedule } from "../models/medicationSchedule.js";
 import { sendWhatsAppTemplate } from "../services/whatsappService.js";
 
-console.log("come in");
+console.log("cron job started");
 // In-memory store of all jobs
 /**
  * @param {Map<number,import("node-cron").ScheduledTask>} scheduledJobs
@@ -125,7 +125,7 @@ function formatData(element) {
       }
     }
     const weekDays = selectedDays.join(","); //"6,7"
-    reminderDate = `${minutes} ${hours} * * ${weekDays}`;
+    reminderDate = `${minutes} ${hours} * * ${weekDays}`; //
     creatCron(
       scheduleId,
       reminderDate,
@@ -199,8 +199,13 @@ function creatCron(
       }
     }
     //call whats app api
-    console.log("created");
-    const start = startDate.add(30,"minutes").format("HH:mm");
+    console.log("sent");
+    const start = startDate.add(30, "minutes").format("HH:mm");
+
+    //in real application, use the number from database
+    // const phone = "65" + PhoneNumber;
+
+    //put fixed number for testing due to free plan limited
     sendWhatsAppTemplate("6583864483", DrugName, start)
       .then((response) => {
         console.log("WhatsApp API Response:", response);
@@ -221,16 +226,16 @@ export function checkExistance(id, data, action) {
   if (scheduledJobs.has(id)) {
     scheduledJobs.get(id).stop();
     scheduledJobs.delete(id);
-    // console.log("testing");
     console.log(action);
     console.log(data);
-    // console.log("deleted");
+    console.log("deleted");
     if (action === 0) {
       formatData(data);
-      // console.log("updated");
+      console.log("updated");
     }
   } else {
     formatData(data);
-    // console.log("successful");
+    console.log(data);
+    console.log("successful");
   }
 }

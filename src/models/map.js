@@ -60,9 +60,14 @@ export async function updateUserLocation(userId, location) {
     .input("lat", location.lat)
     .input("lon", location.lon)
     .query(
-      `UPDATE UserLocations
-      SET Location = geography::Point(@lat, @lon, 4326)
-      WHERE UserId = @userId;`
+      `MERGE INTO UserLocations AS T
+      USING (VALUES (@userId, @lat, @lon)) AS S (UserId, Lat, Lon)
+      ON T.UserId = S.UserId
+      WHEN MATCHED THEN
+        UPDATE SET T.Location = geography::Point(S.Lat, S.Lon, 4326), T.Time = GETDATE()
+      WHEN NOT MATCHED THEN
+        INSERT (UserId, Location, Time)
+        VALUES (S.UserId, geography::Point(S.Lat, S.Lon, 4326), GETDATE());`
     );
 }
 
@@ -78,28 +83,9 @@ export async function shareLocation(locatedUserId, viewingUserId) {
     .input("locatedUserId", locatedUserId)
     .input("viewingUserId", viewingUserId)
     .query(
-      `INSERT INTO SharedLocations (LocatedUserId, ViewingUserId, RequestAccepted)
-      VALUES (@locatedUserId, @viewingUserId, 0);`
+      `INSERT INTO SharedLocations (LocatedUserId, ViewingUserId)
+      VALUES (@locatedUserId, @viewingUserId);`
     );
-}
-
-/**
- * Accept a request to share a user's location.
- * @param {number} locatedUserId The user who is sharing their location.
- * @param {number} viewingUserId The user who is viewing the shared location.
- * @returns {Promise<boolean>} Whether the request existed to be accepted.
- */
-export async function acceptShareRequest(locatedUserId, viewingUserId) {
-  const result = await pool
-    .request()
-    .input("locatedUserId", locatedUserId)
-    .input("viewingUserId", viewingUserId)
-    .query(
-      `UPDATE SharedLocations
-      SET RequestAccepted = 1
-      WHERE LocatedUserId = @locatedUserId AND ViewingUserId = @viewingUserId`
-    );
-  return result.rowsAffected[0] > 0;
 }
 
 /**
@@ -135,7 +121,7 @@ export async function getSharedLocations(viewingUserId) {
       FROM Users u
       JOIN UserLocations ul ON u.UserId = ul.UserId
       JOIN SharedLocations sl ON u.UserId = sl.LocatedUserId
-      WHERE sl.ViewingUserId = @viewingUserId AND sl.RequestAccepted = 1`
+      WHERE sl.ViewingUserId = @viewingUserId`
     );
 
   return result.recordset.map((row) => ({
@@ -144,5 +130,29 @@ export async function getSharedLocations(viewingUserId) {
     profilePhotoUrl: row.ProfilePhotoURL,
     location: { lat: row.Lat, lon: row.Lon },
     time: row.Time,
+  }));
+}
+
+/**
+ * Get the users that can view the specified user's location.
+ * @param {number} userId
+ * @returns {Promise<{userId: number, name: string, profilePhotoUrl: string}[]>}
+ */
+export async function getViewers(userId) {
+  /** @type {sql.IResult<{UserId: number, Name: string, ProfilePhotoURL: string}>} */
+  const result = await pool
+    .request()
+    .input("userId", userId)
+    .query(
+      `SELECT u.UserId, u.Name, u.ProfilePhotoURL
+      FROM Users u
+      JOIN SharedLocations sl ON u.UserId = sl.ViewingUserId
+      WHERE sl.LocatedUserId = @userId`
+    );
+
+  return result.recordset.map((row) => ({
+    userId: row.UserId,
+    name: row.Name,
+    profilePhotoUrl: row.ProfilePhotoURL,
   }));
 }

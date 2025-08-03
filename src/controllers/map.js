@@ -1,5 +1,6 @@
 /** @import { AuthenticatedRequestHandler } from "../types.js" */
 import * as model from "../models/map.js";
+import * as userModel from "../models/user.js";
 import * as googleMaps from "../services/googleMaps.js";
 
 /**
@@ -44,9 +45,11 @@ export async function updateUserLocation(req, res) {
  * @type {AuthenticatedRequestHandler}
  */
 export async function shareLocation(req, res) {
-  const viewingUserId = req.params.userId;
-  if (typeof viewingUserId !== "number") {
-    res.status(400).json({ error: "Invalid viewingUserId" });
+  const viewingUser = await userModel.getUserByPhoneNumber(
+    req.params.phoneNumber
+  );
+  if (viewingUser === null) {
+    res.status(404).json({ error: "User not found" });
     return;
   }
 
@@ -55,31 +58,7 @@ export async function shareLocation(req, res) {
     return;
   }
 
-  await model.shareLocation(req.userId, viewingUserId);
-  res.status(204).send();
-}
-
-/**
- * Accept a request to share another user's location with the current user.
- * @type {AuthenticatedRequestHandler}
- */
-export async function acceptShareRequest(req, res) {
-  const locatedUserId = +req.params.userId;
-  if (isNaN(locatedUserId)) {
-    res.status(400).json({ error: "Invalid userId" });
-    return;
-  }
-
-  if (req.userId === undefined) {
-    res.status(401).json({ error: "Unauthorized" });
-    return;
-  }
-
-  const success = await model.acceptShareRequest(req.userId, locatedUserId);
-  if (!success) {
-    res.status(404).json({ error: "Share request not found" });
-    return;
-  }
+  await model.shareLocation(req.userId, viewingUser.UserId);
   res.status(204).send();
 }
 
@@ -88,9 +67,9 @@ export async function acceptShareRequest(req, res) {
  * @type {AuthenticatedRequestHandler}
  */
 export async function revokeShare(req, res) {
-  const { viewingUserId } = req.body;
-  if (typeof viewingUserId !== "number") {
-    res.status(400).json({ error: "Invalid viewingUserId" });
+  const viewingUserId = +req.params.userId;
+  if (isNaN(viewingUserId)) {
+    res.status(400).json({ error: "Invalid userId" });
     return;
   }
 
@@ -119,6 +98,20 @@ export async function getSharedLocations(req, res) {
 
   const locations = await model.getSharedLocations(req.userId);
   res.status(200).json(locations);
+}
+
+/**
+ * Get the users that can view the current user's location.
+ * @type {AuthenticatedRequestHandler}
+ */
+export async function getViewers(req, res) {
+  if (req.userId === undefined) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const viewers = await model.getViewers(req.userId);
+  res.status(200).json(viewers);
 }
 
 /**

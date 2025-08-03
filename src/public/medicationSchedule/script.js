@@ -1,8 +1,5 @@
 
 const token = localStorage.getItem("token");
-console.log(token);
-
-
 
 /**
  * @type {any[]}
@@ -432,6 +429,18 @@ async function fetchWithToken(url, options = {}) {
   };
 
   const res = await fetch(url, config);
+  if (!res.ok) {
+    // Try to get error message from response body
+    let errorMsg = res.statusText;
+    try {
+      const errorData = await res.json();
+      errorMsg = errorData.message || JSON.stringify(errorData);
+    } catch {
+      // If parsing JSON fails, keep statusText
+    }
+    alert(`Error: ${errorMsg}`);
+    throw new Error(errorMsg);
+  }
   return res.json();
 }
 
@@ -447,7 +456,6 @@ async function fetchMedications() {
     );
     console.log("Get result:", result);
     renderMedications(result);
-
   } catch (error) {
     console.error("Error fetching medications:", error);
   }
@@ -638,7 +646,6 @@ function getData(id) {
     if (endChecked) {
       endDate = endDateInput?.value ?? null;
       if (!endDate) {
-        alert("Please select an end date.");
         endDateInput?.focus();
         return;
       }
