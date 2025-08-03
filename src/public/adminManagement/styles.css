@@ -23,7 +23,6 @@
   flex-wrap: wrap;
 }
 
-.refresh-btn,
 .create-btn {
   padding: 10px 20px;
   border: none;
@@ -32,15 +31,6 @@
   font-weight: 600;
   transition: all 0.3s ease;
   font-size: 14px;
-}
-
-.refresh-btn {
-  background-color: #6c757d;
-  color: white;
-}
-
-.refresh-btn:hover {
-  background-color: #5a6268;
 }
 
 .create-btn {
