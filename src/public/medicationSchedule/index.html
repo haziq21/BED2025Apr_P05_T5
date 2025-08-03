@@ -27,20 +27,21 @@
   <body>
     <nav class="topnav">
       <a href="/">Home</a>
-      <a href="/ccs">Community Centers</a>
+      <a href="/ccEvents">CC Events</a>
       <a href="/Friends">Friends</a>
       <a href="#Location">Location</a>
       <a href="/medicationSchedule">Medical</a>
       <a href="/profile">Profile</a>
       <a href="/comment">Comments</a>
       <a href="/calendar"> Calendar</a>
+      <a href="/adminManagement">Admin Management</a>
     </nav>
 
     <main class="content">
       <section class="medication-section">
         <h1>
-          <span class="highlight-text">My Medication Plan</span> | My Medical
-          Records
+          <span class="highlight-text">My Medication Plan</span> |
+          <a href="/medicalRecords">My Medical Records</a>
         </h1>
 
         <ul class="medication-list" id="medicationList"></ul>
@@ -204,7 +205,7 @@
       <hr />
       <p>&copy; 2025 Kampung Connect Website. All rights reserved.</p>
     </footer>
-    <!-- <script src="../global.js"></script> -->
+    <!-- <script type="module" src="../global.js"></script> -->
     <script type="module" src="script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
     <script>

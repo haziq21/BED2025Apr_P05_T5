@@ -3,35 +3,17 @@ const searchInput = /** @type {HTMLInputElement} */ document.getElementById(
   "friend-search-input"
 );
 const searchResultsContainer = document.getElementById("user-search-results");
+const friendsContainer = document.getElementById("friends-container"); // Get the friends container
 
-export async function displayUserInfo(userId) {
-  if (!userId) {
-    console.error("No user ID provided.");
-    return;
-  }
-  const token = localStorage.getItem("token");
-  if (!token) {
-    console.error("No JWT token found.");
-    window.location.href = "/login"; // Redirect to login if no token
-    return;
-  }
-  const response = await fetch(`/api/friends/${userId}/public`);
-  if (!response.ok) {
-    console.error(
-      `Error fetching user info: ${response.status} ${response.statusText}`
-    );
-    return;
-  }
-  const userInfo = await response.json();
-  if (!userInfo) {
-    console.error("No user info found for the given ID.");
-    return;
-  }
-}
+/** @type {string | null} currentPopupUserId - Stores the user ID of the currently displayed popup user. */
+let currentPopupUserId = null;
+
+// Get the popup content element
+const popupContent = document.querySelector(".popup-content");
 
 /**
  * Fetches the list of friends for the authenticated user.
- * @returns {Promise<string[]>} A promise that resolves to an array of friend names or identifiers.
+ * @returns {Promise<Array<{id: number, name: string, bio: string, profilePhotoURL: string}>>} A promise that resolves to an array of friend objects.
  */
 export async function fetchAllFriends() {
   const token = localStorage.getItem("token");
@@ -42,30 +24,35 @@ export async function fetchAllFriends() {
     return [];
   }
 
-  const response = await fetch("/api/friends", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
+  try {
+    const response = await fetch("/api/friends", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
 
-  if (!response.ok) {
-    if (response.status === 403 || response.status === 401) {
-      console.error("Authentication failed. Redirecting to login.");
-      localStorage.removeItem("token"); // Clear invalid token
-      window.location.href = "/login";
-      return [];
+    if (!response.ok) {
+      if (response.status === 403 || response.status === 401) {
+        console.error("Authentication failed. Redirecting to login.");
+        localStorage.removeItem("token"); // Clear invalid token
+        window.location.href = "/login";
+        return [];
+      }
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
 
-  const data = await response.json();
-  // Assuming the API returns an array of strings (friend names or identifiers)
-  return data || [];
+    const data = await response.json();
+    // Assuming the API now returns an array of friend objects with id, name, bio, profilePhotoURL
+    return Array.isArray(data) ? data : []; // Ensure data is an array
+  } catch (error) {
+    console.error("Error fetching friends:", error); // Log the error
+    return []; // Return empty array on error
+  }
 }
 
 /**
- * @param {string[]} friends - An array of friend names or identifiers.
+ * @param {Array<{id: number, name: string}>} friends - An array of friend objects with id and name.
  */
 function renderFriends(friends) {
   const friendsContainer = document.getElementById("friends-container");
@@ -84,7 +71,10 @@ function renderFriends(friends) {
 
   friends.forEach((friend) => {
     const listItem = document.createElement("li");
-    listItem.textContent = friend;
+    listItem.textContent = friend.name; // Use friend.name
+    listItem.classList.add("friend-list-item"); // Add a class for identification
+    listItem.dataset.userId = String(friend.id); // Store the user ID
+    listItem.style.cursor = "pointer"; // Add a pointer cursor to indicate it's clickable
     friendsContainer.appendChild(listItem);
   });
 }
@@ -101,7 +91,6 @@ function debounce(func, delay) {
    */
   let timeoutId;
   return function (ev) {
-    // Removed type annotation
     const context = this;
     const args = [ev];
 
@@ -224,11 +213,13 @@ function renderSearchResults(users) {
   });
 }
 
-const popupContent = document.querySelector(".popup-content");
-
 // Function to handle clicks outside the popup
 function handleOutsideClick(event) {
-  if (popupContent && !popupContent.contains(event.target)) {
+  if (
+    popupContent &&
+    !popupContent.contains(event.target) &&
+    popupContent.style.display === "flex"
+  ) {
     popupContent.style.display = "none"; // Hide the popup
     removeHidePopupOnClickOutside(); // Remove the event listener
   }
@@ -236,6 +227,8 @@ function handleOutsideClick(event) {
 
 // Function to add the event listener
 function hidePopupOnClickOutside() {
+  // Remove any existing listener first to prevent duplicates
+  document.removeEventListener("click", handleOutsideClick);
   document.addEventListener("click", handleOutsideClick);
 }
 
@@ -243,11 +236,6 @@ function hidePopupOnClickOutside() {
 function removeHidePopupOnClickOutside() {
   document.removeEventListener("click", handleOutsideClick);
 }
-
-/**
- * @type {string | null} currentPopupUserId - Stores the user ID of the currently displayed popup user.
- */
-let currentPopupUserId = null;
 
 // Function to update the toggle friend button based on friendship status
 async function updateToggleFriendButton(friendshipStatus, otherUserId) {
@@ -257,13 +245,15 @@ async function updateToggleFriendButton(friendshipStatus, otherUserId) {
     return;
   }
 
-  // Remove any existing click listeners from the toggle friend button
+  // Remove any existing click listeners from the toggle friend button by cloning and replacing
   const oldToggleFriendButton = toggleFriendButton;
   const newToggleFriendButton = oldToggleFriendButton.cloneNode(true);
-  oldToggleFriendButton.parentNode.replaceChild(
-    newToggleFriendButton,
-    oldToggleFriendButton
-  );
+  if (oldToggleFriendButton.parentNode) {
+    oldToggleFriendButton.parentNode.replaceChild(
+      newToggleFriendButton,
+      oldToggleFriendButton
+    );
+  }
   const updatedToggleFriendButton = newToggleFriendButton;
 
   if (friendshipStatus.status === "friends") {
@@ -289,7 +279,9 @@ async function updateToggleFriendButton(friendshipStatus, otherUserId) {
           `Error removing friend: ${removeResponse.status} ${removeResponse.statusText}`
         );
       } else {
-        document.querySelector(".popup-content").style.display = "none"; // Hide popup after removing friend
+        if (popupContent) {
+          popupContent.style.display = "none"; // Hide popup after removing friend
+        }
         // Optionally update the UI to reflect the change (e.g., re-fetch friend list)
       }
     });
@@ -321,129 +313,13 @@ async function updateToggleFriendButton(friendshipStatus, otherUserId) {
         );
       } else {
         updatedToggleFriendButton.textContent = "Request Sent";
-        document.querySelector(".popup-content").style.display = "none"; // Hide popup after sending request
+        if (popupContent) {
+          popupContent.style.display = "none"; // Hide popup after sending request
+        }
         // Optionally update the UI to reflect the change
       }
     });
   }
-}
-
-/**
- * Adds click event listeners to user search result buttons to toggle popup content.
- * This function should be called ONCE after the initial rendering and whenever the search results are updated.
- */
-function addPopupToggleListeners() {
-  // Get all the user search result buttons that are currently in the DOM
-  const userButtons = document.querySelectorAll(".user-search-result-button");
-  // Get the existing popup content element
-  const popupContent = document.querySelector(".popup-content");
-  const popupUsername = document.getElementById("popup-username");
-  const popupBio = document.getElementById("popup-bio");
-  const popupProfilePicture = document.querySelector("#pfp-div img"); // Select the image using querySelector
-
-  if (!popupContent || !popupUsername) {
-    console.error("Required popup elements not found.");
-    return;
-  }
-
-  userButtons.forEach((button) => {
-    // Remove any existing listeners before adding new ones to prevent duplicates
-    const clonedButton = button.cloneNode(true);
-    button.parentNode.replaceChild(clonedButton, button);
-    const newButton = clonedButton;
-
-    newButton.addEventListener("click", async () => {
-      const otherUserId = newButton.dataset.userId;
-      currentPopupUserId = otherUserId; // Store the user ID
-
-      if (!otherUserId) {
-        console.error("User ID not found on the button.");
-        return;
-      }
-
-      // Fetch the specific user's data
-      const token = localStorage.getItem("token");
-      if (!token) {
-        console.error("No JWT token found.");
-        window.location.href = "/login"; // Redirect to login if no token
-        return;
-      }
-
-      try {
-        const response = await fetch(`/api/friends/${otherUserId}/public`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          console.error(
-            `Error fetching user info: ${response.status} ${response.statusText}`
-          );
-          return;
-        }
-
-        const userDataArray = await response.json();
-
-        console.log("Fetched user data array for popup:", userDataArray);
-        const statusResponse = await fetch(
-          `/api/friends/status/${otherUserId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        const friendshipStatus = await statusResponse.json();
-
-        // Update the toggle friend button based on the fetched status
-        updateToggleFriendButton(friendshipStatus, otherUserId);
-
-        if (Array.isArray(userDataArray) && userDataArray.length > 0) {
-          const userData = userDataArray[0];
-
-          console.log("Processing user data object:", userData);
-
-          // Populate the popup with the fetched user data
-          if (popupUsername && userData.name) {
-            popupUsername.textContent = userData.name;
-          } else if (popupUsername) {
-            popupUsername.textContent = "Username not available";
-          }
-
-          if (popupBio && userData.bio) {
-            popupBio.textContent = userData.bio;
-          } else if (popupBio) {
-            popupBio.textContent = "No bio available.";
-          }
-
-          if (popupProfilePicture && userData.profilePhotoURL) {
-            popupProfilePicture.src = userData.profilePhotoURL;
-          } else if (popupProfilePicture) {
-            popupProfilePicture.src = "../../uploads/default.jpg";
-          }
-
-          const currentDisplay = popupContent.style.display;
-          popupContent.style.display =
-            currentDisplay === "none" ? "flex" : "none"; // Toggle between 'flex' and 'none'
-          if (popupContent.style.display === "flex") {
-            // Only add listener when showing
-            hidePopupOnClickOutside();
-          } else {
-            // Remove listener when hiding
-            removeHidePopupOnClickOutside();
-          }
-        } else {
-          console.error("No user data received for ID:", otherUserId); // Changed userId to otherUserId
-          popupContent.style.display = "none";
-        }
-      } catch (error) {
-        console.error("Error fetching user data for popup:", error);
-        // Optionally hide the popup on error
-        popupContent.style.display = "none";
-      }
-    });
-  });
 }
 
 // Function to hide the search results dropdown
@@ -463,7 +339,49 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Fetch and render the initial list of friends
   const friends = await fetchAllFriends();
-  renderFriends(friends.map((friend) => friend.name)); // Map to names for renderFriends
+  renderFriends(friends); // Pass the full array to renderFriends
+
+  // Use event delegation for search results container
+  if (searchResultsContainer) {
+    searchResultsContainer.addEventListener("click", async (event) => {
+      const target = event.target;
+
+      // Check if the clicked element is a user search result button
+      if (target && target.classList.contains("user-search-result-button")) {
+        const otherUserId = target.dataset.userId;
+        currentPopupUserId = otherUserId; // Store the user ID
+
+        if (!otherUserId) {
+          console.error("User ID not found on the button.");
+          return;
+        }
+
+        // Fetch the specific user's data and display the popup
+        await fetchUserDataAndDisplayPopup(otherUserId);
+      }
+    });
+  }
+
+  // Use event delegation for the friends container
+  if (friendsContainer) {
+    friendsContainer.addEventListener("click", async (event) => {
+      const target = event.target;
+
+      // Check if the clicked element is a friend list item
+      if (target && target.classList.contains("friend-list-item")) {
+        const otherUserId = target.dataset.userId;
+        currentPopupUserId = otherUserId; // Store the user ID
+
+        if (!otherUserId) {
+          console.error("User ID not found on the list item.");
+          return;
+        }
+
+        // Fetch the specific user's data and display the popup
+        await fetchUserDataAndDisplayPopup(otherUserId);
+      }
+    });
+  }
 
   // Attach the debounced searchUsers function to the input's keyup event
   if (searchInput && searchResultsContainer) {
@@ -471,7 +389,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       "keyup",
       debounce(async () => {
         await searchUsers(); // Perform the search
-        addPopupToggleListeners(); // Add listeners after search results are rendered
+        // addPopupToggleListeners() is no longer needed here due to event delegation
       }, 400)
     );
 
@@ -508,3 +426,89 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 });
+
+// Helper function to fetch user data and display the popup
+async function fetchUserDataAndDisplayPopup(userId) {
+  const popupContent = document.querySelector(".popup-content");
+  const popupUsername = document.getElementById("popup-username");
+  const popupBio = document.getElementById("popup-bio");
+  const popupProfilePicture = document.querySelector("#pfp-div img"); // Select the image using querySelector
+
+  if (!popupContent || !popupUsername) {
+    console.error("Required popup elements not found.");
+    return;
+  }
+
+  const token = localStorage.getItem("token");
+  if (!token) {
+    console.error("No JWT token found.");
+    window.location.href = "/login"; // Redirect to login if no token
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/friends/${userId}/public`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      console.error(
+        `Error fetching user info: ${response.status} ${response.statusText}`
+      );
+      return;
+    }
+
+    const userDataArray = await response.json();
+
+    console.log("Fetched user data array for popup:", userDataArray);
+    const statusResponse = await fetch(`/api/friends/status/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const friendshipStatus = await statusResponse.json();
+
+    // Update the toggle friend button based on the fetched status
+    updateToggleFriendButton(friendshipStatus, userId);
+
+    if (Array.isArray(userDataArray) && userDataArray.length > 0) {
+      const userData = userDataArray[0];
+
+      console.log("Processing user data object:", userData);
+
+      // Populate the popup with the fetched user data
+      if (popupUsername && userData.name) {
+        popupUsername.textContent = userData.name;
+      } else if (popupUsername) {
+        popupUsername.textContent = "Username not available";
+      }
+
+      if (popupBio && userData.bio) {
+        popupBio.textContent = userData.bio;
+      } else if (popupBio) {
+        popupBio.textContent = "No bio available.";
+      }
+
+      if (popupProfilePicture && userData.profilePhotoURL) {
+        popupProfilePicture.src = userData.profilePhotoURL;
+      } else if (popupProfilePicture) {
+        popupProfilePicture.src = "../../uploads/default.jpg";
+      }
+
+      // Show the popup
+      popupContent.style.display = "flex";
+
+      // Add the outside click listener when showing the popup
+      hidePopupOnClickOutside();
+    } else {
+      console.error("No user data received for ID:", userId);
+      popupContent.style.display = "none";
+    }
+  } catch (error) {
+    console.error("Error fetching user data for popup:", error);
+    // Optionally hide the popup on error
+    popupContent.style.display = "none";
+  }
+}

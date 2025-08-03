@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kampung Connect - Community Centers</title>
+    <title>Kampung Connect - Admin Management</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -17,42 +17,33 @@
   <body>
     <nav class="topnav">
       <a href="/">Home</a>
-      <a href="/ccs" class="active">Community Centers</a>
+      <a href="/ccs">Community Centers</a>
       <a href="/Friends">Friends</a>
       <a href="#Location">Location</a>
-      <a href="/medicationSchedule">Medical</a>
-      <a href="/comment">Comments</a>
-      <a href="/calendar"> Calendar</a>
+      <a href="/medicationSchedule">Medication</a>
       <a href="/profile">Profile</a>
+      <a href="/comment">Comments</a>
+      <a href="/calendar">Calendar</a>
+      <a href="/adminManagement" class="active">Admin Management</a>
     </nav>
 
     <div class="header">
-      <h1>Community Centers</h1>
+      <h1>Admin Management</h1>
       <div class="actions">
-        <div class="search-section">
-          <label for="searchInput">Search:</label>
-          <input
-            type="text"
-            id="searchInput"
-            placeholder="Search community centers..."
-            oninput="handleSearchInput()"
-          />
-        </div>
-        <div class="sort-section">
-          <label for="sortSelect">Sort by:</label>
-          <select id="sortSelect" onchange="handleSortChange()">
-            <option value="alphabetical">Alphabetical</option>
-            <option value="distance">Distance</option>
-          </select>
-        </div>
-        <button class="refresh-btn" onclick="loadCCs()">Refresh</button>
         <button class="create-btn" onclick="openCreateModal()">+ Add CC</button>
       </div>
     </div>
 
     <div class="content">
-      <div class="loading" id="loading">Loading community centers...</div>
+      <div class="loading" id="loading">Loading your community centers...</div>
       <div class="error" id="error" style="display: none"></div>
+      <div class="empty-state" id="emptyState" style="display: none">
+        <h3>No Community Centers Found</h3>
+        <p>You are not currently an admin of any community centers.</p>
+        <button class="create-btn" onclick="openCreateModal()">
+          Create Your First CC
+        </button>
+      </div>
       <div class="cc-list" id="ccList"></div>
     </div>
 
@@ -134,7 +125,40 @@
       </div>
     </div>
 
-    <script src="../global.js"></script>
+    <!-- Admins Modal -->
+    <div class="modal-overlay" id="adminsModalOverlay">
+      <div class="modal">
+        <h2>CC Administrators</h2>
+        <div id="adminsList"></div>
+
+        <!-- Add Admin Section -->
+        <div class="add-admin-section">
+          <h3>Add New Administrator</h3>
+          <form id="addAdminForm">
+            <input type="hidden" id="addAdminCCId" />
+            <div class="form-group">
+              <label for="adminPhoneNumber">Phone Number:</label>
+              <input
+                type="tel"
+                id="adminPhoneNumber"
+                name="phoneNumber"
+                placeholder="Enter phone number (e.g., +65 12345678)"
+                required
+              />
+            </div>
+            <div class="form-actions">
+              <button type="submit">Add Admin</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" onclick="closeAdminsModal()">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="../global.js"></script>
     <script src="script.js"></script>
   </body>
 </html>

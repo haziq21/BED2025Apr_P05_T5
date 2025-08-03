@@ -1,4 +1,3 @@
-const apiBaseUrl1 = "http://localhost:3000";
 const token4 = localStorage.getItem("token");
 
 if (!token4) {
@@ -9,7 +8,7 @@ if (!token4) {
 }
 async function loadHomepageUser() {
   try {
-    const res = await fetch(`${apiBaseUrl1}/api/profile/`, {
+    const res = await fetch(`/api/profile/`, {
       headers: {
         Authorization: `Bearer ${token4}`,
       },
@@ -41,7 +40,7 @@ async function checkProfileCompletion() {
   if (!token4) return;
 
   try {
-    const res = await fetch(`${apiBaseUrl1}/api/profile`, {
+    const res = await fetch(`/api/profile`, {
       headers: {
         Authorization: `Bearer ${token4}`,
       },

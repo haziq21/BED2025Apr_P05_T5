@@ -12,6 +12,49 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+export async function StartGoogleAuth() {
+  const token = localStorage.getItem("token"); // Get your JWT token
+
+  if (!token) {
+    console.error("No JWT token found.");
+    return;
+  }
+
+  // Make a fetch request to  get the Google Auth URL
+  const response = await fetch("/api/calendar/google/auth/url", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    console.error(
+      "Error from backend when getting Google Auth URL:",
+      response.status,
+      response.statusText
+    );
+    if (response.status === 401 || response.status === 403) {
+      window.location.href = "/login"; // Redirect if unauthorized/forbidden
+    }
+    return;
+  }
+
+  const data = await response.json();
+
+  // Redirect the user to the Google Auth URL received from the backend
+  if (data && data.authUrl) {
+    window.location.href = data.authUrl;
+  } else {
+    console.error("Backend did not provide a valid authUrl in the response.");
+  }
+}
+
+// Add event listener for the Google Calendar button
+const linkButton = document.getElementById("linkGoogleCalendar");
+if (linkButton) {
+  linkButton.addEventListener("click", StartGoogleAuth);
+}
 
 // slide show
 let slideIndex = 1;
@@ -21,14 +64,14 @@ showSlides(slideIndex);
  * @param {number} n
  */
 function plusSlides(n) {
-  showSlides(slideIndex += n);
+  showSlides((slideIndex += n));
 }
 
 /**
  * @param {number} n
  */
 function currentSlide(n) {
-  showSlides(slideIndex = n);
+  showSlides((slideIndex = n));
 }
 
 /**
@@ -38,17 +81,20 @@ function showSlides(n) {
   let i;
   let slides = document.getElementsByClassName("mySlides");
   let dots = document.getElementsByClassName("dot");
-  if (n > slides.length) {slideIndex = 1}    
-  if (n < 1) {slideIndex = slides.length}
+  if (n > slides.length) {
+    slideIndex = 1;
+  }
+  if (n < 1) {
+    slideIndex = slides.length;
+  }
   for (i = 0; i < slides.length; i++) {
     // @ts-ignore
-    slides[i].style.display = "none";  
+    slides[i].style.display = "none";
   }
   for (i = 0; i < dots.length; i++) {
     dots[i].className = dots[i].className.replace(" active", "");
   }
   // @ts-ignore
-  slides[slideIndex-1].style.display = "block";  
-  dots[slideIndex-1].className += " active";
+  slides[slideIndex - 1].style.display = "block";
+  dots[slideIndex - 1].className += " active";
 }
-
