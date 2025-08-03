@@ -9,13 +9,14 @@ export async function getAllFriends(id) {
     .request()
     .input("userId1", id)
     .query(
-      `SELECT u.Name AS FriendName
+      `SELECT u.UserId, u.Name AS FriendName
       FROM Friends f
       JOIN 
       Users u ON f.UserId2 = u.UserId
       WHERE f.Accepted = 1 AND f.UserId1 = @userId1`
     );
   return result.recordset.map((friend) => ({
+    id: friend.UserId,
     name: friend.FriendName,
   }));
 }
@@ -69,12 +70,12 @@ export async function acceptFriendRequest(userId1, userId2) {
     .query(
       `UPDATE Friends
        SET Accepted = 1
-       WHERE (UserId1 = @userId1 AND UserId2 = @userId2);
+       WHERE (UserId1 = @userId2 AND UserId2 = @userId1);
 
        IF @@ROWCOUNT > 0
        BEGIN
         INSERT INTO Friends (UserId1, UserId2, Accepted)
-        VALUES (@userId2, @userId1, 1);
+        VALUES (@userId1, @userId2, 1);
        END`
     );
 

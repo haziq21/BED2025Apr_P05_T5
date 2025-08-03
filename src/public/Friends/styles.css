@@ -15,6 +15,8 @@ body {
 }
 
 .friends-list {
+  display: flex;
+  flex-direction: column; /* Stack items vertically */
   width: 100%; /* Limit width for readability */
   margin: 20px auto; /* Center the section and add vertical spacing */
   padding: 20px;
@@ -27,7 +29,19 @@ body {
   font-family: "Gelasio", serif; /* Consistent heading font */
   color: #333;
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
+}
+#view-requests {
+  background-color: #90af7d; /* Consistent with topnav */
+  color: white; /* White text for contrast */
+  border: none; /* Remove default border */
+  padding: 5px 10px; /* Padding for button */
+  border-radius: 5px; /* Rounded corners for button */
+  cursor: pointer; /* Pointer cursor on hover */
+  font-size: 1rem; /* Standard font size */
+  margin-bottom: 10px; /* Space below the button */
+  align-self: center; /* Center the button */
+  height: 25px; /* Consistent height */
 }
 
 #friends-container {

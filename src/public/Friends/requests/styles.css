@@ -1,0 +1,75 @@
+/* styles.css for friend requests page */
+
+#requests-container {
+  width: 70%;
+  margin: 20px auto; /* Center the container */
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+#requests-list {
+  list-style: none;
+  padding: 0;
+}
+
+.request-item {
+  /* Use the new class */
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+  padding: 10px;
+  display: flex; /* Enable flexbox */
+  justify-content: space-between; /* Push content and buttons to ends */
+  align-items: center; /* Vertically align items */
+}
+
+.request-item button {
+  /* Target buttons within request-item */
+  margin-left: 10px; /* Add margin between the buttons */
+}
+
+/* Optional: Add specific styles for accept and reject buttons */
+.accept-button {
+  background-color: #4caf50; /* Green */
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  text-align: center;
+  text-decoration: none;
+  font-size: 14px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.reject-button {
+  background-color: #f44336; /* Red */
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  text-align: center;
+  text-decoration: none;
+  font-size: 14px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+#mid-div-top-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center; /* Vertically center items */
+}
+
+#mid-div-top-container a {
+  text-decoration: none;
+  background-color: rgb(173, 255, 188);
+  font-weight: bold;
+  height: 30px;
+  width: 150px;
+  padding: 5px;
+  border-radius: 5px;
+  text-align: center;
+  text-justify: center;
+}
