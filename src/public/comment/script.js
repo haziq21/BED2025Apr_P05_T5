@@ -1,5 +1,4 @@
 // import { getCommentAndAnalyze } from "../../services/sentimentService.js";
-const apiBaseUrl2 = "http://localhost:3000";
 
 const token2 = localStorage.getItem("token");
 
@@ -188,17 +187,14 @@ function ViewComment(result, postId) {
 `;
 }
 
-
 /**
  * @param {number} id
  */
-function editReply(id){
-const commentTextDiv = document.getElementById(`commentText-${id}`);
-// @ts-ignore
-console.log(commentTextDiv.textContent); // prints the full comment text
-
+function editReply(id) {
+  const commentTextDiv = document.getElementById(`commentText-${id}`);
+  // @ts-ignore
+  console.log(commentTextDiv.textContent); // prints the full comment text
 }
-
 
 //close the form
 function toggleModal() {
@@ -295,7 +291,7 @@ async function createComment(data) {
       method: "POST",
       body: JSON.stringify(data),
     };
-    const result = await fetchWithToken(`${apiBaseUrl2}/api/comment`, options);
+    const result = await fetchWithToken(`/api/comment`, options);
     console.log("Create result:", result);
     showToast("Comment created successfully!");
     if (page === "all") {
@@ -316,7 +312,7 @@ async function getAllComment() {
     const options = {
       method: "GET",
     };
-    const result = await fetchWithToken(`${apiBaseUrl2}/api/comment`, options);
+    const result = await fetchWithToken(`/api/comment`, options);
     console.log("Get result:", result);
     renderPosts(result);
   } catch (error) {
@@ -331,10 +327,7 @@ async function getUserComment() {
     const options = {
       method: "GET",
     };
-    const result = await fetchWithToken(
-      `${apiBaseUrl2}/api/comment/byuser`,
-      options
-    );
+    const result = await fetchWithToken(`/api/comment/byuser`, options);
     console.log("Get result:", result);
     renderPosts(result);
   } catch (error) {
@@ -350,7 +343,7 @@ async function getOtherComment(postId) {
       method: "GET",
     };
     const result = await fetchWithToken(
-      `${apiBaseUrl2}/api/comment/getReply/${postId}`,
+      `/api/comment/getReply/${postId}`,
       options
     );
     console.log("Get result:", result);
@@ -372,10 +365,7 @@ async function deleteComment(id) {
     const options = {
       method: "DELETE",
     };
-    const result = await fetchWithToken(
-      `${apiBaseUrl2}/api/comment/${id}`,
-      options
-    );
+    const result = await fetchWithToken(`/api/comment/${id}`, options);
     console.log("Delete result:", result);
     showToast("Comment delete successfully!");
     if (page === "all") {
@@ -398,7 +388,7 @@ async function updateComment(data) {
       method: "PUT",
       body: JSON.stringify(data),
     };
-    const result = await fetchWithToken(`${apiBaseUrl2}/api/comment`, options);
+    const result = await fetchWithToken(`/api/comment`, options);
     console.log("Update result:", result);
     showToast("Comment updated successfully!");
     if (page === "all") {

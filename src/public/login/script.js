@@ -1,4 +1,3 @@
-const Baseapiurl = "http://localhost:3000";
 const token5 = localStorage.getItem("token");
 // Switch Tabs
 // @ts-ignore
@@ -18,7 +17,7 @@ async function requestOTP() {
     return;
   }
 
-  const res = await fetch(`${Baseapiurl}/api/auth/otp`, {
+  const res = await fetch(`/api/auth/otp`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ phoneNumber: phone }),
@@ -47,7 +46,7 @@ async function verifyOTP() {
     return;
   }
 
-  const res = await fetch(`${Baseapiurl}/api/auth/verify`, {
+  const res = await fetch(`/api/auth/verify`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ phoneNumber: phone, otp }),
@@ -57,7 +56,7 @@ async function verifyOTP() {
   if (res.ok) {
     localStorage.setItem("token", result.token);
     alert("Login successful!");
-    window.location.href = "../index.html"; 
+    window.location.href = "../index.html";
     window.location.href = "/";
   } else {
     alert(result.error || "Invalid OTP");
@@ -71,7 +70,7 @@ async function resendOTP() {
     return;
   }
 
-  const res = await fetch(`${Baseapiurl}/api/auth/otp`, {
+  const res = await fetch(`/api/auth/otp`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ phoneNumber: phone }),
@@ -95,7 +94,7 @@ async function signUp() {
     return;
   }
 
-  const res = await fetch(`${Baseapiurl}/api/auth/user`, {
+  const res = await fetch(`/api/auth/user`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ Name: name, PhoneNumber: phone }),

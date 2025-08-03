@@ -1,5 +1,5 @@
-// const BASE_API_URL2 = "http://localhost:3000/api";
-// const token6 = localStorage.getItem("token");
+const BASE_API_URL2 = "/api";
+const token6 = localStorage.getItem("token");
 
 // /** @type {HTMLElement|null} */
 // const uploadTrigger = document.getElementById("uploadTrigger");
