@@ -58,8 +58,9 @@ export async function createSchedule(req, res) {
     res.status(400).json({ error: "Invalid User ID" });
     return;
   }
-  await checkExistance(req.body.MedicationScheduleId, req.body, 2);
+  console.log(res);
   const newSchedule = await model.createSchedule(userId, req.body);
+  await checkExistance(newSchedule.MedicationScheduleId, newSchedule, 2);
   res.status(201).json(newSchedule);
 }
 
@@ -75,8 +76,9 @@ export async function deleteSchedule(req, res) {
     res.status(400).json({ error: "Invalid schedule ID" });
     return;
   }
-  await checkExistance(scheduleID, req.body, 1);
+  
   const schedule = await model.deleteSchedule(userId, scheduleID);
+  await checkExistance(scheduleID, req.body, 1);
   if (!schedule) {
     res.status(404).json({ error: "Medication schedule not found" });
     return;

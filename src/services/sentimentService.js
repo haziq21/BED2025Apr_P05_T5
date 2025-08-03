@@ -58,6 +58,7 @@ export async function getCommentAndAnalyze() {
           AnalysisStatus: "true",
           SentimentType : sentiment.type
         };
+        console.log(data);
         //update the sentiment type and stauts
         await comment.updateComment(post.UserId, data);
       }

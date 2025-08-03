@@ -130,31 +130,6 @@ function ViewComment(result, postId) {
 
   if (!postDiv) return;
 
-  // postDiv.innerHTML += `
-  //   <div id="allComments-${postId}">
-  //       <div class="comments">
-  //           ${
-  //             // @ts-ignore
-  //             result
-  //               .map(
-  //                 (/** @type {{ UserName: any; Comment: any; }} */ c) =>
-  //                   `<p><strong>${c.UserName}:</strong> ${c.Comment}</p>`
-  //               )
-  //               .join("")
-  //           }
-  //       </div>
-  //       <div class="comment-box">
-  //               <textarea rows="2" placeholder="Leave a comment..." id="comment-${
-  //                 // @ts-ignore
-  //                 postId
-  //               }"></textarea>
-  //           <button onclick="addComment(${
-  //             // @ts-ignore
-  //             postId
-  //           })">Comment</button>
-  //       </div>
-  //   </div>
-  // `;
   postDiv.innerHTML += `
   <div id="allComments-${postId}">
     <div class="comments">
@@ -188,17 +163,14 @@ function ViewComment(result, postId) {
 `;
 }
 
-
 /**
  * @param {number} id
  */
-function editReply(id){
-const commentTextDiv = document.getElementById(`commentText-${id}`);
-// @ts-ignore
-console.log(commentTextDiv.textContent); // prints the full comment text
-
+function editReply(id) {
+  const commentTextDiv = document.getElementById(`commentText-${id}`);
+  // @ts-ignore
+  console.log(commentTextDiv.textContent); // prints the full comment text
 }
-
 
 //close the form
 function toggleModal() {
