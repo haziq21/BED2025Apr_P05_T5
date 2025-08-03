@@ -103,7 +103,7 @@ async function loadCCs() {
 
     let endpoint = "/api/cc";
     if (userLocation && ccSortMode === "distance") {
-      endpoint += `?lat=${userLocation.lat}&lon=${userLocation.lon}`;
+      endpoint += `?lat=${userLocation.lat}&lon=${userLocation.lon}&indicateAdmin=true`;
     }
 
     const data = await apiCall(endpoint);
@@ -163,7 +163,8 @@ function renderCCOptions() {
       (cc) => `
       <div class="dropdown-option" onclick="selectCC(${cc.id}, '${escapeHtml(
         cc.name
-      )}')">
+      )}', ${cc.isAdmin})">
+
         <div class="cc-name">${escapeHtml(cc.name)}</div>
         <div class="cc-location">📍 ${cc.location.lat.toFixed(
           4
@@ -217,10 +218,10 @@ function closeDropdown() {
  * Select a community center
  * @param {number} ccId - The ID of the community center
  * @param {string} ccName - The name of the community center
+ * @param {boolean} isAdmin - Whether the user is an admin of this CC
  */
-function selectCC(ccId, ccName) {
+function selectCC(ccId, ccName, isAdmin) {
   selectedCCId = ccId;
-
   if (selectedCCTextElement) {
     selectedCCTextElement.textContent = ccName;
   }
@@ -231,6 +232,12 @@ function selectCC(ccId, ccName) {
   // Show events controls
   if (eventsControlsElement) {
     eventsControlsElement.style.display = "flex";
+  }
+
+  // Show or hide admin controls
+  const adminControlsElement = document.getElementById("adminControls");
+  if (adminControlsElement) {
+    adminControlsElement.style.display = isAdmin ? "block" : "none";
   }
 }
 
@@ -287,7 +294,23 @@ async function loadEventsForCC(ccId) {
     const data = await apiCall(`/api/events/cc/${ccId}`);
     currentEvents = data || [];
 
-    renderEvents(currentEvents);
+    // Fetch events the user is registered for
+    const registeredEvents = await fetchUserRegisteredEvents();
+
+    // Add a flag to each event indicating if the user is registered
+    const eventsWithRegistrationStatus = currentEvents.map((event) => ({
+      eventId: event.eventId,
+      name: event.name,
+      description: event.description,
+      location: event.location, // Ensure location is included
+      StartDateTime: event.StartDateTime,
+      EndDateTime: event.EndDateTime,
+      isRegistered: registeredEvents.some(
+        (regEvent) => regEvent.eventId === event.eventId
+      ), // Check against event.eventId
+    }));
+
+    renderEvents(eventsWithRegistrationStatus);
     hideLoading();
   } catch (error) {
     console.error("Error loading events:", error);
@@ -302,6 +325,16 @@ async function loadEventsForCC(ccId) {
  * @param {HTMLElement} mutualSignupsElement - The element to display the mutual signups in
  */
 async function fetchAndDisplayMutualSignups(eventId, mutualSignupsElement) {
+  if (!mutualSignupsElement) {
+    console.error("Mutual signups element not found.");
+    return;
+  }
+
+  // Initial text while loading
+  mutualSignupsElement.textContent = "Loading mutual signups...";
+  // Set data attribute for the event ID - Ensure this is correct
+  mutualSignupsElement.dataset.eventId = eventId;
+
   try {
     const mutualSignups = await apiCall(`/api/events/${eventId}/mutual`);
     if (mutualSignups && mutualSignups.length > 0) {
@@ -316,8 +349,17 @@ async function fetchAndDisplayMutualSignups(eventId, mutualSignupsElement) {
 }
 
 /**
+ * Fetch events the current user is registered for.
+ * @returns {Promise<Array<{eventId: number}>>} An array of registered event objects with eventId.
+ */
+async function fetchUserRegisteredEvents() {
+  return apiCall("/api/events/registered");
+}
+
+/**
  * Render events list
- * @param {Array<any>} events - Array of events
+ * @param {Array<{eventId: number, name: string, description: string, location: string, StartDateTime: Date, EndDateTime: Date, isRegistered: boolean}>} events - Array of events with registration status
+
  */
 function renderEvents(events) {
   if (!eventsListElement) return;
@@ -376,14 +418,20 @@ function renderEvents(events) {
     // Create a div for mutual signups
     const mutualSignupsElement = document.createElement("div");
     mutualSignupsElement.classList.add("mutual-signups");
-    mutualSignupsElement.textContent = "Loading mutual signups...";
     mutualSignupsElement.dataset.eventId = event.eventId; // Set data attribute for fetching
 
     // Create the register/unregister button
     const registerButton = document.createElement("button");
     registerButton.classList.add("register-toggle-btn");
-    registerButton.textContent = "Register"; // Initial state
     registerButton.dataset.eventId = event.eventId; // Set data attribute for event ID
+
+    // Set initial state based on isRegistered flag
+    if (event.isRegistered) {
+      registerButton.textContent = "Unregister";
+      registerButton.classList.add("registered");
+    } else {
+      registerButton.textContent = "Register";
+    }
 
     // Append the elements to the main event div
     eventElement.appendChild(eventDetailsElement);
@@ -450,11 +498,6 @@ function setupRegistrationButtons() {
   buttons.forEach((button) => {
     const eventId = button.dataset.eventId;
     if (!eventId) return;
-
-    // Determine initial state (requires backend to indicate registration status)
-    // For now, assume not registered initially. If your API provides this, update here.
-    // Example: button.textContent = event.isRegistered ? 'Unregister' : 'Register';
-    // button.classList.toggle('registered', event.isRegistered);
 
     button.addEventListener("click", () => {
       if (button.textContent === "Register") {
@@ -562,6 +605,41 @@ function escapeHtml(text) {
   const div = document.createElement("div");
   div.textContent = text;
   return div.innerHTML;
+}
+
+// Add event listeners to admin buttons
+document.addEventListener("DOMContentLoaded", () => {
+  const createButton = document.getElementById("createEventButton");
+  const updateButton = document.getElementById("updateEventButton");
+  const deleteButton = document.getElementById("deleteEventButton");
+
+  if (createButton) {
+    createButton.addEventListener("click", createEvent);
+  }
+  // Note: Update and Delete buttons will likely require selecting an event first
+  // Their event listeners might be added dynamically when events are rendered,
+  // or the placeholder functions might handle event selection logic.
+});
+
+// Placeholder functions for admin actions
+async function createEvent() {
+  console.log("Create Event clicked");
+  // Implement event creation logic here
+  // This will involve getting input from the user (e.g., through a modal or form)
+  // and calling the API endpoint to create the event.
+}
+
+async function updateEvent() {
+  console.log("Update Event clicked");
+  // Implement event update logic here
+  // This will involve selecting an event to update, getting new details,
+  // and calling the API endpoint to update the event.
+}
+
+async function deleteEvent() {
+  console.log("Delete Event clicked");
+  // Implement event deletion logic here
+  // This will involve selecting an event to delete and calling the API endpoint.
 }
 
 // Export functions for global access
