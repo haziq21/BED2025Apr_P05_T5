@@ -8,22 +8,6 @@ class commentController {
    * @param {AuthenticatedRequest} req
    * @param {import("express").Response} res
    */
-  // export async function getCommentById(req, res) {
-  //   const userId = req.userId;
-  //   if (isNaN(userId)) {
-  //     res.status(400).json({ error: "Invalid user ID" });
-  //     return;
-  //   }
-
-  //   const comment = await model.getCommentById(userId);
-
-  //   if (!comment) {
-  //     res.status(404).json({ error: "Comment not found" });
-  //     return;
-  //   }
-
-  //   res.status(200).json(comment);
-  // }
   static async getCommentById(req, res) {
     const userId = req.userId;
     if (isNaN(userId)) {
@@ -44,17 +28,6 @@ class commentController {
    * @param {AuthenticatedRequest} req
    * @param {import("express").Response} res
    */
-  // export async function getComment(req, res) {
-  //   const userId = req.userId;
-  //   const comment = await model.getComment(userId);
-
-  //   if (!comment) {
-  //     res.status(404).json({ error: "Comment not found" });
-  //     return;
-  //   }
-
-  //   res.status(200).json(comment);
-  // }
   static async getComment(req, res) {
     const userId = req.userId;
     const comment = await model.getComment(userId);
@@ -72,19 +45,7 @@ class commentController {
    * @param {AuthenticatedRequest} req
    * @param {import("express").Response} res
    */
-  // export async function updateComment(req, res) {
-  //   const userId = req.userId;
-  //   if (isNaN(userId)) {
-  //     res.status(400).json({ error: "Invalid user ID" });
-  //     return;
-  //   }
-  //   const comment = await model.updateComment(userId, req.body);
-  //   if (!comment) {
-  //     res.status(404).json({ error: "Comment not found" });
-  //     return;
-  //   }
-  //   res.status(200).json(comment);
-  // }
+ 
   static async updateComment(req, res) {
     const userId = req.userId;
     if (isNaN(userId)) {
@@ -104,15 +65,6 @@ class commentController {
    * @param {AuthenticatedRequest} req
    * @param {import("express").Response} res
    */
-  // export async function createComment(req, res) {
-  //   const userId = req.userId;
-  //   if (isNaN(userId)) {
-  //     res.status(400).json({ error: "Invalid User ID" });
-  //     return;
-  //   }
-  //   const newComment = await model.createComment(userId, req.body);
-  //   res.status(201).json(newComment);
-  // }
   static async createComment(req, res) {
     const userId = req.userId;
     if (isNaN(userId)) {
@@ -149,22 +101,6 @@ class commentController {
    * @param {AuthenticatedRequest} req
    * @param {import("express").Response} res
    */
-  // export async function getCommentByOthers(req, res) {
-  //   const postId = parseInt(req.params.postId);
-  //   const userId = req.userId;
-  //   if (isNaN(postId)) {
-  //     res.status(400).json({ error: "Invalid post ID" });
-  //     return;
-  //   }
-
-  //   const comments = await model.getCommentByOthers(userId,postId);
-
-  //   if (!comments) {
-  //     res.status(404).json({ error: "Comment not found" });
-  //     return;
-  //   }
-  //   res.status(200).json(comments);
-  // }
   static async getCommentByOthers(req, res) {
     const postId = parseInt(req.params.postId);
     const userId = req.userId;

@@ -107,19 +107,12 @@ app.delete(
 );
 
 //Comment
-
 app.get("/api/comment", verifyJWT, cm.getComment);
 app.get("/api/comment/getReply/:postId", verifyJWT, cm.getCommentByOthers);
 app.get("/api/comment/byuser", verifyJWT, cm.getCommentById);
 app.post("/api/comment", verifyJWT, cm.createComment);
 app.put("/api/comment", verifyJWT, cm.updateComment);
 app.delete("/api/comment/:postId", verifyJWT, cm.deleteComment);
-// // app.get("/api/comment", verifyJWT, comment.getComment);
-// app.get("/api/comment/getReply/:postId", verifyJWT, comment.getCommentByOthers);
-// app.get("/api/comment/byuser", verifyJWT, comment.getCommentById);
-// app.post("/api/comment", verifyJWT, comment.createComment);
-// app.put("/api/comment", verifyJWT, comment.updateComment);
-// app.delete("/api/comment/:postId", verifyJWT, comment.deleteComment);
 
 //Friends management
 app.get("/api/friends", verifyJWT, friends.getAllFriends);
