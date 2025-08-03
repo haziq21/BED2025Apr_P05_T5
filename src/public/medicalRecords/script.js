@@ -1,8 +1,38 @@
 const BASE_API_URL = "http://localhost:3000";
-const token6 = localStorage.getItem("token");
+const token6 = localStorage.getItem("token6");
+console.log(token6);
 
-if (!token) {
+if (!token6) {
   console.error("No token found in localStorage");
+}
+
+/**
+ * fetch APIs with token
+ * @param {string} url
+ * @param {Object} [options={}]
+ * @param {Object.<string, string>} [options.headers]
+ * @param {string} [options.method]
+ * @param {string|FormData|Blob} [options.body]
+ * @returns {Promise<any>}
+ */
+async function fetchWithToken(url, options = {}) {
+  if (!token6) throw new Error("Token is missing. Please login first.");
+
+  const defaultHeaders = {
+    Authorization: `Bearer ${token6}`,
+    "Content-Type": "application/json",
+  };
+
+  const config = {
+    ...options,
+    headers: {
+      ...defaultHeaders,
+      ...(options.headers || {}),
+    },
+  };
+
+  const res = await fetch(url, config);
+  return res.json();
 }
 
 /** @typedef {Object} MedicalRecord
@@ -20,6 +50,10 @@ if (!token) {
 let medicalRecords = [];
 
 const uploadTrigger = document.getElementById("uploadTrigger");
+/**
+ * @type {HTMLInputElement}
+ */
+// @ts-ignore
 const fileInput = document.getElementById("fileInput");
 const fileList = document.getElementById("fileList");
 
@@ -43,7 +77,7 @@ async function fetchMedicalRecords() {
   try {
     const res = await fetch(`${BASE_API_URL}/api/medicalRecords`, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token6}`,
       },
     });
     const data = await res.json();
@@ -117,10 +151,10 @@ fileInput?.addEventListener("change", async (e) => {
   formData.append("file", file);
 
   try {
-    const res = await fetch(`${BASE_API_URL}/api/medicalRecords/0`, {
+    const res = await fetch(`${BASE_API_URL}/api/medicalRecords`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token6}`,
       },
       body: formData,
     });
@@ -140,11 +174,11 @@ fileInput?.addEventListener("change", async (e) => {
 async function handleDelete(file) {
   try {
     const res = await fetch(
-      `${BASE_API_URL}/api/medicalRecords/0/${file.MedicalRecordId}`,
+      `${BASE_API_URL}/api/medicalRecords/${file.MedicalRecordId}`,
       {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token6}`,
         },
       }
     );
@@ -165,11 +199,11 @@ async function handleRename(file) {
 
   try {
     const res = await fetch(
-      `${BASE_API_URL}/api/medicalRecords/0/${file.MedicalRecordId}`,
+      `${BASE_API_URL}/api/medicalRecords/${file.MedicalRecordId}`,
       {
         method: "PUT",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token6}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ fileName: newName }),
