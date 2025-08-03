@@ -1,5 +1,3 @@
-const API_BASE_URL = "http://localhost:3000";
-
 /**
  * @typedef {Object} CCLocation
  * @property {number} lat - Latitude
@@ -64,7 +62,7 @@ async function apiCall(endpoint, options = {}) {
     },
   };
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const response = await fetch(endpoint, {
     ...defaultOptions,
     ...options,
     headers: { ...defaultOptions.headers, ...options.headers },
@@ -249,6 +247,12 @@ async function openAdminsModal(ccId) {
 
     if (!adminsList) return;
 
+    // Set the CC ID in the hidden input for the add admin form
+    const addAdminCCIdElement = document.getElementById("addAdminCCId");
+    if (addAdminCCIdElement instanceof HTMLInputElement) {
+      addAdminCCIdElement.value = ccId.toString();
+    }
+
     if (admins.length === 0) {
       adminsList.innerHTML =
         "<p>No administrators found for this community center.</p>";
@@ -301,6 +305,12 @@ async function openAdminsModal(ccId) {
 function closeAdminsModal() {
   const modalElement = document.getElementById("adminsModalOverlay");
   if (modalElement) modalElement.classList.remove("active");
+
+  // Clear the add admin form
+  const phoneInput = document.getElementById("adminPhoneNumber");
+  if (phoneInput instanceof HTMLInputElement) {
+    phoneInput.value = "";
+  }
 }
 
 /**
@@ -320,9 +330,25 @@ async function removeAdmin(ccId, userId, userName) {
   }
 
   try {
-    await apiCall(`/api/cc/${ccId}/admins/${userId}`, {
+    const token = getAuthToken();
+    if (!token) {
+      throw new Error("Authentication required. Please log in.");
+    }
+
+    const response = await fetch(`/api/cc/${ccId}/admins/${userId}`, {
       method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
     });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.error || `HTTP error! status: ${response.status}`
+      );
+    }
 
     // Refresh the admins list
     await openAdminsModal(ccId);
@@ -534,7 +560,7 @@ if (editCCFormElement) {
 
     try {
       await apiCall(`/api/cc/${ccId}`, {
-        method: "PUT",
+        method: "PATCH",
         body: JSON.stringify(ccData),
       });
 
@@ -546,6 +572,51 @@ if (editCCFormElement) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error occurred";
       alert("Error updating community center: " + errorMessage);
+    }
+  });
+}
+
+const addAdminFormElement = document.getElementById("addAdminForm");
+if (addAdminFormElement) {
+  addAdminFormElement.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    if (!e.target || !(e.target instanceof HTMLFormElement)) return;
+
+    const formData = new FormData(e.target);
+    const ccIdElement = document.getElementById("addAdminCCId");
+
+    if (!ccIdElement || !(ccIdElement instanceof HTMLInputElement)) return;
+
+    const ccId = ccIdElement.value;
+    const phoneNumberValue = formData.get("phoneNumber");
+
+    if (!phoneNumberValue) return;
+
+    const phoneNumber = phoneNumberValue.toString().trim();
+
+    try {
+      await apiCall(
+        `/api/cc/${ccId}/admins/${encodeURIComponent(phoneNumber)}`,
+        {
+          method: "POST",
+        }
+      );
+
+      // Clear the form
+      const phoneInput = document.getElementById("adminPhoneNumber");
+      if (phoneInput instanceof HTMLInputElement) {
+        phoneInput.value = "";
+      }
+
+      // Refresh the admins list
+      await openAdminsModal(parseInt(ccId));
+      alert("Administrator added successfully!");
+    } catch (error) {
+      console.error("Error adding admin:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error occurred";
+      alert("Error adding administrator: " + errorMessage);
     }
   });
 }

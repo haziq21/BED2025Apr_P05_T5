@@ -449,3 +449,56 @@
     gap: 0.5rem;
   }
 }
+
+/* Add Admin Section */
+.add-admin-section {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 2px solid #e9ecef;
+}
+
+.add-admin-section h3 {
+  margin: 0 0 1rem 0;
+  color: #495057;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.add-admin-section .form-group {
+  margin-bottom: 1rem;
+}
+
+.add-admin-section .form-actions {
+  margin-top: 1rem;
+  margin-bottom: 0;
+}
+
+.add-admin-section .form-actions button[type="submit"] {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.add-admin-section .form-actions button[type="submit"]:hover {
+  background-color: #0056b3;
+}
+
+.add-admin-section input[type="tel"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+.add-admin-section input[type="tel"]:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}

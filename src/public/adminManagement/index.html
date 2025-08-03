@@ -131,6 +131,28 @@
       <div class="modal">
         <h2>CC Administrators</h2>
         <div id="adminsList"></div>
+
+        <!-- Add Admin Section -->
+        <div class="add-admin-section">
+          <h3>Add New Administrator</h3>
+          <form id="addAdminForm">
+            <input type="hidden" id="addAdminCCId" />
+            <div class="form-group">
+              <label for="adminPhoneNumber">Phone Number:</label>
+              <input
+                type="tel"
+                id="adminPhoneNumber"
+                name="phoneNumber"
+                placeholder="Enter phone number (e.g., +65 12345678)"
+                required
+              />
+            </div>
+            <div class="form-actions">
+              <button type="submit">Add Admin</button>
+            </div>
+          </form>
+        </div>
+
         <div class="form-actions">
           <button type="button" onclick="closeAdminsModal()">Close</button>
         </div>

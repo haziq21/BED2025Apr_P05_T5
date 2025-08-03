@@ -221,19 +221,56 @@ export async function getAdmins(ccId) {
 }
 
 /**
- * Make a user an admin of a CC.
+ * Retrieve the admin of a CC by phone number, or `null` if not found.
+ * @param {number} ccId
+ * @param {string} phoneNumber
+ * @returns {Promise<{id: number, name: string, phoneNumber: string, bio: string, profilePhotoURL: string} | null>}
+ */
+export async function getAdminByPhoneNumber(ccId, phoneNumber) {
+  /** @type {sql.IResult<{UserId: number, Name: string, PhoneNumber: string, Bio: string, ProfilePhotoURL: string}>} */
+  const result = await pool
+    .request()
+    .input("ccId", ccId)
+    .input("phoneNumber", phoneNumber)
+    .query(
+      `SELECT u.UserId, u.Name, u.PhoneNumber, u.Bio, u.ProfilePhotoURL
+       FROM CCAdmins ca
+       JOIN Users u ON ca.UserId = u.UserId
+       WHERE ca.CCId = @ccId AND u.PhoneNumber = @phoneNumber`
+    );
+
+  if (result.recordset.length === 0) {
+    return null;
+  }
+
+  const admin = result.recordset[0];
+  return {
+    id: admin.UserId,
+    name: admin.Name,
+    phoneNumber: admin.PhoneNumber,
+    bio: admin.Bio,
+    profilePhotoURL: admin.ProfilePhotoURL,
+  };
+}
+
+/**
+ * Make a user an admin of a CC, returning `false` if
+ * the user was already an admin and `true` otherwise.
  * @param {number} ccId
  * @param {number} userId
+ * @return {Promise<boolean>}
  */
 export async function makeAdmin(ccId, userId) {
-  await pool
+  const result = await pool
     .request()
     .input("ccId", ccId)
     .input("userId", userId)
     .query(
-      `INSERT INTO CCAdmins (CCId, UserId)
-       VALUES (@ccId, @userId)`
+      `IF NOT EXISTS (SELECT 1 FROM CCAdmins WHERE UserId = @userId AND CCId = @ccId)
+      INSERT INTO CCAdmins (CCId, UserId)
+      VALUES (@ccId, @userId)`
     );
+  return result.rowsAffected[0] > 0;
 }
 
 /**

@@ -1,12 +1,19 @@
 /** @import { AuthenticatedRequestHandler } from "../types.js" */
 import * as model from "../models/cc.js";
+import * as userModel from "../models/user.js";
 
 /**
- * Create a CC from the JSON body.
+ * Create a CC from the JSON body, making the authenticated user an admin.
  * @type {AuthenticatedRequestHandler}
  */
 export async function createCC(req, res) {
+  if (!req.userId) {
+    res.status(401).send();
+    return;
+  }
+
   const createdCC = await model.createCC(req.body);
+  const adminSuccessful = await model.makeAdmin(createdCC.id, req.userId);
   res.status(201).json(createdCC);
 }
 
@@ -115,19 +122,34 @@ export async function getAdmins(req, res) {
 }
 
 /**
- * Make the specified user (`userId` path parameter) an admin of the CC (`id` path parameter).
+ * Make the specified user (`phoneNumber` path parameter) an admin of the CC (`id` path parameter).
  * @type {AuthenticatedRequestHandler}
  */
 export async function makeAdmin(req, res) {
   const ccId = +req.params.id;
-  const userId = +req.params.userId;
-  if (isNaN(ccId) || isNaN(userId)) {
-    res.status(400).json({ error: "Invalid CC ID or User ID" });
+  if (isNaN(ccId)) {
+    res.status(400).json({ error: "Invalid CC ID" });
     return;
   }
 
-  await model.makeAdmin(ccId, userId);
-  res.status(204).send();
+  if (!req.userId || !(await model.isAdmin(ccId, req.userId))) {
+    res.status(403).send();
+    return;
+  }
+
+  const phoneNumber = req.params.phoneNumber;
+  const user = await userModel.getUserByPhoneNumber(phoneNumber);
+  if (!user) {
+    res.status(404).json({ error: "User not found" });
+    return;
+  }
+
+  const adminUpdated = await model.makeAdmin(ccId, user.UserId);
+  if (!adminUpdated) {
+    res.status(409).json({ error: "User is already an admin" });
+    return;
+  }
+  res.status(200).json(user);
 }
 
 /**
