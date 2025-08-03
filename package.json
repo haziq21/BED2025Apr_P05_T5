@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "test": "mocha",
+    "test": "cross-env NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest --detectOpenHandles",
     "swagger": "node ./swagger.js"
   },
   "dependencies": {
@@ -14,6 +14,7 @@
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "googleapis": "^154.1.0",
+    "jest": "^30.0.5",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "moment-timezone": "^0.6.0",
@@ -25,8 +26,7 @@
     "twilio": "^5.8.0"
   },
   "devDependencies": {
-    "mocha": "^11.7.1",
-    "supertest": "^7.1.4",
+    "cross-env": "^10.0.0",
     "swagger-autogen": "^2.23.7"
   }
 }

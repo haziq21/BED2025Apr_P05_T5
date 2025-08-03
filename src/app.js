@@ -4,7 +4,7 @@ import { errorHandler } from "./middleware/error.js";
 import upload from "./middleware/upload.js";
 import * as auth from "./controllers/auth.js";
 import * as profile from "./controllers/profile.js";
-import * as cc from "./controllers/cc.js";
+import cc from "./controllers/cc.js";
 import * as friends from "./controllers/friends.js";
 import * as events from "./controllers/events.js";
 import { verifyJWT } from "./middleware/auth.js";
