@@ -89,7 +89,7 @@ async function saveChanges() {
   };
 
   try {
-    const res = await fetch(`${BASE_API_URL}/api/profile`, {
+    const res = await fetch(`/api/profile`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -138,7 +138,7 @@ uploadInput.addEventListener("change", async () => {
   const formData = new FormData();
   formData.append("image", file);
   try {
-    const res = await fetch(`${BASE_API_URL}/api/profile/upload`, {
+    const res = await fetch(`/api/profile/upload`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token3}`,
