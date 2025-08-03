@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kampung Connect - Community Centers</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Gelasio:ital,wght@0,400..700;1,400..700&family=Libre+Franklin:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../global.css" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <nav class="topnav">
+      <a href="/">Home</a>
+      <a href="/ccEvents" class="active">CC Events</a>
+      <a href="/Friends">Friends</a>
+      <a href="#Location">Location</a>
+      <a href="/medicationSchedule">Medication</a>
+      <a href="/profile">Profile</a>
+      <a href="/comment">Comments</a>
+      <a href="/calendar"> Calendar</a>
+    </nav>
+
+    <div class="header">
+      <h1>CC Events</h1>
+      <div class="actions">
+        <div class="cc-dropdown-section">
+          <label for="ccDropdown">Community Center:</label>
+          <div class="custom-dropdown" id="customDropdown">
+            <div class="dropdown-trigger" onclick="toggleDropdown()">
+              <span id="selectedCCText">Select a Community Center...</span>
+              <span class="dropdown-arrow">▼</span>
+            </div>
+            <div class="dropdown-content" id="dropdownContent">
+              <div class="dropdown-filters">
+                <div class="search-section">
+                  <input
+                    type="text"
+                    id="ccSearchInput"
+                    placeholder="Search community centers..."
+                    oninput="handleCCSearch()"
+                  />
+                </div>
+                <div class="sort-section">
+                  <select id="ccSortSelect" onchange="handleCCSort()">
+                    <option value="alphabetical">Sort Alphabetically</option>
+                    <option value="distance">Sort by Distance</option>
+                  </select>
+                </div>
+              </div>
+              <div class="dropdown-options" id="dropdownOptions">
+                <div class="dropdown-option loading-option">Loading...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="events-controls" id="eventsControls" style="display: none">
+        <div class="search-section">
+          <label for="eventSearchInput">Search Events:</label>
+          <input
+            type="text"
+            id="eventSearchInput"
+            placeholder="Search events..."
+            oninput="handleEventSearch()"
+          />
+        </div>
+        <div class="sort-section">
+          <label for="eventSortSelect">Sort by:</label>
+          <select id="eventSortSelect" onchange="handleEventSort()">
+            <option value="alphabetical">Alphabetical</option>
+            <option value="distance">Distance</option>
+          </select>
+        </div>
+      </div>
+      <div class="loading" id="loading" style="display: none">
+        Loading events...
+      </div>
+      <div class="error" id="error" style="display: none"></div>
+      <div class="events-list" id="eventsList">
+        <!-- Events will be populated by JavaScript -->
+      </div>
+    </div>
+
+    <script src="../global.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
