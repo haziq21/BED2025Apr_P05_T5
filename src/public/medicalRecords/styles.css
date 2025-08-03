@@ -2,6 +2,10 @@ h1 {
   text-align: center;
 }
 
+.highlight-text {
+  text-decoration: underline;
+}
+
 .container {
   display: flex;
   gap: 40px;

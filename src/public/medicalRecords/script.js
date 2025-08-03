@@ -2,10 +2,6 @@ const BASE_API_URL = "http://localhost:3000";
 const token6 = localStorage.getItem("token6");
 console.log(token6);
 
-if (!token6) {
-  console.error("No token found in localStorage");
-}
-
 /**
  * fetch APIs with token
  * @param {string} url
@@ -80,8 +76,11 @@ async function fetchMedicalRecords() {
         Authorization: `Bearer ${token6}`,
       },
     });
-    const data = await res.json();
-    medicalRecords = data;
+
+    const result = await res.json();
+    console.log("Fetched medical records:", result);
+
+    medicalRecords = Array.isArray(result) ? result : result.data;
     renderFileList(medicalRecords);
   } catch (err) {
     console.error("Error fetching medical records:", err);
