@@ -123,16 +123,14 @@ CREATE TABLE LocalServices (
 );
 
 CREATE TABLE UserLocations (
-  UserId INT NOT NULL REFERENCES Users,
+  UserId INT PRIMARY KEY REFERENCES Users,
   Time DATETIME DEFAULT GETDATE(),
-  Location GEOGRAPHY,
-  PRIMARY KEY (UserId, Time)
+  Location GEOGRAPHY
 );
 
 CREATE TABLE SharedLocations (
   ViewingUserId INT NOT NULL REFERENCES Users,
   LocatedUserId INT NOT NULL REFERENCES Users,
-  RequestAccepted BIT NOT NULL,
   PRIMARY KEY (ViewingUserId, LocatedUserId)
 );
 
@@ -385,22 +383,22 @@ INSERT INTO UserLocations (UserId,Location) VALUES
 ((SELECT UserId FROM Users WHERE Name = 'Shawn Tan'), geography::Point(1.3831, 103.7441, 4326)),
 ((SELECT UserId FROM Users WHERE Name = 'Vanessa Lee'), geography::Point(1.2942, 103.9056, 4326));
 
-INSERT INTO SharedLocations (ViewingUserId, LocatedUserId, RequestAccepted) VALUES
-((SELECT UserId FROM Users WHERE Name = 'Lim Wei Leong'), (SELECT UserId FROM Users WHERE Name = 'Tan Mei Ling'), 1),
-((SELECT UserId FROM Users WHERE Name = 'Vanessa Lee'), (SELECT UserId FROM Users WHERE Name = 'Goh Eng Chuan'), 0),
-((SELECT UserId FROM Users WHERE Name = 'Tan Mei Ling'), (SELECT UserId FROM Users WHERE Name = 'Siti Nurul Huda'), 1),
-((SELECT UserId FROM Users WHERE Name = 'Goh Eng Chuan'), (SELECT UserId FROM Users WHERE Name = 'Deepak Kumar'), 1),
-((SELECT UserId FROM Users WHERE Name = 'Siti Nurul Huda'), (SELECT UserId FROM Users WHERE Name = 'Chua Kim Seng'), 0),
-((SELECT UserId FROM Users WHERE Name = 'Deepak Kumar'), (SELECT UserId FROM Users WHERE Name = 'Fiona Tan'), 1),
-((SELECT UserId FROM Users WHERE Name = 'Chua Kim Seng'), (SELECT UserId FROM Users WHERE Name = 'Marcus Lim'), 1),
-((SELECT UserId FROM Users WHERE Name = 'Fiona Tan'), (SELECT UserId FROM Users WHERE Name = 'Nurul Aishah'), 0),
-((SELECT UserId FROM Users WHERE Name = 'Marcus Lim'), (SELECT UserId FROM Users WHERE Name = 'Rajesh Suppiah'), 1),
-((SELECT UserId FROM Users WHERE Name = 'Nurul Aishah'), (SELECT UserId FROM Users WHERE Name = 'Kelly Ong'), 1),
-((SELECT UserId FROM Users WHERE Name = 'Rajesh Suppiah'), (SELECT UserId FROM Users WHERE Name = 'Zainal Bin Ahmad'), 0),
-((SELECT UserId FROM Users WHERE Name = 'Kelly Ong'), (SELECT UserId FROM Users WHERE Name = 'Priya Sharma'), 1),
-((SELECT UserId FROM Users WHERE Name = 'Zainal Bin Ahmad'), (SELECT UserId FROM Users WHERE Name = 'Shawn Tan'), 1),
-((SELECT UserId FROM Users WHERE Name = 'Priya Sharma'), (SELECT UserId FROM Users WHERE Name = 'Vanessa Lee'), 0),
-((SELECT UserId FROM Users WHERE Name = 'Shawn Tan'), (SELECT UserId FROM Users WHERE Name = 'Lim Wei Leong'), 1);
+INSERT INTO SharedLocations (ViewingUserId, LocatedUserId) VALUES
+((SELECT UserId FROM Users WHERE Name = 'Lim Wei Leong'), (SELECT UserId FROM Users WHERE Name = 'Tan Mei Ling')),
+((SELECT UserId FROM Users WHERE Name = 'Vanessa Lee'), (SELECT UserId FROM Users WHERE Name = 'Goh Eng Chuan')),
+((SELECT UserId FROM Users WHERE Name = 'Tan Mei Ling'), (SELECT UserId FROM Users WHERE Name = 'Siti Nurul Huda')),
+((SELECT UserId FROM Users WHERE Name = 'Goh Eng Chuan'), (SELECT UserId FROM Users WHERE Name = 'Deepak Kumar')),
+((SELECT UserId FROM Users WHERE Name = 'Siti Nurul Huda'), (SELECT UserId FROM Users WHERE Name = 'Chua Kim Seng')),
+((SELECT UserId FROM Users WHERE Name = 'Deepak Kumar'), (SELECT UserId FROM Users WHERE Name = 'Fiona Tan')),
+((SELECT UserId FROM Users WHERE Name = 'Chua Kim Seng'), (SELECT UserId FROM Users WHERE Name = 'Marcus Lim')),
+((SELECT UserId FROM Users WHERE Name = 'Fiona Tan'), (SELECT UserId FROM Users WHERE Name = 'Nurul Aishah')),
+((SELECT UserId FROM Users WHERE Name = 'Marcus Lim'), (SELECT UserId FROM Users WHERE Name = 'Rajesh Suppiah')),
+((SELECT UserId FROM Users WHERE Name = 'Nurul Aishah'), (SELECT UserId FROM Users WHERE Name = 'Kelly Ong')),
+((SELECT UserId FROM Users WHERE Name = 'Rajesh Suppiah'), (SELECT UserId FROM Users WHERE Name = 'Zainal Bin Ahmad')),
+((SELECT UserId FROM Users WHERE Name = 'Kelly Ong'), (SELECT UserId FROM Users WHERE Name = 'Priya Sharma')),
+((SELECT UserId FROM Users WHERE Name = 'Zainal Bin Ahmad'), (SELECT UserId FROM Users WHERE Name = 'Shawn Tan')),
+((SELECT UserId FROM Users WHERE Name = 'Priya Sharma'), (SELECT UserId FROM Users WHERE Name = 'Vanessa Lee')),
+((SELECT UserId FROM Users WHERE Name = 'Shawn Tan'), (SELECT UserId FROM Users WHERE Name = 'Lim Wei Leong'));
 
 INSERT INTO Comment (UserId, Comment, AnalysisStatus) VALUES
 ((SELECT UserId FROM Users WHERE Name = 'Lim Wei Leong'), 'Shiok! The Kampung Connect Bazaar was awesome!', 'false'),

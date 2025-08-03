@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Location - Kampung Connect</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Gelasio:ital,wght@0,400..700;1,400..700&family=Libre+Franklin:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../global.css" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- Nav Bar -->
+    <nav class="topnav">
+      <a href="/">Home</a>
+      <a href="/ccEvents">CC Events</a>
+      <a href="/Friends">Friends</a>
+      <a href="/map" class="active">Map</a>
+      <a href="/medicationSchedule">Medical</a>
+      <a href="/comment">Comments</a>
+      <a href="/calendar">Calendar</a>
+      <a href="/profile">Profile</a>
+      <a href="/adminManagement">Admin Management</a>
+    </nav>
+
+    <div class="location-heading">
+      <h1>Map</h1>
+    </div>
+
+    <div class="location-container">
+      <div class="map-wrapper">
+        <div id="map"></div>
+        <div class="map-controls">
+          <label class="checkbox-container">
+            <input type="checkbox" id="toggleServices" checked />
+            <span class="checkmark"></span>
+            Show Local Services
+          </label>
+          <label class="checkbox-container">
+            <input type="checkbox" id="toggleSharedLocations" checked />
+            <span class="checkmark"></span>
+            Show Shared Locations
+          </label>
+        </div>
+      </div>
+
+      <div class="viewers-sidebar">
+        <h3>Location Access</h3>
+
+        <!-- Share Location Form -->
+        <div class="share-location-section">
+          <h4>Share Your Location</h4>
+          <div class="share-form">
+            <input
+              type="tel"
+              id="phoneNumber"
+              placeholder="Enter phone number"
+              class="phone-input"
+            />
+            <button id="shareBtn" class="share-btn" onclick="shareLocation()">
+              Share
+            </button>
+          </div>
+        </div>
+
+        <!-- Current Viewers List -->
+        <div class="viewers-section">
+          <p class="sidebar-description">Users who can see your location:</p>
+          <div id="viewersList" class="viewers-list">
+            <div class="loading">Loading...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- prettier-ignore -->
+    <script>
+  (g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})({
+    key: "AIzaSyAoz4ky7EkvuqFzeZCbRHmZXJE-JAmMLOQ",
+    v: "weekly",
+    // Use the 'v' parameter to indicate the version to use (weekly, beta, alpha, etc.).
+    // Add other bootstrap parameters as needed, using camel case.
+  });
+</script>
+    <script src="script.js"></script>
+  </body>
+</html>
