@@ -1,3 +1,5 @@
+let isdeleting = false; // Flag to prevent multiple deletions
+
 /**
  * Get JWT token from localStorage
  * @returns {string | null} The JWT token or null if not found
@@ -898,9 +900,12 @@ async function updateEvent() {
     return;
   }
   console.log("Updating event:", selectedEventForAdmin);
-  openUpdateEventModal(selectedEventForAdmin); // Open the modal with pre-filled data}
+  openUpdateEventModal(selectedEventForAdmin); // Open the modal with pre-filled data
 }
 async function deleteEvent() {
+  if (isdeleting) {
+    return;
+  }
   if (!selectedEventForAdmin) {
     alert("Please select an event to delete.");
     return;
@@ -915,6 +920,7 @@ async function deleteEvent() {
   }
 
   try {
+    isdeleting = true; // Set flag to prevent multiple deletions
     // Make the DELETE API call
     await apiCall(`/api/events/${selectedEventForAdmin.eventId}`, {
       method: "DELETE",
@@ -936,6 +942,8 @@ async function deleteEvent() {
   } catch (error) {
     console.error("Error deleting event:", error);
     alert("Failed to delete event: " + error.message);
+  } finally {
+    isdeleting = false; // Reset the flag after deletion attempt
   }
 }
 

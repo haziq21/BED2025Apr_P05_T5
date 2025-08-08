@@ -6,6 +6,7 @@ const CREDENTIALS_PATH =
   process.env.GOOGLE_OAUTH2_KEYFILE || "./keyfiles/google-oauth2.json";
 const SCOPES = [
   "https://www.googleapis.com/auth/calendar",
+
   "https://www.googleapis.com/auth/gmail.send",
 ];
 

@@ -142,6 +142,7 @@ export async function createEvent(
        OUTPUT INSERTED.EventId
        VALUES (@CCId, @name, @description, @location, @StartDateTime, @EndDateTime)`
     );
+  console.log(result.recordset[0].EventId);
   return result.recordset[0].EventId; // Return the ID of the newly created event
 }
 
@@ -186,7 +187,7 @@ export async function deleteEvent(eventId) {
   const result = await pool.request().input("eventId", eventId)
     .query(`DELETE FROM CCEventRegistrations WHERE EventId = @eventId;
 DELETE FROM CCEvents WHERE EventId = @eventId;`);
-  return result.rowsAffected[0] > 0; // Return true if the deletion was successful
+  return result.rowsAffected[1] > 0; // Return true if the deletion was successful
 }
 
 /**Get all registrations for an event

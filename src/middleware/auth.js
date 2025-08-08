@@ -52,7 +52,6 @@ export function validateUser(req, res, next) {
 
  */
 export function verifyJWT(req, res, next) {
-
   const secretKey = process.env.JWT_SECRET;
   if (!secretKey) {
     res.status(500).json({ message: "JWT secret key is not configured" });
@@ -76,7 +75,7 @@ export function verifyJWT(req, res, next) {
       res.status(403).json({ message: "Invalid or expired token" });
       return;
     }
-    req.userId = (/** @type {jwt.JwtPayload} */ (decoded)).userId; // Attach userId to request object
+    req.userId = /** @type {jwt.JwtPayload} */ (decoded).userId; // Attach userId to request object
     next();
   });
 }
