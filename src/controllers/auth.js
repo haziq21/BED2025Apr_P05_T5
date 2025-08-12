@@ -32,19 +32,19 @@ export async function sendOTP(req, res) {
       res.status(404).json({ message: "User not found" });
       return;
     }
-    const otp = Math.floor(100000 + Math.random() * 900000).toString(); 
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
     await model.saveOTP(user.UserId, otp, expiresAt);
 
-    if (process.env.MOCK_TWILIO_SMS === 'true') {
+    if (process.env.MOCK_TWILIO_SMS === "false") {
       console.log(`MOCK OTP for ${formattedPhone}: ${otp}`);
     } else {
-    await twilioClient.messages.create({
-      body: `Your OTP is ${otp}`,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      to: formattedPhone,
-    });
+      await twilioClient.messages.create({
+        body: `Your OTP is ${otp}`,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        to: formattedPhone,
+      });
     }
     res.status(200).json({ message: "OTP sent successfully" });
   } catch (error) {
