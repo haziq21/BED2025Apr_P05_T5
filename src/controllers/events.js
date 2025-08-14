@@ -86,11 +86,9 @@ export async function registerForEvent(req, res) {
     if (typeof googleEventId === "string") {
       await model.saveGoogleCalendarEventId(userId, eventId, googleEventId);
       // console.log(`Event added to Google Calendar with ID: ${googleEventId}`);
-      res
-        .status(200)
-        .json({
-          message: "Registered and added to internal and google calendar.",
-        });
+      res.status(200).json({
+        message: "Registered and added to internal and google calendar.",
+      });
     } else {
       throw new Error("Failed to create Google Calendar event ID.");
     }
