@@ -103,11 +103,13 @@ export async function reviewApplication(ProposalId, Status) {
     const result = await request.query(`
       UPDATE InterestGroupProposals
       SET Status = @Status
+      OUTPUT INSERTED.*
       WHERE ProposalId = @ProposalId
       `);
 
-    const updatedApp = await getApplicationById(ProposalId);
-    return updatedApp.recordset[0];
+    // const updatedApp = await getApplicationById(ProposalId);
+    // return updatedApp.recordset[0];
+    return result.recordset[0];
   } catch (error) {
     console.error("Database error:", error);
     throw error;

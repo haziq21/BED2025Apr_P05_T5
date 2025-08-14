@@ -36,20 +36,62 @@ export async function getPendingApplicationsByCC(req, res, next) {
   }
 }
 
+// /**
+//  * Accept or reject an application
+//  * @param {AuthenticatedRequest} req
+//  * @param {import("express").Response} res
+//  * @type {import("express").RequestHandler}
+//  */
+
+// export async function reviewApplication(req, res, next) {
+//   try {
+//     const proposalId = parseInt(req.params.ProposalId);
+//     const status = req.body.Status; // will either be "accepted" or "rejected"
+
+//     if (isNaN(proposalId)) {
+//       res.status(400).json({ error: "Invalid Proposal ID" });
+//       return;
+//     }
+
+//     // 1. Update status + fetch application data
+//     const application = await model.reviewApplication(proposalId, status);
+//     if (!application) {
+//       res.status(500).json({ error: "Failed to update application." });
+//       return;
+//     }
+
+//     await sendApprovalEmail(
+//       application.Email,
+//       application.Title,
+//       status === "accepted" // boolean
+//     );
+
+//     res.status(200).json({ success: true });
+//   } catch (error) {
+//     next(error);
+//   }
+// }
+
 /**
  * Accept or reject an application
  * @param {AuthenticatedRequest} req
  * @param {import("express").Response} res
  * @type {import("express").RequestHandler}
  */
-
 export async function reviewApplication(req, res, next) {
   try {
     const proposalId = parseInt(req.params.ProposalId);
-    const status = req.body.Status; // will either be "accepted" or "rejected"
+    const status = req.body.Status?.toLowerCase(); // "accepted" or "rejected"
 
     if (isNaN(proposalId)) {
       res.status(400).json({ error: "Invalid Proposal ID" });
+      return;
+    }
+
+    if (status !== "accepted" && status !== "rejected") {
+      res
+        .status(400)
+        .json({ error: "Status must be 'accepted' or 'rejected'" });
       return;
     }
 
@@ -60,14 +102,17 @@ export async function reviewApplication(req, res, next) {
       return;
     }
 
+    // 2. Send email
+    // const isApproved = status === "accepted";
     await sendApprovalEmail(
       application.Email,
       application.Title,
-      status === "accepted" // boolean
+      application.Status
     );
 
     res.status(200).json({ success: true });
   } catch (error) {
+    console.error(error);
     next(error);
   }
 }
