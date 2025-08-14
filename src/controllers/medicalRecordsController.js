@@ -10,23 +10,43 @@ import fs from "fs";
  */
 
 export async function uploadFile(req, res) {
+  let fileName;
   try {
-    // const UserId = parseInt(req.params.UserId);
     const userId = req.userId;
-    if (isNaN(userId)) {
-      res.status(400).json({ error: "Invalid user ID" });
+    if (!req.file) {
+      res.status(400).json({ error: "No file uploaded" });
       return;
     }
+    try {
+      const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${
+        req.file.filename
+      }`;
 
-    const file = await model.uploadFile(userId, req.body);
+      const updated = await model.uploadFile(userId, {
+        originalName: req.file.originalname,
+        fileName: req.file.filename,
+        mimeType: req.file.mimetype,
+        filePath: fileUrl,
+      });
 
-    if (!file) {
-      res.status(404).json({ error: "File upload failed" });
-      return;
+      if (!updated) {
+        res.status(404).json({ error: "User not found" });
+        return;
+      }
+      res.status(200).json({ filePath: fileUrl });
+    } catch (error) {
+      console.error("Error uploading profile picture:", error);
+      res.status(500).json({ error: "Internal server error" });
     }
-
-    res.status(200).json(file);
-  } catch {}
+  } finally {
+    if (fileName) {
+      console.log(`Uploaded ${fileName} at ${new Date().toISOString()}`);
+    } else {
+      console.log(
+        `Upload for ${fileName} failed at ${new Date().toISOString()}`
+      );
+    }
+  }
 }
 
 /**
@@ -101,9 +121,8 @@ export async function updateFileName(req, res) {
   try {
     const file = await model.updateFileName(MedicalRecordId, {
       // @ts-ignore
-      userId,
+      UserId: userId,
       fileName: req.body.fileName,
-      originalName: req.body.originalName,
     });
 
     if (!file) {
@@ -113,5 +132,3 @@ export async function updateFileName(req, res) {
     res.status(200).json(file);
   } catch (err) {}
 }
-
- 

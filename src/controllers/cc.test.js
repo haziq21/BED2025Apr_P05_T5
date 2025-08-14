@@ -1,3 +1,4 @@
+// @ts-ignore
 import { jest, it, expect, beforeAll, describe } from "@jest/globals";
 import controller from "./cc.js";
 import model from "../models/cc.js";

@@ -110,7 +110,7 @@ export async function sendApprovalEmail(req, res) {
 
     // 3. Send email (using existing gmailService)
     await gmailService.sendApprovalEmail(
-      application.recordset[0].UserEmail, // Adjust field names as needed
+      application.recordset[0].Email,
       application.recordset[0].Title,
       Status === "approved"
     );

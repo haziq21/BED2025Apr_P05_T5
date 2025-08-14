@@ -37,7 +37,7 @@ export async function sendOTP(req, res) {
 
     await model.saveOTP(user.UserId, otp, expiresAt);
 
-    if (process.env.MOCK_TWILIO_SMS === "false") {
+    if (process.env.MOCK_TWILIO_SMS === "true") {
       console.log(`MOCK OTP for ${formattedPhone}: ${otp}`);
     } else {
       await twilioClient.messages.create({

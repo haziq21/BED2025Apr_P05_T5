@@ -98,15 +98,15 @@ export async function updateApplication(ProposalId, details) {
     const result = await request.query(`
     UPDATE InterestGroupProposals
     SET
-        Title = ISNULL(@Title, Title),
-        Description = ISNULL(@Description, Description),
-        Email = ISNULL(@Email, Email),
-        Scope = ISNULL(@Scope, Scope),
-        MeetingFrequency = ISNULL(@MeetingFrequency, MeetingFrequency),
-        BudgetEstimateStart = ISNULL(@BudgetEstimateStart, BudgetEstimateStart),
-        BudgetEstimateEnd = ISNULL(@BudgetEstimateEnd, BudgetEstimateEnd),
-        AccessibilityConsideration = ISNULL(@AccessibilityConsideration, AccessibilityConsideration),
-        HealthSafetyPrecaution = ISNULL(@HealthSafetyPrecaution, HealthSafetyPrecaution),
+        Title = CASE WHEN @Title IS NULL THEN Title ELSE @Title END,
+        Description = CASE WHEN @Description IS NULL THEN Description ELSE @Description END,
+        Email = CASE WHEN @Email IS NULL THEN Email ELSE @Email END,
+        Scope = CASE WHEN @Scope IS NULL THEN Scope ELSE @Scope END,
+        MeetingFrequency = CASE WHEN @MeetingFrequency IS NULL THEN MeetingFrequency ELSE @MeetingFrequency END,
+        BudgetEstimateStart = CASE WHEN @BudgetEstimateStart IS NULL THEN BudgetEstimateStart ELSE @BudgetEstimateStart END,
+        BudgetEstimateEnd = CASE WHEN @BudgetEstimateEnd IS NULL THEN BudgetEstimateEnd ELSE @BudgetEstimateEnd END,
+        AccessibilityConsideration = CASE WHEN @AccessibilityConsideration IS NULL THEN AccessibilityConsideration ELSE @AccessibilityConsideration END,
+        HealthSafetyPrecaution = CASE WHEN @HealthSafetyPrecaution IS NULL THEN HealthSafetyPrecaution ELSE @HealthSafetyPrecaution END,
         UpdatedAt = GETDATE()
     WHERE ProposalId = @ProposalId
       `);

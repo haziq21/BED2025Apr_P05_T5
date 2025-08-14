@@ -102,7 +102,7 @@ export async function reviewApplication(ProposalId, Status) {
 
     const result = await request.query(`
       UPDATE InterestGroupProposals
-      SET Status = @Status,
+      SET Status = @Status
       WHERE ProposalId = @ProposalId
       `);
 

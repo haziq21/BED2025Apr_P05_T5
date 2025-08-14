@@ -5,7 +5,7 @@ import pool from "../db.js";
 /**
  * Upload a file with its complete information
  * @param {number} UserId
- * @param {{originalName: string, fileName: string, mimeType: string, filePath: string}} file
+ * @param {{originalName: string, fileName: string, mimeType: string, filePath?: string}} file
  */
 
 export async function uploadFile(UserId, file) {
@@ -96,7 +96,7 @@ export async function deleteFile(MedicalRecordId, UserId) {
 /**
  * Update the name of a file by its ID
  * @param {number} MedicalRecordId
- * @param {{UserId: number, originalName: string, fileName: string}} file
+ * @param {{UserId: number, fileName: string}} file
  */
 
 export async function updateFileName(MedicalRecordId, file) {

@@ -72,10 +72,15 @@ app.post("/api/cc/:id/admins/:phoneNumber", verifyJWT, cc.makeAdmin);
 app.delete("/api/cc/:id/admins/:userId", verifyJWT, cc.removeAdmin);
 
 // Medical Record Management
-app.post("/api/medicalRecords", verifyJWT, medicalRecordsController.uploadFile);
+app.post(
+  "/api/medicalRecords/upload",
+  verifyJWT,
+  upload.single("file"),
+  medicalRecordsController.uploadFile
+);
 app.get("/api/medicalRecords", verifyJWT, medicalRecordsController.getFiles);
 app.delete(
-  "/api/medicalRecords:MedicalRecordId",
+  "/api/medicalRecords/:MedicalRecordId",
   verifyJWT,
   medicalRecordsController.deleteFile
 );
